@@ -1,0 +1,99 @@
+{% extends "govuk/template.njk" %}
+
+{% set assetPath = '/assets' %}
+
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tabs/macro.njk" import govukTabs %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/select/macro.njk" import govukSelect %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+{% from "govuk/components/password-input/macro.njk" import govukPasswordInput %}
+{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% block headIcons %}{% endblock %}
+
+{% block head %}
+  <link href="{{ assetPath }}/font-override.css" rel="stylesheet">
+  <link href="{{ assetPath }}/govuk-frontend.min.css" rel="stylesheet">
+  <style>
+    header a.govuk-header__link, footer > .govuk-width-container, .display-none {
+      display: none !important;
+    }
+    .justify-self-center {
+      justify-self: center;
+    }
+    .govuk-warning-text__icon {
+      align-self: anchor-center;
+    }
+    .force-multiline {
+      white-space: pre-line;
+    }
+  </style>
+{% endblock %}
+
+{% block pageTitle %}
+  Gov Prototype by Prompt
+{% endblock %}
+
+{% block header %}
+  {{ govukHeader({
+    classes: "govuk-header--full-width-border",
+    attributes: {
+      title: "header"
+    }
+  }) }}
+  {% set navigation = [] %}
+  {% if user is defined %}
+    {% set navigation = navigation.concat([
+      {
+        text: "Create a prototype",
+        href: "/create",
+        active: req.originalUrl == "/create"
+      },
+      {
+        text: "Prototypes",
+        href: "/history",
+        active: ("/history" in req.originalUrl) or ("/prototype/" in req.originalUrl)
+      },
+      {
+        text: "Workspaces",
+        href: "/user/workspace",
+        active: "/workspace" in req.originalUrl
+      },
+      {
+        text: "Help",
+        href: "/help",
+        active: "/help/" in req.originalUrl
+      },
+      {
+        text: "Log out",
+        href: "/user/log-out"
+      }
+    ]) %}
+  {% endif %}
+  {{ govukServiceNavigation({
+    serviceName: "Gov Prototype by Prompt",
+    serviceUrl: "" if insideIframe else "/",
+    navigation: navigation
+  }) }}
+{% endblock %}
+
+{% block bodyEnd %}
+  <script type="module" src="{{ assetPath }}/govuk-frontend.min.js"></script>
+  <script type="module">
+    import { initAll } from '{{ assetPath }}/govuk-frontend.min.js'
+    initAll()
+  </script>
+{% endblock %}

@@ -1,0 +1,142 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "explanation",
+        "title",
+        "description",
+        "duration",
+        "before_you_start",
+        "what_happens_next",
+        "form_type",
+        "questions"
+    ],
+    "properties": {
+        "explanation": {
+            "type": "string",
+            "description": "An explanation of why you as the LLM have generated the form in this way. Include any assumptions you have made and data you have generated that was not provided in the user prompt. This must be specific and concise, and not state the obvious nor duplicate any information already provided elsewhere. If the user is asking for an existing form to be updated, only explain the changes that have been made. Refer to yourself in the first person, the user creating the prompt in the second person, and the user filling out the form in the third person. For example, 'I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.' or 'I have added a multiple choice question to allow the user to select their preferred contact methods.'"
+        },
+        "changes_made": {
+            "type": "string",
+            "description": "A brief one-line summary of the changes that you as the LLM have made to the form. This should be concise and specific up to 80 characters long with no full stop, such as 'Removed email address question' or 'Added a question about preferred contact method'"
+        },
+        "suggestions": {
+            "type": "array",
+            "description": "List possible suggestions to change the form. Each suggestion must be unique and a specific and direct instruction. Suggestions must be to add, update, or remove a question. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'",
+            "items": {
+                "type": "string",
+                "minItems": 3,
+                "maxItems": 3,
+                "description": "A single suggestion for improving the form. This must be very concise, direct, and specific."
+            }
+        },
+        "title": {
+            "type": "string",
+            "description": "The title of the form in plain text. This is displayed at the top of the form. This must concisely describe the purpose of the form and be in sentence case with no full stop. An example is 'Register to vote' or 'Apply for a driving licence'."
+        },
+        "description": {
+            "type": "string",
+            "description": "A description of the form in plain text, with no formatting except for line breaks. This is displayed below the title and provides additional context or instructions for filling out the form."
+        },
+        "duration": {
+            "type": "integer",
+            "description": "How long it typically takes to complete the form in minutes."
+        },
+        "before_you_start": {
+            "type": "string",
+            "description": "A description of what the user should know or do before starting the form. This should be in plain text and provide clear instructions or information about eligibility or prerequisites. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
+        },
+        "what_happens_next": {
+            "type": "string",
+            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This should be in clear plain text. An example is 'We've sent your submission to Hackney Electoral Register Office. They will contact you either to confirm your registration, or to ask for more information.'"
+        },
+        "form_type": {
+            "type": "string",
+            "description": "The type of form being generated. This is used to determine the context and purpose of the form. An example is 'registration' or 'application'. The word must make sense when prefixed before the word 'complete' once the user has completed the form."
+        },
+        "questions": {
+            "type": "array",
+            "description": "An array of the form questions. A question typically consists of a question title, some optional hint text and one or more form fields.",
+            "items": {
+                "type": "object",
+                "required": [
+                    "question_text",
+                    "hint_text",
+                    "required",
+                    "required_error_text",
+                    "answer_type",
+                    "options",
+                    "date_of_birth_minimum_age",
+                    "date_of_birth_maximum_age"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                    "question_text": {
+                        "type": "string",
+                        "description": "The title of the question. If the question is not required, add '(optional)' to the end of the question title. For example, 'What is your name?' or 'What is your date of birth?'. This must be a proper sentence with a question mark at the end."
+                    },
+                    "hint_text": {
+                        "type": ["string", "null"],
+                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional."
+                    },
+                    "required": {
+                        "type": "boolean",
+                        "description": "Whether the question is required to be answered. If true, the user must provide an answer before submitting the form and the question must not be marked as optional in the question_text. If false, the user can leave the question blank and it is considered optional."
+                    },
+                    "required_error_text": {
+                        "type": ["string", "null"],
+                        "description": "The error message to display if the user does not provide an answer to a required question. The message must be in plain English and get to the point. An example of an error message is 'Enter how many hours you work a week'. Leave as null if the question is not required."
+                    },
+                    "answer_type": {
+                        "type": "string",
+                        "description": "The type of answer required, based on what the question is asking. Possible values: 'address' (A postal address), 'bank_details' (A person's bank details), 'country' (Select a country), 'date' (A calendar date, entered as a day, month, and year), 'date_of_birth' (A person's date of birth, entered as a day, month, and year), 'email' (An email address), 'emergency_contact_details' (Name and contact details for someone to contact in an emergency), 'file_upload' (A single file upload, such as a document or image), 'gbp_currency_amount' (A monetary amount in GBP), 'multiple_choice' (Multiple choices from a list of options), 'name' (A person's name), 'national_insurance_number' (A UK National Insurance number), 'nationality' (Select a nationality), 'passport_information' (A person's passport details), 'phone_number' (A UK phone number), 'single_choice' (A single choice from a list of options), 'tax_code' (A UK tax code), 'text' (A short free-text answer), 'text_area' (A longer free-text answer, multiple sentences), 'vat_registration_number' (A UK VAT registration number).",
+                        "enum": [
+                            "address",
+                            "bank_details",
+                            "country",
+                            "date",
+                            "date_of_birth",
+                            "email",
+                            "emergency_contact_details",
+                            "file_upload",
+                            "gbp_currency_amount",
+                            "multiple_choice",
+                            "name",
+                            "national_insurance_number",
+                            "nationality",
+                            "passport_information",
+                            "phone_number",
+                            "single_choice",
+                            "tax_code",
+                            "text",
+                            "text_area",
+                            "vat_registration_number"
+                        ]
+                    },
+                    "options": {
+                        "type": ["array", "null"],
+                        "description": "If the answer_type is single_choice or multiple_choice, list the unique options here. Otherwise, leave as null.",
+                        "items": {
+                            "type": "string",
+                            "minItems": 2,
+                            "description": "Option text displayed to the user and submitted with the form."
+                        }
+                    },
+                    "date_of_birth_minimum_age": {
+                        "type": ["integer", "null"],
+                        "multipleOf": 1,
+                        "minimum": 0,
+                        "description": "If the answer_type is date_of_birth, this is the minimum age in years. Leave this null if there is no minimum age requirement or if the answer_type is not date_of_birth."
+                    },
+                    "date_of_birth_maximum_age": {
+                        "type": ["integer", "null"],
+                        "multipleOf": 1,
+                        "minimum": 0,
+                        "description": "If the answer_type is date_of_birth, this is the maximum age in years. Leave this blank if there is no maximum age requirement or if the answer_type is not date_of_birth."
+                    }
+                }
+            }
+        }
+    }
+}

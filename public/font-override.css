@@ -1,0 +1,4 @@
+/* Do not use GDS Transport font in the application */
+*:not(#editor *):not(#editor) {
+    font-family: Arial, sans-serif !important;
+}

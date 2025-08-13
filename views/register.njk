@@ -1,0 +1,198 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  Create an account – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h1 class="govuk-heading-l">Create an account</h1>
+      {% set successHtml %}
+        <h3 class="govuk-notification-banner__heading">
+          Account created successfully
+        </h3>
+        <p class="govuk-body">You can now <a class="govuk-notification-banner__link" href="/user/sign-in">sign in to your account</a>.</p>
+      {% endset %}
+
+      {{ govukNotificationBanner({
+        html: successHtml,
+        type: "success",
+        classes: "success-banner display-none"
+      }) }}
+      <p class="govuk-body">Create an account to start creating prototypes.</p>
+      <p class="govuk-body">If you already have an account, you can <a href="/user/sign-in">sign in</a>.</p>
+      <form id="registerForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        {{ govukInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Name"
+          },
+          name: "name",
+          id: "name",
+          spellcheck: false,
+          autocomplete: "name"
+        }) }}
+        {{ govukInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Email address"
+          },
+          name: "email",
+          id: "email",
+          spellcheck: false,
+          type: "email",
+          autocomplete: "email"
+        }) }}
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Create a password"
+          },
+          name: "password1",
+          id: "password1",
+          autocomplete: "new-password"
+        }) }}
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Confirm password"
+          },
+          name: "password2",
+          id: "password2",
+          autocomplete: "new-password"
+        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'registerButton',
+            text: "Create account",
+            type: "submit",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      </form>
+    </div>
+    <div class="govuk-grid-column-one-half">
+      {{ govukErrorSummary({
+        classes: "govuk-!-margin-bottom-7 display-none",
+        titleText: "There was a problem",
+        descriptionHtml: "Check the form below."
+      }) }}
+      <p class="govuk-body">This tool lets you rapidly create prototype forms from a simple description using Generative AI.</p>
+      <p class="govuk-body">The generated prototypes use <a class="govuk-link" href="https://design-system.service.gov.uk/" target="_blank">GOV.UK Design System</a> components and best practices.</p>
+      <p class="govuk-body">You can test prototypes live, share them with others, and download them to run them locally. You can also edit prototypes to make iterative improvements.</p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  {{ super() }}
+  <script>
+    // Reload the page if the user navigates back
+    // This makes sure the submit button is re-enabled
+    window.addEventListener("pageshow", function(event) {
+      const historyTraversal = event.persisted || 
+                            (typeof window.performance != "undefined" && 
+                            window.performance.navigation.type === 2);
+      if (historyTraversal) {
+        window.location.reload();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+
+      const registerForm = document.getElementById('registerForm');
+      const formInputs = registerForm.querySelectorAll('input, select');
+      const registerButton = document.getElementById('registerButton');
+      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+      const successBanner = document.querySelector('.success-banner');
+
+      // Add a hidden error element to the form inputs
+      for (const input of formInputs) {
+        const errorElement = document.createElement('p');
+        errorElement.id = `${input.id}ErrorMessage`;
+        errorElement.className = 'govuk-error-message';
+        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
+        errorElement.style.display = 'none';
+        if (input.classList.contains('govuk-password-input__input')) {
+          input.parentNode.parentNode.insertBefore(
+            errorElement,
+            input.parentNode
+          );
+        } else {
+          input.parentNode.insertBefore(
+            errorElement,
+            input
+          );
+        }
+      }
+
+      // Handle async form submission
+      registerForm.addEventListener('submit', async function(event) {
+
+        // Prevent the default form submission
+        event.preventDefault();
+
+        // Show processing state
+        registerButton.disabled = true;
+        registerButton.textContent = 'Processing...';
+        
+        // Request to create the account
+        const data = new URLSearchParams();
+        for (const pair of new FormData(registerForm)) {
+            data.append(pair[0], pair[1]);
+        }
+        fetch('/user/register', {
+          method: 'POST',
+          body: data,
+          credentials: 'include'
+        }).then(async response => {
+          const responseJson = await response.json();
+
+          // Reset the form state
+          registerButton.disabled = false;
+          registerButton.textContent = 'Create account';
+          formInputs.forEach((input) => {
+            input.classList.remove('govuk-input--error');
+          });
+          document.querySelectorAll('.govuk-error-message').forEach((el) => {
+            el.style.display = 'none'; 
+            el.parentNode.classList.remove('govuk-form-group--error')
+          });
+          errorSummary.classList.add('display-none');
+
+          // If response is OK, tell the user the account was created successfully
+          if (response.ok) {
+            successBanner.classList.remove('display-none');
+            successBanner.scrollIntoView();
+            registerForm.reset();
+
+          // Otherwise provide the errors
+          } else {
+            successBanner.classList.add('display-none');
+            for (const error of responseJson.errors ?? []) {
+              for (const [key, message] of Object.entries(error)) {
+                const input = document.getElementById(key);
+                if (input) {
+                  const errorElement = document.getElementById(`${key}ErrorMessage`);
+                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${message}`;
+                  errorElement.style.display = '';
+                  input.classList.add('govuk-input--error');
+                  errorElement.parentNode.classList.add('govuk-form-group--error');
+                }
+              }
+            }
+            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+          }
+        }).catch(err => {
+          errorSummary.classList.remove('display-none');
+          errorDescription.innerHTML =`${err.message}`;
+          registerButton.disabled = false;
+          registerButton.textContent = 'Create account';
+        });
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": ["config:recommended", "npm:unpublishSafe"],
+    "dependencyDashboardOSVVulnerabilitySummary": "all",
+    "enabledManagers": ["dockerfile", "github-actions", "nodenv", "npm", "nvm"],
+    "assignees": ["cmenon12"],
+    "reviewers": ["cmenon12"],
+    "semanticCommits": "disabled",
+    "commitMessageExtra": "{{#if isPinDigest}}from {{{currentDigestShort}}} to {{{newDigestShort}}}{{else}}{{#if isMajor}}from {{currentVersion}} to {{newVersion}} (major){{else}}{{#if isSingleVersion}}from {{currentVersion}} to {{newVersion}}{{else}}{{#if newValue}}from {{{currentValue}}} to {{{newValue}}}{{else}}{{{newDigestShort}}}{{/if}}{{/if}}{{/if}}{{/if}}",
+    "commitMessageTopic": "{{depName}}",
+    "prBodyColumns": [
+        "Package",
+        "Type",
+        "Change",
+        "Pending",
+        "Age",
+        "Adoption",
+        "Confidence"
+    ],
+    "prBodyNotes": [
+        "{{#if isMajor}}:rotating_light: Be careful, this is a major update.{{/if}}",
+        "{{#if (equals updateType 'minor')}}:warning: This is a minor update.{{/if}}"
+    ],
+    "prConcurrentLimit": 5,
+    "prHourlyLimit": 0,
+    "prTitleStrict": true,
+    "separateMinorPatch": true,
+    "addLabels": ["dependencies"],
+    "platformCommit": "enabled",
+    "automergeType": "branch",
+    "osvVulnerabilityAlerts": true,
+    "schedule": ["* 1-7 * * 2"],
+    "timezone": "Europe/London",
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["patch"],
+            "groupName": "all patch updates",
+            "description": "Group all patch updates together"
+        },
+        {
+            "dependencyDashboardApproval": true,
+            "matchUpdateTypes": ["major"],
+            "description": "Require approval before creating major updates."
+        },
+        {
+            "matchPackageNames": ["*"],
+            "rangeStrategy": "pin",
+            "description": "Pin all dependencies to a specific version."
+        },
+        {
+            "matchDepNames": ["node", "@types/node"],
+            "rangeStrategy": "replace",
+            "description": "Don't pin node or @types/node."
+        }
+    ]
+}

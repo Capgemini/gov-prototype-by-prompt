@@ -1,0 +1,10 @@
+name: Something else
+description: Only use this template if you are not reporting a bug or suggesting a new feature
+
+body:
+    - type: textarea
+      id: description
+      attributes:
+          label: Description
+      validations:
+          required: true

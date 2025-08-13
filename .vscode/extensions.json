@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "ginfuru.better-nunjucks",
+        "esbenp.prettier-vscode",
+        "SonarSource.sonarlint-vscode",
+        "DavidAnson.vscode-markdownlint",
+        "bierner.markdown-mermaid",
+        "heltonricardo.heltonricardo-vscode-organize-and-format",
+        "mongodb.mongodb-vscode",
+        "dbaeumer.vscode-eslint"
+    ]
+}

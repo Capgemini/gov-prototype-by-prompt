@@ -1,0 +1,97 @@
+name: Code quality checks
+
+on:
+    workflow_dispatch:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    setup:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci
+
+    eslint:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci
+
+            - name: Run ESLint
+              run: npm run lint -- --max-warnings=0
+
+    npm-audit:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci
+
+            - name: Run npm audit with moderate threshold
+              run: npm audit --audit-level=moderate
+
+    jest-unit-tests:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci
+
+            - name: Run tests with coverage
+              run: npm run test -- --coverage --silent --maxWorkers=2

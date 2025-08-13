@@ -1,0 +1,40 @@
+{% extends "template.njk" %}
+
+{% set backLinkHref = "" %}
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block pageTitle %}
+  You are not signed in – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">You are not signed in</h1>
+          <p class="govuk-body">
+            You need to sign in to use this site.
+          </p>
+        {% if not insideIframe %}
+          <p class="govuk-body">
+            Visit the <a href="/user/sign-in" class="govuk-link">sign in page</a> to sign in.
+          </p>
+        {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  <script>
+    // Reload the page if the user navigates back
+    // This makes sure the submit button is re-enabled
+    window.addEventListener("pageshow", function(event) {
+      const historyTraversal = event.persisted || 
+                            (typeof window.performance != "undefined" && 
+                            window.performance.navigation.type === 2);
+      if (historyTraversal) {
+        window.location.reload();
+      }
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{
+    "help_files": [
+        {
+            "filename": "introduction",
+            "title": "Introduction"
+        },
+        {
+            "filename": "create-a-new-prototype",
+            "title": "Create a new prototype"
+        },
+        {
+            "filename": "test-a-prototype",
+            "title": "Test a prototype"
+        },
+        {
+            "filename": "update-a-prototype",
+            "title": "Update a prototype"
+        },
+        {
+            "filename": "share-a-prototype",
+            "title": "Share a prototype"
+        },
+        {
+            "filename": "manage-your-prototypes",
+            "title": "Manage your prototypes"
+        },
+        {
+            "filename": "manage-your-workspaces",
+            "title": "Manage your workspaces"
+        }
+    ]
+}

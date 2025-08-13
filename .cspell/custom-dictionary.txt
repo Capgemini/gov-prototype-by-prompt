@@ -1,0 +1,15 @@
+# Custom Dictionary Words
+__MONGOINSTANCE
+bday
+deepcode
+endcall
+govuk
+HMRC
+hmrc
+inputmode
+labelledby
+millis
+novalidate
+slugified
+teardown
+uuidv

@@ -1,0 +1,16 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "language": "en-GB",
+    "dictionaryDefinitions": [
+        {
+            "name": "custom-dictionary",
+            "path": "./.cspell/custom-dictionary.txt",
+            "addWords": true
+        }
+    ],
+    "dictionaries": ["custom-dictionary"],
+    "words": [],
+    "ignoreWords": [],
+    "import": ["@cspell/dict-en-gb/cspell-ext.json"]
+}

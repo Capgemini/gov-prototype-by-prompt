@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest an idea for this project
+labels: [enhancement]
+body:
+    - type: textarea
+      id: feature
+      attributes:
+          label: What feature do you want to see added?
+      validations:
+          required: true
+
+    - type: textarea
+      id: motivation
+      attributes:
+          label: Why do you want this feature? Does it solve a problem?
+      validations:
+          required: true
+
+    - type: textarea
+      id: implementation
+      attributes:
+          label: How should the feature be implemented?
+          description: If you're not sure, feel free to say so and leave this blank.
+
+    - type: textarea
+      id: context
+      attributes:
+          label: Additional context (if applicable)
+          description: Add any other context or screenshots about the feature request here.
