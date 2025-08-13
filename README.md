@@ -20,6 +20,15 @@ The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tes
 
 It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
 
+## How does it work?
+
+1. The user describes the form they want in plain English.
+2. A GenAI LLM takes this and [a JSON schema](data/extract-form-questions-schema.json), and uses them to generate a JSON representation of form's structure that adheres to the schema ([see example](data/example-llm-response.json)).
+3. The JSON structure of the form is then used to generate Nunjucks template files of the prototype.
+4. The generated template files are then rendered live for the user to try out, or can be downloaded in a ZIP file to run locally or incorporate into an existing project.
+
+![image](docs/screenshot.jpeg)
+
 ## Setup
 
 Before you can run the application, you need to set up a MongoDB database.
@@ -75,23 +84,11 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 - `SESSION_SECRET` - the secret used to sign session cookies.
 - `SUGGESTIONS_ENABLED` - either `true` or `false`. Whether to suggest follow-up prompts to the user to modify their prototype.
 
-## How does it work?
-
-1. The user describes the form they want using the free text input in the interface.
-2. The LLM takes this and
-   [a JSON schema](data/extract-form-questions-schema.json), and uses this to
-   generate a JSON representation of the form that adheres to the schema
-   ([see example](data/example-llm-response.json)).
-3. The application uses the schema to build the form out of Nunjucks templates
-   by string concatenation. These templates are then rendered live for the user,
-   or zipped up for the user to download.
-
-![image](docs/screenshot.jpeg)
-
 ### Project structure
 
 The project is structured as follows:
 
+- [`.cspell/`](.cspell/) – Custom dictionary for spelling checks.
 - [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Renovate configuration).
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
