@@ -89,7 +89,7 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 The project is structured as follows:
 
 - [`.cspell/`](.cspell/) – Custom dictionary for spelling checks.
-- [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Renovate configuration).
+- [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Dependabot configuration).
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
 - [`docs/`](docs/) – Project documentation and a user help guide.
@@ -121,11 +121,11 @@ docker build -t gov-prototype-by-prompt .
 docker run --network host --env-file .env gov-prototype-by-prompt
 ```
 
-### Automated dependency updates with Renovate
+### Automated dependency updates with Dependabot
 
-We use [Renovate](https://renovatebot.com/) to automate dependency updates. It creates pull requests to update dependencies in `package.json` and `package-lock.json` files, as well as updating the Node.js version in `.nvmrc` and the [Dockerfile](/Dockerfile).
+We use [Dependabot](https://docs.github.com/en/code-security/dependabot) to automate dependency updates. It creates pull requests to update dependencies in `package.json` and `package-lock.json` files, as well as in GitHub Actions.
 
-The configuration for Renovate is in the [.github/renovate.json](/.github/renovate.json) file.
+The configuration for Dependabot is in the [.github/dependabot.yml](/.github/dependabot.yml) file.
 
 ## Legal notes
 
