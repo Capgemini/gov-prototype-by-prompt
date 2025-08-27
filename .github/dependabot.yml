@@ -15,9 +15,6 @@ updates:
           timezone: 'Europe/London'
       labels:
           - 'dependencies'
-      ignore:
-          - dependency-name: 'node'
-          - dependency-name: '@types/node'
       cooldown:
           default-days: 3
       commit-message:
@@ -29,6 +26,12 @@ updates:
                   - '*'
               update-types:
                   - 'patch'
+      ignore:
+          - dependency-name: 'node'
+          - dependency-name: '@types/node'
+          - dependency-name: '@x-govuk/govuk-prototype-filters'
+            # 2.0.0 requires Node.js v22, we currently use v20.
+            versions: ['2.x']
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
