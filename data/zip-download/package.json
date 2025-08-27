@@ -13,7 +13,7 @@
         "@x-govuk/govuk-prototype-filters": "1.5.0",
         "express": "5.1.0",
         "express-session": "1.18.2",
-        "govuk-frontend": "5.11.1",
+        "govuk-frontend": "5.11.2",
         "hmrc-frontend": "6.80.0",
         "nunjucks": "3.2.4",
         "uuid": "11.1.0"
@@ -24,7 +24,7 @@
         "@types/express-session": "1.18.2",
         "@types/node": "^20.0.0",
         "@types/nunjucks": "3.2.6",
-        "tsx": "4.20.3",
+        "tsx": "4.20.4",
         "typescript": "5.8.3"
     },
     "overrides": {
