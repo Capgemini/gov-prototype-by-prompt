@@ -61,7 +61,7 @@ app.use('/assets/govuk', (req: Request, res: Response) => {
 
 const limiter = rateLimit({
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-    limit: 50, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+    limit: 100, // Limit each IP to 100 requests per `window` (here, per 5 minutes).
     standardHeaders: true, // add the `RateLimit-*` headers to the response
     windowMs: 5 * 60 * 1000, // 5 minutes
 });
