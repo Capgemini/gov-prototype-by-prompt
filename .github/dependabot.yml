@@ -33,9 +33,12 @@ updates:
           # Ignore node versions
           - dependency-name: 'node'
           - dependency-name: '@types/node'
-          # Ignore 2.x of the prototype filters for now, as this requires Node.js v22
+          # Ignore 2.x of govuk-prototype-filters for now, as this requires Node.js v22
           - dependency-name: '@x-govuk/govuk-prototype-filters'
             versions: ['2.x']
+          # Ignore 4.x of zod for now, as openai requires 3.x
+          - dependency-name: 'zod'
+            versions: ['4.x']
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
