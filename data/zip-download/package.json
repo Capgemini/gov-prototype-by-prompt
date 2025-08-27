@@ -10,7 +10,7 @@
         "start": "npx --yes tsx server.ts"
     },
     "dependencies": {
-        "@x-govuk/govuk-prototype-filters": "1.5.0",
+        "@x-govuk/govuk-prototype-filters": "2.0.0",
         "express": "5.1.0",
         "express-session": "1.18.2",
         "govuk-frontend": "5.11.1",
