@@ -62,7 +62,7 @@
         "@opentelemetry/sdk-metrics": "2.0.1",
         "@opentelemetry/sdk-node": "0.203.0",
         "@opentelemetry/sdk-trace-node": "2.0.1",
-        "@x-govuk/govuk-prototype-filters": "1.5.0",
+        "@x-govuk/govuk-prototype-filters": "2.0.0",
         "ace-builds": "1.43.2",
         "bcryptjs": "3.0.2",
         "body-parser": "2.2.0",
