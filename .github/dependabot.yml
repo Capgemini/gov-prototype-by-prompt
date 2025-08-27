@@ -20,17 +20,15 @@ updates:
       commit-message:
           prefix: ''
           include: 'scope'
-      groups:
-          patch-updates:
-              patterns:
-                  - '*'
-              update-types:
-                  - 'patch'
       ignore:
+          # Ignore all patch updates
+          - dependency-name: '*'
+            update-types: ['version-update:semver-patch']
+          # Ignore node versions
           - dependency-name: 'node'
           - dependency-name: '@types/node'
+          # Ignore 2.x of the prototype filters for now, as this requires Node.js v22
           - dependency-name: '@x-govuk/govuk-prototype-filters'
-            # 2.0.0 requires Node.js v22, we currently use v20.
             versions: ['2.x']
     - package-ecosystem: 'github-actions'
       directory: '/'
