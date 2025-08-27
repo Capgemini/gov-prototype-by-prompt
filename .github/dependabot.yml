@@ -24,7 +24,7 @@ updates:
                   - 'minor'
       labels:
           - 'dependencies'
-      open-pull-requests-limit: 5
+      open-pull-requests-limit: 10
       rebase-strategy: 'auto'
       ignore:
           # Ignore all patch updates
