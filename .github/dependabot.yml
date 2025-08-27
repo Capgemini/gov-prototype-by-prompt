@@ -13,13 +13,15 @@ updates:
           interval: 'daily'
           time: '03:00'
           timezone: 'Europe/London'
-      labels:
-          - 'dependencies'
+      commit-message:
+          include: 'scope'
+          prefix: ''
       cooldown:
           default-days: 3
-      commit-message:
-          prefix: ''
-          include: 'scope'
+      labels:
+          - 'dependencies'
+      open-pull-requests-limit: 5
+      rebase-strategy: 'auto'
       ignore:
           # Ignore all patch updates
           - dependency-name: '*'
@@ -38,3 +40,5 @@ updates:
           timezone: 'Europe/London'
       labels:
           - 'dependencies'
+      open-pull-requests-limit: 5
+      rebase-strategy: 'auto'
