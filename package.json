@@ -87,7 +87,7 @@
     "devDependencies": {
         "@cspell/dict-en-gb": "~5.0.11",
         "@cspell/eslint-plugin": "~9.2.0",
-        "@eslint/js": "~9.33.0",
+        "@eslint/js": "~9.34.0",
         "@types/body-parser": "~1.19.6",
         "@types/express": "~5.0.3",
         "@types/express-session": "~1.18.2",
