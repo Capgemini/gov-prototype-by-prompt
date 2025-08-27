@@ -74,7 +74,7 @@
         "express-validator": "~7.2.1",
         "govuk-frontend": "~5.11.1",
         "helmet": "~8.1.0",
-        "hmrc-frontend": "~6.80.0",
+        "hmrc-frontend": "~6.86.0",
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
         "moment": "~2.30.1",
