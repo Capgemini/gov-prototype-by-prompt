@@ -69,6 +69,10 @@ function generateZipOfApp(
             name: '.nvmrc',
         },
         {
+            input: fs.readFileSync('./src/filters.ts'),
+            name: 'filters.ts',
+        },
+        {
             input: fs.readFileSync('./data/zip-download/d.ts'),
             name: 'd.ts',
         },

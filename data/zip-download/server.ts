@@ -1,17 +1,17 @@
-import {
-    arrayOrStringIncludes,
-    formatList,
-    govukDate,
-    govukMarkdown,
-    isArray,
-    isoDateFromDateInput,
-} from '@x-govuk/govuk-prototype-filters';
 import express, { Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import session from 'express-session';
 import * as nunjucks from 'nunjucks';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import {
+    arrayOrStringIncludes,
+    convertToGovukMarkdown,
+    formatList,
+    govukDate,
+    isArray,
+    isoDateFromDateInput,
+} from './filters';
 
 // Create the Express application
 const app = express();
@@ -28,7 +28,6 @@ export const nunjucksEnv = nunjucks.configure(
         path.join(__dirname, 'views'),
         path.join(__dirname, 'node_modules/hmrc-frontend/'),
         path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
-        path.join(__dirname, 'node_modules/govuk-prototype-kit/lib/nunjucks/'),
     ],
     {
         autoescape: true,
@@ -40,10 +39,10 @@ export const nunjucksEnv = nunjucks.configure(
 // Use the GOV.UK rebrand
 nunjucksEnv.addGlobal('govukRebrand', true);
 
-// Use the GOV.UK prototype kit filters
+// Add the filters
 nunjucksEnv.addFilter('govukDate', govukDate);
 nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
-nunjucksEnv.addFilter('govukMarkdown', govukMarkdown);
+nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
 nunjucksEnv.addFilter('formatList', formatList);
 nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
 nunjucksEnv.addFilter('isArray', isArray);

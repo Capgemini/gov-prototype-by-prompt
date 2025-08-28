@@ -1,11 +1,3 @@
-import {
-    arrayOrStringIncludes,
-    formatList,
-    govukDate,
-    govukMarkdown,
-    isArray,
-    isoDateFromDateInput,
-} from '@x-govuk/govuk-prototype-filters';
 import bodyParser from 'body-parser';
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
@@ -17,6 +9,14 @@ import * as nunjucks from 'nunjucks';
 import path from 'path';
 
 import { connectToDatabase, disconnectFromDatabase } from './src/database';
+import {
+    arrayOrStringIncludes,
+    convertToGovukMarkdown,
+    formatList,
+    govukDate,
+    isArray,
+    isoDateFromDateInput,
+} from './src/filters';
 import { helpRouter } from './src/routes/help-routes';
 import {
     attachRequestData,
@@ -77,7 +77,6 @@ export const nunjucksEnv = nunjucks.configure(
         path.join(__dirname, 'views'),
         path.join(__dirname, 'node_modules/hmrc-frontend/'),
         path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
-        path.join(__dirname, 'node_modules/govuk-prototype-kit/lib/nunjucks/'),
     ],
     {
         autoescape: true,
@@ -89,31 +88,13 @@ export const nunjucksEnv = nunjucks.configure(
 // Use the GOV.UK rebrand
 nunjucksEnv.addGlobal('govukRebrand', true);
 
-// Use the GOV.UK prototype kit filters
-nunjucksEnv.addFilter(
-    'govukDate',
-    govukDate as (string: string, options?: object) => string
-);
-nunjucksEnv.addFilter(
-    'isoDateFromDateInput',
-    isoDateFromDateInput as (object: object, namePrefix: string) => string
-);
-nunjucksEnv.addFilter(
-    'govukMarkdown',
-    govukMarkdown as (string: string, options?: object) => string
-);
-nunjucksEnv.addFilter(
-    'formatList',
-    formatList as (array: string[], type: string) => string
-);
-nunjucksEnv.addFilter(
-    'includes',
-    arrayOrStringIncludes as (
-        array: string | string[],
-        searchElement: string
-    ) => boolean
-);
-nunjucksEnv.addFilter('isArray', isArray as (input: unknown) => boolean);
+// Add the filters
+nunjucksEnv.addFilter('govukDate', govukDate);
+nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
+nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
+nunjucksEnv.addFilter('formatList', formatList);
+nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
+nunjucksEnv.addFilter('isArray', isArray);
 
 // Set the view engine to Nunjucks
 app.set('view engine', 'njk');
