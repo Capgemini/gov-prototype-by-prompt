@@ -113,10 +113,10 @@ describe('buildZipOfForm', () => {
                 }),
             ])
         );
-        // 8 files from app, 7 from assets,
+        // 9 files from app, 7 from assets,
         // questions.length + 4 from form pages, 1 from template data
         expect(data).toHaveLength(
-            8 + 7 + exampleTemplateData.questions.length + 4 + 1
+            9 + 7 + exampleTemplateData.questions.length + 4 + 1
         );
         expect(result).toBe('mock-blob');
     });
@@ -151,10 +151,10 @@ describe('buildZipOfForm', () => {
                 }),
             ])
         );
-        // 8 files from app, 9 from assets,
+        // 9 files from app, 9 from assets,
         // questions.length + 4 from form pages, 1 from template data
         expect(data).toHaveLength(
-            8 + 9 + exampleTemplateData.questions.length + 4 + 1
+            9 + 9 + exampleTemplateData.questions.length + 4 + 1
         );
         expect(result).toBe('mock-blob');
     });
