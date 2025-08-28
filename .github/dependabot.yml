@@ -10,9 +10,11 @@ updates:
           - '/'
           - '/data/zip-download'
       schedule:
-          interval: 'daily'
+          interval: 'weekly'
+          day: 'tuesday'
           time: '03:00'
           timezone: 'Europe/London'
+      assignees: ['cmenon12']
       commit-message:
           include: 'scope'
           prefix: ''
@@ -34,6 +36,7 @@ updates:
           - dependency-name: 'node'
           - dependency-name: '@types/node'
           # Ignore 4.x of zod for now, as openai requires 3.x
+          # See PRs #18 and #20 when re-enabling
           - dependency-name: 'zod'
             versions: ['4.x']
     - package-ecosystem: 'github-actions'
