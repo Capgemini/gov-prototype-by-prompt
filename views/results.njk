@@ -39,6 +39,7 @@
     <div class="govuk-grid-column-one-half">
       {% set overviewHtml %}
         <form id="promptForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+          <input type="hidden" id="workspaceId" name="workspaceId" value="{{ workspace.id }}">
           <input type="hidden" id="promptType" name="promptType" value="{{ "json" if showJsonPrompt else "text" }}">
           <input type="hidden" id="jsonPrompt" name="prompt" value="{{ json }}" {{ "disabled" if not showJsonPrompt else "" }}>
           <h1 class="govuk-label-wrapper">
@@ -166,8 +167,8 @@
           {% endif %}
           {{ govukSelect({
             classes: "govuk-!-width-full",
-            id: "workspaceId",
-            name: "workspaceId",
+            id: "newWorkspaceId",
+            name: "newWorkspaceId",
             label: {
               text: "Choose a workspace",
               classes: "govuk-label--s"
@@ -440,7 +441,7 @@
       // JavaScript to handle sharing
       {% if isOwner %}
         const sharingForm = document.getElementById('sharingForm');
-        const workspaceSelect = document.getElementById('workspaceId');
+        const workspaceSelect = document.getElementById('newWorkspaceId');
         const userToAddInput = document.getElementById('userToAdd');
         const sharedWithUserButtons = document.querySelectorAll(".shared-with-users-table button");
         const publicSharingRadios = document.querySelectorAll('input[name="publicSharing"]');
