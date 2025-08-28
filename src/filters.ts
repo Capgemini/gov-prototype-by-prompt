@@ -1,3 +1,4 @@
+/* Based on https://github.com/x-govuk/govuk-prototype-filters */
 import govukMarkdown from 'govuk-markdown';
 import { marked, MarkedExtension } from 'marked';
 import moment from 'moment';
