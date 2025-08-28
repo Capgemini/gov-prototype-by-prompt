@@ -77,7 +77,6 @@ export const nunjucksEnv = nunjucks.configure(
         path.join(__dirname, 'views'),
         path.join(__dirname, 'node_modules/hmrc-frontend/'),
         path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
-        path.join(__dirname, 'node_modules/govuk-prototype-kit/lib/nunjucks/'),
     ],
     {
         autoescape: true,
@@ -89,7 +88,7 @@ export const nunjucksEnv = nunjucks.configure(
 // Use the GOV.UK rebrand
 nunjucksEnv.addGlobal('govukRebrand', true);
 
-// Use the GOV.UK prototype kit filters
+// Add the filters
 nunjucksEnv.addFilter('govukDate', govukDate);
 nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
 nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
