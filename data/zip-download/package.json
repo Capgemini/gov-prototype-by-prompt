@@ -28,9 +28,5 @@
         "@types/nunjucks": "~3.2.6",
         "tsx": "~4.20.3",
         "typescript": "~5.9.2"
-    },
-    "overrides": {
-        "form-data": "4.0.4",
-        "rimraf": "4.4.1"
     }
 }
