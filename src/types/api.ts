@@ -1,5 +1,8 @@
+import { ValidationError } from 'express-validator';
+
 // API Request/Response types
 export interface APIResponse {
+    errors?: Partial<ValidationError>[];
     message: string;
 }
 

@@ -173,15 +173,13 @@
           } else {
             successBanner.classList.add('display-none');
             for (const error of responseJson.errors ?? []) {
-              for (const [key, message] of Object.entries(error)) {
-                const input = document.getElementById(key);
-                if (input) {
-                  const errorElement = document.getElementById(`${key}ErrorMessage`);
-                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${message}`;
-                  errorElement.style.display = '';
-                  input.classList.add('govuk-input--error');
-                  errorElement.parentNode.classList.add('govuk-form-group--error');
-                }
+              const input = document.getElementById(error.path);
+              if (input) {
+                const errorElement = document.getElementById(`${error.path}ErrorMessage`);
+                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                errorElement.style.display = '';
+                input.classList.add('govuk-input--error');
+                errorElement.parentNode.classList.add('govuk-form-group--error');
               }
             }
             throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import express, { Request, Response } from 'express';
-import { check } from 'express-validator';
+import { body, param, query, ValidationError } from 'express-validator';
 import moment from 'moment';
 
 import commonPasswords from '../../data/valid-common-passwords.json';
@@ -61,7 +61,7 @@ export async function registerUser(
             password2: string;
         }
     >,
-    res: Response<APIResponse & { errors?: Record<string, string>[] }>
+    res: Response<APIResponse>
 ) {
     if (handleValidationErrors(req, res)) return;
 
@@ -69,48 +69,40 @@ export async function registerUser(
         getEnvironmentVariables().EMAIL_ADDRESS_ALLOWED_DOMAIN;
     const allowedDomainReveal =
         getEnvironmentVariables().EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL;
-    const errors: Record<string, string>[] = [];
+    const errors: Partial<ValidationError>[] = [];
     // Validate input
-    if (!req.body.name) {
-        errors.push({ name: 'Enter your name' });
-    }
-    if (!req.body.email) {
-        errors.push({ email: 'Enter your email address' });
-    } else if (!/\S+@\S+\.\S+/.test(req.body.email)) {
+    if (!/\S+@\S+\.\S+/.test(req.body.email)) {
         errors.push({
-            email: 'Enter an email address in the correct format, like name@example.com',
+            msg: 'Enter an email address in the correct format, like name@example.com',
+            path: 'email',
         });
-    } else if (
-        allowedDomain &&
-        !req.body.email.trim().endsWith(`@${allowedDomain}`)
-    ) {
+    } else if (allowedDomain && !req.body.email.endsWith(`@${allowedDomain}`)) {
         if (allowedDomainReveal) {
             errors.push({
-                email: `Enter an email address with the domain ${allowedDomain}`,
+                msg: `Enter an email address with the domain ${allowedDomain}`,
+                path: 'email',
             });
         } else {
             errors.push({
-                email: 'Enter a valid email address',
+                msg: 'Enter a valid email address',
+                path: 'email',
             });
         }
     }
-    if (!req.body.password1 || !req.body.password2) {
+    if (req.body.password1 !== req.body.password2) {
         errors.push(
-            { password1: 'Create a password' },
-            { password2: 'Confirm your password' }
-        );
-    } else if (req.body.password1 !== req.body.password2) {
-        errors.push(
-            { password1: 'The passwords must match' },
-            { password2: 'The passwords must match' }
+            { msg: 'The passwords must match', path: 'password1' },
+            { msg: 'The passwords must match', path: 'password2' }
         );
     } else if (req.body.password1.length < 12) {
         errors.push(
             {
-                password1: 'The password must be at least 12 characters long',
+                msg: 'The password must be at least 12 characters long',
+                path: 'password1',
             },
             {
-                password2: 'The password must be at least 12 characters long',
+                msg: 'The password must be at least 12 characters long',
+                path: 'password2',
             }
         );
     } else if (
@@ -118,20 +110,22 @@ export async function registerUser(
     ) {
         errors.push(
             {
-                password1:
-                    'The password must contain at least one letter, one number, and one symbol',
+                msg: 'The password must contain at least one letter, one number, and one symbol',
+                path: 'password1',
             },
             {
-                password2:
-                    'The password must contain at least one letter, one number, and one symbol',
+                msg: 'The password must contain at least one letter, one number, and one symbol',
+                path: 'password2',
             }
         );
     } else if (commonPasswords.passwords.includes(req.body.password1)) {
         errors.push({
-            password1: 'This password is too common',
+            msg: 'This password is too common',
+            path: 'password1',
         });
         errors.push({
-            password2: 'This password is too common',
+            msg: 'This password is too common',
+            path: 'password2',
         });
     }
 
@@ -149,7 +143,8 @@ export async function registerUser(
         res.status(400).json({
             errors: [
                 {
-                    email: 'An account with that email address already exists.',
+                    msg: 'An account with that email address already exists.',
+                    path: 'email',
                 },
             ],
             message: 'An account with that email address already exists.',
@@ -193,7 +188,13 @@ export async function registerUser(
 
 userRouter.post(
     '/register',
-    [check(['email, name, password1, password2']).notEmpty().isString().trim()],
+    [
+        body('*').trim(),
+        body('email').notEmpty().withMessage('Enter your email address'),
+        body('name').notEmpty().withMessage('Enter your name'),
+        body('password1').notEmpty().withMessage('Create a password'),
+        body('password2').notEmpty().withMessage('Confirm your password'),
+    ],
     registerUser
 );
 
@@ -229,20 +230,15 @@ export async function signInUser(
     res: Response<APIResponse>
 ) {
     if (handleValidationErrors(req, res)) return;
-    // Validate input
-    if (!req.body.email || !req.body.password) {
-        res.status(400).json({
-            message: 'Enter your email address and password',
-        });
-        return;
-    }
 
     // Check if the email exists
     const user = await getUserByEmail(req.body.email);
     if (!user) {
+        const message =
+            'This account does not exist. You must create an account first.';
         res.status(401).json({
-            message:
-                'This account does not exist. You must create an account first.',
+            errors: [{ msg: message, path: 'email' }],
+            message,
         });
         return;
     }
@@ -253,8 +249,13 @@ export async function signInUser(
         user.passwordHash
     );
     if (!passwordMatch) {
+        const message = 'Your email address and password do not match.';
         res.status(401).json({
-            message: 'Your email address and password do not match.',
+            errors: [
+                { msg: message, path: 'email' },
+                { msg: message, path: 'password' },
+            ],
+            message,
         });
         return;
     }
@@ -275,7 +276,11 @@ export async function signInUser(
 
 userRouter.post(
     '/sign-in',
-    [check(['email', 'password']).notEmpty().isString().trim()],
+    [
+        body('*').trim(),
+        body('email').notEmpty().withMessage('Enter your email address'),
+        body('password').notEmpty().withMessage('Enter your password'),
+    ],
     signInUser
 );
 
