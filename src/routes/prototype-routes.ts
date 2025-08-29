@@ -1,6 +1,6 @@
 import opentelemetry from '@opentelemetry/api';
 import express, { Request, Response } from 'express';
-import { check, param, query } from 'express-validator';
+import { body, param, query } from 'express-validator';
 import moment from 'moment';
 import * as nunjucks from 'nunjucks';
 
@@ -547,11 +547,19 @@ prototypeRouter.post(
     '/prototype/:id/sharing',
     [
         verifyUser,
+        param('id').trim().notEmpty(),
         verifyPrototype,
-        check(['id', 'workspaceId']).notEmpty().isString().trim(),
-        check('livePrototypePublicPassword').optional().isString().trim(),
-        check('livePrototypePublic').notEmpty().isBoolean(),
-        check('sharedWithUserIds').isArray(),
+        body('workspaceId')
+            .trim()
+            .notEmpty()
+            .withMessage('Workspace ID is required.'),
+        body('livePrototypePublicPassword').trim(),
+        body('livePrototypePublic')
+            .isBoolean({ strict: true })
+            .withMessage(
+                'Live prototype public status must be a boolean value.'
+            ),
+        body('sharedWithUserIds').isArray(),
     ],
     handleUpdateSharing
 );
@@ -600,7 +608,10 @@ export async function handleLivePrototypePasswordSubmission(
 }
 prototypeRouter.post(
     '/prototype/:id/password',
-    [check(['id', 'password']).notEmpty().isString().trim()],
+    [
+        param('id').trim().notEmpty(),
+        body('password').trim().notEmpty().withMessage('Enter a password.'),
+    ],
     handleLivePrototypePasswordSubmission
 );
 
@@ -936,11 +947,19 @@ prototypeRouter.post(
     '/update',
     [
         verifyUser,
-        check(['prototypeId', 'designSystem', 'workspaceId'])
+        body('designSystem')
+            .trim()
             .notEmpty()
-            .isString()
-            .trim(),
-        check('prompt').optional().isString().trim(),
+            .withMessage('Select a design system.'),
+        body('prompt').trim(),
+        body('prototypeId')
+            .trim()
+            .notEmpty()
+            .withMessage('Prototype ID is required.'),
+        body('workspaceId')
+            .trim()
+            .notEmpty()
+            .withMessage('Workspace ID is required.'),
     ],
     handleUpdatePrototype
 );
@@ -1071,11 +1090,17 @@ prototypeRouter.post(
     '/create',
     [
         verifyUser,
-        check(['prompt', 'designSystem', 'workspaceId'])
+        body('designSystem')
+            .trim()
             .notEmpty()
-            .isString()
-            .trim(),
-        check(['promptType', 'prototypeId']).optional().isString().trim(),
+            .withMessage('Select a design system.'),
+        body('prompt').trim().notEmpty().withMessage('Enter a prompt.'),
+        body('promptType').trim(),
+        body('prototypeId').trim(),
+        body('workspaceId')
+            .trim()
+            .notEmpty()
+            .withMessage('Workspace ID is required.'),
     ],
     handleCreatePrototype
 );
