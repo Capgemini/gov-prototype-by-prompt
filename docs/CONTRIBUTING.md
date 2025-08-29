@@ -43,7 +43,6 @@ Please ensure that your contribution:
 - Does not introduce any new linting or formatting errors.
 - Only adds new dependencies that are necessary and do not introduce security vulnerabilities.
   - Dependency versions must use tilde (~) ranges in `package.json` to avoid breaking changes.
-- If it includes changes to the UI (of the app or prototypes), includes use of the Axe accessibility devtools extension to check for and resolve any accessibility issues.
-  - New issues that cannot be resolved should be documented in the pull request description.
-- Includes updates to the [help guides](/docs/help/) if necessary.
-- Is up-to-date with the latest changes on the `main` branch.
+- Includes use of the Axe accessibility devtools extension to check for and resolve any new accessibility issues.
+  - Unresolved issues should be documented in the pull request description.
+- Includes updates to the documentation and help guides if necessary.
