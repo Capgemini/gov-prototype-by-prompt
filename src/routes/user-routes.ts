@@ -444,11 +444,7 @@ export async function renderWorkspacesPage(
 
 userRouter.get(
     '/workspace',
-    [
-        verifyUser,
-        check('page').optional().isString().trim(),
-        check('perPage').optional().notEmpty().isString().trim(),
-    ],
+    [verifyUser, query('*').trim()],
     renderWorkspacesPage
 );
 
@@ -473,18 +469,10 @@ export async function createWorkspace(
     if (handleValidationErrors(req, res)) return;
     const user = (req as unknown as Request & { user: IUser }).user;
 
-    // Validate the name
-    if (!req.body.name || req.body.name.trim() === '') {
-        res.status(400).json({
-            message: 'Workspace name is required',
-        });
-        return;
-    }
-
     // Save the updated prototype data
     const workspace = await storeWorkspace({
         isPersonalWorkspace: false,
-        name: req.body.name.trim(),
+        name: req.body.name,
         userIds: [user.id],
     });
 
@@ -495,7 +483,10 @@ export async function createWorkspace(
 }
 userRouter.post(
     '/workspace/create',
-    [verifyUser, check('name').isString().notEmpty().trim()],
+    [
+        verifyUser,
+        body('name').trim().notEmpty().withMessage('Enter a workspace name'),
+    ],
     createWorkspace
 );
 
@@ -537,7 +528,7 @@ export async function renderWorkspacePage(
 }
 userRouter.get(
     '/workspace/:id',
-    [verifyUser, check('id').notEmpty().isString().trim()],
+    [verifyUser, param('id').trim().notEmpty()],
     renderWorkspacePage
 );
 
@@ -546,7 +537,7 @@ export async function updateWorkspaceController(
     req: Request<
         { id: string },
         {},
-        { name: string; sharedWithUserIds?: string[] }
+        { name: string; sharedWithUserIds: string[] }
     >,
     res: Response<APIResponse & { url?: string }>
 ) {
@@ -561,16 +552,8 @@ export async function updateWorkspaceController(
         return;
     }
 
-    // Validate the name
-    if (!req.body.name || req.body.name.trim() === '') {
-        res.status(400).json({
-            message: 'Workspace name is required',
-        });
-        return;
-    }
-
     // Validate the shared users
-    const sharedWithUserIds = req.body.sharedWithUserIds ?? [];
+    const sharedWithUserIds = req.body.sharedWithUserIds;
     if (!workspace.isPersonalWorkspace) {
         if (sharedWithUserIds.length === 0) {
             res.status(400).json({
@@ -580,7 +563,7 @@ export async function updateWorkspaceController(
         }
         const allUsers = await getAllUsers();
         const allUserIds = allUsers.map((user) => user.id);
-        for (const userId of req.body.sharedWithUserIds ?? []) {
+        for (const userId of req.body.sharedWithUserIds) {
             if (!allUserIds.includes(userId)) {
                 res.status(400).json({
                     message: `User with ID ${userId} does not exist.`,
@@ -593,10 +576,10 @@ export async function updateWorkspaceController(
     // Save the updated prototype data
     await updateWorkspace(workspaceId, {
         isPersonalWorkspace: workspace.isPersonalWorkspace,
-        name: req.body.name.trim(),
+        name: req.body.name,
         userIds: workspace.isPersonalWorkspace
             ? [user.id]
-            : Array.from(new Set(req.body.sharedWithUserIds ?? [])),
+            : Array.from(new Set(req.body.sharedWithUserIds)),
     });
 
     const canAccess = await canUserAccessWorkspace(user.id, workspaceId);
@@ -615,8 +598,9 @@ userRouter.post(
     '/workspace/:id',
     [
         verifyUser,
-        check(['id', 'name']).notEmpty().isString().trim(),
-        check('sharedWithUserIds').isArray(),
+        param('id').trim().notEmpty(),
+        body('name').trim().notEmpty().withMessage('Enter a workspace name'),
+        body('sharedWithUserIds').optional().isArray(),
     ],
     updateWorkspaceController
 );

@@ -578,27 +578,6 @@ describe('createWorkspace', () => {
         ({ createWorkspace } = await import('../user-routes'));
     });
 
-    it.each([
-        [{ name: '' }, 400, 'Workspace name is required'],
-        [{}, 400, 'Workspace name is required'],
-    ])(
-        'should validate input and return error: %p',
-        async (body, expectedStatus, expectedMessage) => {
-            const request = httpMocks.createRequest({
-                body,
-                method: 'POST',
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
-            await createWorkspace(request, response);
-            expect(response.statusCode).toBe(expectedStatus);
-            expect(JSON.stringify(response._getJSONData())).toContain(
-                expectedMessage
-            );
-            expect(storeWorkspaceMock).not.toHaveBeenCalled();
-        }
-    );
-
     it('should create workspace successfully', async () => {
         const request = httpMocks.createRequest({
             body: { name: 'New Workspace' },
@@ -710,36 +689,6 @@ describe('updateWorkspace', () => {
             'Workspace not found'
         );
     });
-
-    it.each([
-        [
-            { name: '', sharedWithUserIds: [user1.id] },
-            400,
-            'Workspace name is required',
-        ],
-        [
-            { name: '   ', sharedWithUserIds: [user1.id] },
-            400,
-            'Workspace name is required',
-        ],
-        [{ sharedWithUserIds: [user1.id] }, 400, 'Workspace name is required'],
-    ])(
-        'should validate name and return error: %p',
-        async (body, expectedStatus, expectedMessage) => {
-            const request = httpMocks.createRequest({
-                body,
-                method: 'POST',
-                params: { id: workspaceId.toString() },
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
-            await updateWorkspaceController(request, response);
-            expect(response.statusCode).toBe(expectedStatus);
-            expect(JSON.stringify(response._getJSONData())).toContain(
-                expectedMessage
-            );
-        }
-    );
 
     it('should require at least one user for non-personal workspace', async () => {
         getWorkspaceByIdMock.mockResolvedValueOnce({
