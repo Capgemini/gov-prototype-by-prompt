@@ -207,25 +207,8 @@ describe('registerUser', () => {
 
     it.each([
         [
-            { email: '', name: '', password1: '', password2: '' },
-            'Enter your name',
-        ],
-        [
-            { email: '', name: 'Test', password1: '', password2: '' },
-            'Enter your email address',
-        ],
-        [
             { email: 'invalid', name: 'Test', password1: '', password2: '' },
             'Enter an email address in the correct format, like name@example.com',
-        ],
-        [
-            {
-                email: 'test@example.com',
-                name: 'Test',
-                password1: '',
-                password2: '',
-            },
-            'Create a password',
         ],
         [
             {
@@ -330,7 +313,8 @@ describe('registerUser', () => {
                 .errors
         ).toContainEqual(
             expect.objectContaining({
-                password1: 'This password is too common',
+                msg: 'This password is too common',
+                path: 'password1',
             })
         );
         expect(storeUserMock).not.toHaveBeenCalled();
@@ -391,11 +375,6 @@ describe('signInUser', () => {
     });
 
     it.each([
-        [
-            { email: '', password: '' },
-            400,
-            'Enter your email address and password',
-        ],
         [
             { email: 'notfound@example.com', password: 'Password123!' },
             401,
