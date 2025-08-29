@@ -14,12 +14,6 @@ Notable changes will be documented in [docs/CHANGELOG.md](/docs/CHANGELOG.md).
 
 If you want to contact the maintainers directly, please [complete this form](https://forms.office.com/e/bctaftxd8h).
 
-## Technology stack
-
-The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests are written using Jest.
-
-It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
-
 ## How does it work?
 
 1. The user describes the form they want in plain English.
@@ -28,6 +22,14 @@ It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
 4. The generated template files are then rendered live for the user to try out, or can be downloaded in a ZIP file to run locally or incorporate into an existing project.
 
 <https://github.com/user-attachments/assets/51bd61f6-e57e-45a8-8776-46f26871878c>
+
+## Technology stack
+
+The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests use the Jest testing framework.
+
+It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
+
+It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL database.
 
 ## Setup
 
