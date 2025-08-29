@@ -27,7 +27,12 @@ It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
 3. The JSON structure of the form is then used to generate Nunjucks template files of the prototype.
 4. The generated template files are then rendered live for the user to try out, or can be downloaded in a ZIP file to run locally or incorporate into an existing project.
 
-![image](docs/screenshot.jpeg)
+
+
+
+
+https://github.com/user-attachments/assets/51bd61f6-e57e-45a8-8776-46f26871878c
+
 
 ## Setup
 
