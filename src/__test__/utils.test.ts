@@ -1,4 +1,6 @@
+import { Request, Response } from 'express';
 import { ValidationError, ValidatorResultError } from 'jsonschema';
+import httpMocks from 'node-mocks-http';
 import { ZodError } from 'zod';
 
 import {
@@ -591,4 +593,66 @@ describe('getHmrcAssetsVersion', () => {
         expect(readFileSyncMock).toHaveBeenCalledWith(hmrcVersionPath, 'utf8');
         expect(version).toMatch(/^\d+\.\d+\.\d+$/);
     });
+});
+
+describe('handleValidationErrors', () => {
+    let validationResultMock: jest.Mock;
+    let handleValidationErrors: (req: Request, res: Response) => boolean;
+    beforeEach(async () => {
+        jest.resetAllMocks();
+        jest.resetModules();
+        validationResultMock = jest.fn();
+        jest.doMock('express-validator', () => ({
+            validationResult: validationResultMock,
+        }));
+        ({ handleValidationErrors } = await import('../utils'));
+    });
+
+    afterEach(() => {
+        jest.resetModules();
+        jest.resetAllMocks();
+    });
+
+    it.each([
+        [[{ msg: 'Error 1', param: 'field1' }], true, 'Error 1'],
+        [
+            [
+                { msg: 'Same error', param: 'field1' },
+                { msg: 'Same error', param: 'field2' },
+            ],
+            true,
+            'Same error',
+        ],
+        [
+            [
+                { msg: 'Error 1', param: 'field1' },
+                { msg: 'Error 2', param: 'field2' },
+            ],
+            true,
+            'Resolve the errors and try again.',
+        ],
+        [[], false, undefined],
+    ])(
+        'returns correct response for errors: %p',
+        (errorArray, expectedReturn, expectedMessage) => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            validationResultMock.mockReturnValue({
+                array: () => errorArray,
+                isEmpty: () => errorArray.length === 0,
+            });
+            const result = handleValidationErrors(req, res);
+            expect(result).toBe(expectedReturn);
+            if (expectedReturn) {
+                expect(res.statusCode).toBe(400);
+                expect(res._getJSONData()).toEqual({
+                    errors: errorArray,
+                    message: expectedMessage,
+                });
+            } else {
+                expect(res.statusCode).not.toBe(400);
+                expect(res._getData()).toBe('');
+            }
+        }
+    );
 });
