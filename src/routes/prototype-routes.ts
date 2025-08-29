@@ -1,6 +1,6 @@
 import opentelemetry from '@opentelemetry/api';
 import express, { Request, Response } from 'express';
-import { check } from 'express-validator';
+import { check, param, query } from 'express-validator';
 import moment from 'moment';
 import * as nunjucks from 'nunjucks';
 
@@ -367,21 +367,7 @@ export async function renderHistoryPage(
 }
 prototypeRouter.get(
     '/history',
-    [
-        verifyUser,
-        check([
-            'createdBy',
-            'onlyCreated',
-            'page',
-            'perPage',
-            'sharing',
-            'workspaceId',
-        ])
-            .optional()
-            .isString()
-            .trim()
-            .toLowerCase(),
-    ],
+    [verifyUser, query('*').trim().toLowerCase()],
     renderHistoryPage
 );
 
@@ -418,7 +404,7 @@ export async function handleDownloadPrototype(
 }
 prototypeRouter.get(
     '/prototype/:id/download',
-    [verifyUser, verifyPrototype, check('id').notEmpty().isString().trim()],
+    [verifyUser, param('id').trim().notEmpty(), verifyPrototype],
     handleDownloadPrototype
 );
 
@@ -438,7 +424,7 @@ export function handleResetLivePrototype(
 }
 prototypeRouter.get(
     '/prototype/:id/reset',
-    [verifyUser, verifyPrototype, check('id').notEmpty().isString().trim()],
+    [verifyUser, param('id').trim().notEmpty(), verifyPrototype],
     handleResetLivePrototype
 );
 
@@ -482,7 +468,7 @@ export async function handleSuggestions(
 }
 prototypeRouter.get(
     '/prototype/:id/suggestions',
-    [verifyUser, verifyPrototype, check('id').notEmpty().isString().trim()],
+    [verifyUser, param('id').trim().notEmpty(), verifyPrototype],
     handleSuggestions
 );
 
@@ -710,7 +696,7 @@ export function renderPrototypePage(
 }
 prototypeRouter.all(
     '/prototype/:id/:page',
-    [check(['id', 'page']).notEmpty().isString().trim(), verifyLivePrototype],
+    [param('*').trim().notEmpty(), verifyLivePrototype],
     renderPrototypePage
 );
 
@@ -832,7 +818,7 @@ export async function renderResultsPage(
 }
 prototypeRouter.get(
     '/prototype/:id',
-    [verifyUser, verifyPrototype, check('id').notEmpty().isString().trim()],
+    [verifyUser, param('id').trim().notEmpty(), verifyPrototype],
     renderResultsPage
 );
 
