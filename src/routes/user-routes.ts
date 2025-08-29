@@ -600,7 +600,7 @@ userRouter.post(
         verifyUser,
         param('id').trim().notEmpty(),
         body('name').trim().notEmpty().withMessage('Enter a workspace name'),
-        body('sharedWithUserIds').optional().isArray(),
+        body('sharedWithUserIds').isArray(),
     ],
     updateWorkspaceController
 );
