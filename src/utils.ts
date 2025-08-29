@@ -200,6 +200,7 @@ export function handleValidationErrors(req: Request, res: Response): boolean {
     if (!errors.isEmpty()) {
         res.status(400).json({
             errors: errors.array(),
+            message: 'Resolve the errors below and try again.',
         });
         return true;
     }
