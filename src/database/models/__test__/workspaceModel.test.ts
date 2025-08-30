@@ -1,14 +1,12 @@
+import {
+    user1PersonalWorkspace,
+    user1PersonalWorkspaceId,
+} from '../../../../jest/mockTestData';
 import { disconnectFromDatabase } from '../../connection/mongoose';
 import { WorkspaceModel } from '../workspaceModel';
 
-const workspaceId = '5ebadc45a99bde77b2efb20e';
-
-const mockWorkspace = {
-    id: workspaceId,
-    isPersonalWorkspace: false,
-    name: 'database',
-    userIds: ['user1', 'user2'],
-};
+const workspaceId = user1PersonalWorkspaceId.toString();
+const mockWorkspace = user1PersonalWorkspace;
 
 describe('WorkspaceModel', () => {
     it('should return false if userCanAccess workspace without user', async () => {

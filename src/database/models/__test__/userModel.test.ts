@@ -1,12 +1,9 @@
+import { user1 } from '../../../../jest/mockTestData';
 import { IUser } from '../../../types';
 import { disconnectFromDatabase } from '../../connection/mongoose';
 import { UserModel } from '../userModel';
 
-const mockUser = {
-    email: 'some@email.com',
-    name: 'test-name',
-    passwordHash: 'password-hash',
-};
+const mockUser = user1;
 
 describe('UserModel', () => {
     it('should get empty array when no users', async () => {
