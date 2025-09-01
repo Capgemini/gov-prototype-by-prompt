@@ -292,3 +292,17 @@ export const errorHandler = (
     }
     next(err);
 };
+
+/**
+ * Controller to handle when no other route is matched.
+ */
+export const notFoundHandler = (req: Request, res: Response) => {
+    const secFetchDest = req.header('sec-fetch-dest');
+    if (secFetchDest === 'empty') {
+        res.status(404).json({ message: 'Page not found' });
+        return;
+    }
+    res.status(404).render('page-not-found.njk', {
+        insideIframe: secFetchDest === 'iframe',
+    });
+};
