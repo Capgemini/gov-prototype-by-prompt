@@ -138,7 +138,7 @@ describe('renderHelpFile', () => {
         });
     });
 
-    it('should set correct pagination for middle file', () => {
+    it('should set correct pagination for last file', () => {
         const request = httpMocks.createRequest({
             method: 'GET',
             params: { filename: 'sharing' },
