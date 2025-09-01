@@ -272,6 +272,38 @@ describe('registerUser', () => {
         }
     );
 
+    it.each([
+        [
+            'mydomain.com',
+            true,
+            'Enter an email address with the domain mydomain.com',
+        ],
+        ['mydomain.com', false, 'Enter a valid email address'],
+    ])(
+        'should validate email domain and return error: %s, reveal=%s',
+        async (domain, reveal, expectedError) => {
+            getEnvironmentVariablesMock.mockReturnValue({
+                EMAIL_ADDRESS_ALLOWED_DOMAIN: domain,
+                EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: reveal,
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    email: `user@example.com`,
+                    name: 'Test',
+                    password1: 'Password123!',
+                    password2: 'Password123!',
+                },
+                method: 'POST',
+            });
+            const response = httpMocks.createResponse();
+            await registerUser(request, response);
+            expect(response.statusCode).toBe(400);
+            expect(JSON.stringify(response._getJSONData())).toContain(
+                expectedError
+            );
+        }
+    );
+
     it('should return error if email already exists', async () => {
         const request = httpMocks.createRequest({
             body: {

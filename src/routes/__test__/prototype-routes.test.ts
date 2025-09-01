@@ -16,6 +16,7 @@ import {
     userId1,
     userId2,
     workspace3,
+    workspace4,
     workspaceId3,
 } from '../../../jest/mockTestData';
 import {
@@ -39,6 +40,8 @@ let getWorkspaceByIdMock: jest.Mock;
 let getWorkspacesByUserIdMock: jest.Mock;
 let storePrototypeMock: jest.Mock;
 let updatePrototypeMock: jest.Mock;
+let getActiveSpanMock: jest.Mock;
+let setSpanAttributeMock: jest.Mock;
 
 beforeEach(() => {
     jest.resetModules();
@@ -121,6 +124,8 @@ beforeEach(() => {
             });
         });
     updatePrototypeMock = jest.fn();
+    setSpanAttributeMock = jest.fn();
+    getActiveSpanMock = jest.fn().mockReturnValue(undefined);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     jest.doMock('../../utils', () => ({
@@ -148,6 +153,11 @@ beforeEach(() => {
         getWorkspacesByUserId: getWorkspacesByUserIdMock,
         storePrototype: storePrototypeMock,
         updatePrototype: updatePrototypeMock,
+    }));
+    jest.doMock('@opentelemetry/api', () => ({
+        trace: {
+            getActiveSpan: getActiveSpanMock,
+        },
     }));
 });
 
@@ -2391,6 +2401,84 @@ describe('handleCreatePrototype', () => {
 
             expect(response.statusCode).toBe(400);
             expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(0);
+        });
+
+        it('should set span attributes with error details if there is an active span', async () => {
+            validateTemplateDataTextMock.mockImplementationOnce(() => {
+                const error = new Error('Invalid JSON');
+                error.name = 'ValidationError';
+                error.message = 'Invalid JSON';
+                error.stack = 'custom stack trace';
+                throw error;
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    prompt: '{invalid:}',
+                    promptType: 'json',
+                },
+                method: 'POST',
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
+            getActiveSpanMock.mockReturnValueOnce({
+                setAttribute: setSpanAttributeMock,
+            });
+
+            await handleCreatePrototype(request, response);
+
+            expect(response.statusCode).toBe(400);
+            expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(3);
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.name',
+                'ValidationError'
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.message',
+                'Invalid JSON'
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.stack',
+                'custom stack trace'
+            );
+        });
+
+        it('should set span attributes with empty strings if there is an active span', async () => {
+            validateTemplateDataTextMock.mockImplementationOnce(() => {
+                const error = new Error('Invalid JSON');
+                error.name = undefined as unknown as string;
+                error.message = undefined as unknown as string;
+                error.stack = undefined as unknown as string;
+                throw error;
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    prompt: '{invalid:}',
+                    promptType: 'json',
+                },
+                method: 'POST',
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
+            getActiveSpanMock.mockReturnValueOnce({
+                setAttribute: setSpanAttributeMock,
+            });
+
+            await handleCreatePrototype(request, response);
+
+            expect(response.statusCode).toBe(400);
+            expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(3);
+            expect(setSpanAttributeMock).toHaveBeenCalledWith('error.name', '');
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.message',
+                ''
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.stack',
+                ''
+            );
         });
 
         it('should throw for OpenAI API errors', async () => {
