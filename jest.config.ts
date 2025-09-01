@@ -22,7 +22,7 @@ const config: Config = {
     },
     globalSetup: '<rootDir>/jest/globalSetup.ts',
     globalTeardown: '<rootDir>/jest/globalTeardown.ts',
-    maxWorkers: 4,
+    maxWorkers: 1,
     preset: 'ts-jest',
     setupFilesAfterEnv: ['<rootDir>/jest/setupFile.ts'],
     silent: true,
