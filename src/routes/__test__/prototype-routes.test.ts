@@ -15,8 +15,9 @@ import {
     user2,
     userId1,
     userId2,
-    workspace,
-    workspaceId,
+    workspace3,
+    workspace4,
+    workspaceId3,
 } from '../../../jest/mockTestData';
 import {
     IPrototypeData,
@@ -39,6 +40,8 @@ let getWorkspaceByIdMock: jest.Mock;
 let getWorkspacesByUserIdMock: jest.Mock;
 let storePrototypeMock: jest.Mock;
 let updatePrototypeMock: jest.Mock;
+let getActiveSpanMock: jest.Mock;
+let setSpanAttributeMock: jest.Mock;
 
 beforeEach(() => {
     jest.resetModules();
@@ -121,6 +124,8 @@ beforeEach(() => {
             });
         });
     updatePrototypeMock = jest.fn();
+    setSpanAttributeMock = jest.fn();
+    getActiveSpanMock = jest.fn().mockReturnValue(undefined);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     jest.doMock('../../utils', () => ({
@@ -148,6 +153,11 @@ beforeEach(() => {
         getWorkspacesByUserId: getWorkspacesByUserIdMock,
         storePrototype: storePrototypeMock,
         updatePrototype: updatePrototypeMock,
+    }));
+    jest.doMock('@opentelemetry/api', () => ({
+        trace: {
+            getActiveSpan: getActiveSpanMock,
+        },
     }));
 });
 
@@ -199,10 +209,10 @@ describe('renderCreatePage', () => {
         const renderData = response._getRenderData() as {
             workspaces: { text: string; value: string }[];
         };
-        expect(renderData.workspaces).toHaveLength(2);
         expect(renderData.workspaces).toEqual(
             expect.arrayContaining([
-                { text: workspace.name, value: workspace.id },
+                { text: workspace3.name, value: workspace3.id },
+                { text: workspace4.name, value: workspace4.id },
                 {
                     text: user1PersonalWorkspace.name,
                     value: user1PersonalWorkspace.id,
@@ -263,6 +273,21 @@ describe('renderHistoryPage', () => {
                 sharing: 'invalid',
                 workspaceId: 'invalid',
             },
+            url: '/history',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderHistoryPage(request, response);
+
+        expect(response.statusCode).toBe(302); // redirect
+        expect(response._getRedirectUrl()).toContain('/history?');
+    });
+
+    it('should redirect if query parameters are missing', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            query: {},
             url: '/history',
             user: user1,
         });
@@ -410,7 +435,7 @@ describe('renderHistoryPage', () => {
 
     it.each([
         ['all', 3],
-        [workspaceId.toString(), 2],
+        [workspaceId3.toString(), 2],
         [user1PersonalWorkspaceId.toString(), 1],
     ])(
         'should render history.njk filtered on workspaceId=%s',
@@ -628,7 +653,7 @@ describe('handleUpdateSharing', () => {
                 livePrototypePublic: false,
                 livePrototypePublicPassword: '',
                 sharedWithUserIds: [],
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             },
             method: 'POST',
             params: { id: prototypeData3.id },
@@ -692,35 +717,44 @@ describe('handleUpdateSharing', () => {
         });
     });
 
-    it('should update prototype and return 200 on success', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                livePrototypePublic: true,
-                livePrototypePublicPassword: 'pass',
-                sharedWithUserIds: [user1.id],
-                workspaceId: user1PersonalWorkspaceId.toString(),
-            },
-            method: 'POST',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
+    it.each([
+        ['pass', 'pass'],
+        [undefined, ''],
+    ])(
+        'should update prototype and return 200 on success with password=%s',
+        async (bodyPassword, expectedPassword) => {
+            const request = httpMocks.createRequest({
+                body: {
+                    livePrototypePublic: true,
+                    livePrototypePublicPassword: bodyPassword,
+                    sharedWithUserIds: [user1.id],
+                    workspaceId: user1PersonalWorkspaceId.toString(),
+                },
+                method: 'POST',
+                params: { id: prototypeData1.id },
+                prototypeData: prototypeData1,
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
 
-        await handleUpdateSharing(request, response);
+            await handleUpdateSharing(request, response);
 
-        expect(response.statusCode).toBe(200);
-        expect(response._getJSONData()).toEqual({
-            message: 'Prototype sharing settings updated successfully.',
-        });
-        expect(updatePrototypeMock).toHaveBeenCalledTimes(1);
-        expect(updatePrototypeMock).toHaveBeenCalledWith(prototypeData1.id, {
-            livePrototypePublic: true,
-            livePrototypePublicPassword: 'pass',
-            sharedWithUserIds: [user1.id],
-            workspaceId: user1PersonalWorkspaceId.toString(),
-        });
-    });
+            expect(response.statusCode).toBe(200);
+            expect(response._getJSONData()).toEqual({
+                message: 'Prototype sharing settings updated successfully.',
+            });
+            expect(updatePrototypeMock).toHaveBeenCalledTimes(1);
+            expect(updatePrototypeMock).toHaveBeenCalledWith(
+                prototypeData1.id,
+                {
+                    livePrototypePublic: true,
+                    livePrototypePublicPassword: expectedPassword,
+                    sharedWithUserIds: [user1.id],
+                    workspaceId: user1PersonalWorkspaceId.toString(),
+                }
+            );
+        }
+    );
 });
 
 describe('handleLivePrototypePasswordSubmission', () => {
@@ -1096,6 +1130,34 @@ describe('renderResultsPage', () => {
         expect(data.totalCountPreviousPrototypes).toBe(15);
     });
 
+    it('should show an unknown user if creator of previous prototype does not exist', async () => {
+        const manyPreviousPrototypes = Array.from({ length: 15 }, (_, i) => ({
+            ...prototypeData2,
+            changesMade: `Change ${String(i)}`,
+            creatorUserId: 'unknown-id',
+            id: `prototype-${String(i)}`,
+            timestamp: new Date().toISOString(),
+        }));
+        getPreviousPrototypesMock.mockResolvedValueOnce(manyPreviousPrototypes);
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        const data = response._getRenderData() as ResultsTemplatePayload;
+        expect(data.additionalCountPreviousPrototypes).toBe(8);
+        expect(data.previousPrototypesRows).toHaveLength(8); // 7 shown + 1 current
+        expect(data.previousPrototypesRows[2][0].html).toContain(
+            'an&nbsp;unknown&nbsp;user'
+        );
+        expect(data.totalCountPreviousPrototypes).toBe(15);
+    });
+
     it.each([
         ['json', true],
         ['text', false],
@@ -1228,7 +1290,7 @@ describe('renderResultsPage', () => {
 
     it('should generate workspace names correctly for multi-user workspace', async () => {
         const multiUserWorkspace = {
-            ...workspace,
+            ...workspace3,
             userIds: [user1.id, user2.id, 'user3'],
         };
         getWorkspaceByIdMock.mockResolvedValueOnce(multiUserWorkspace);
@@ -1249,7 +1311,7 @@ describe('renderResultsPage', () => {
 
     it('should generate workspace names correctly for single-user workspace', async () => {
         const singleUserWorkspace = {
-            ...workspace,
+            ...workspace3,
             userIds: [user1.id],
         };
         getWorkspaceByIdMock.mockResolvedValueOnce(singleUserWorkspace);
@@ -1612,7 +1674,7 @@ describe('handleUpdatePrototype', () => {
 
     describe('workspace handling', () => {
         it('should use provided workspace ID if user has access', async () => {
-            const targetWorkspaceId = workspaceId.toString();
+            const targetWorkspaceId = workspaceId3.toString();
             const request = httpMocks.createRequest({
                 body: {
                     prompt: 'Update form',
@@ -1675,7 +1737,7 @@ describe('handleUpdatePrototype', () => {
                     designSystem: 'HMRC',
                     prompt,
                     prototypeId: prototypeData1.id,
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -1709,7 +1771,7 @@ describe('handleUpdatePrototype', () => {
                 sharedWithUserIds: [...prototypeData1.sharedWithUserIds],
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 timestamp: expect.any(String),
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             });
             expect(response.statusCode).toBe(201);
         });
@@ -1926,7 +1988,7 @@ describe('handleUpdatePrototype', () => {
                 designSystem: 'HMRC',
                 prompt: 'Add comprehensive validation and improve user experience',
                 prototypeId: prototypeData1.id,
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             };
 
             const request = httpMocks.createRequest({
@@ -2051,7 +2113,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt,
                     promptType: 'text',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2082,7 +2144,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt: jsonPrompt,
                     promptType: 'json',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2188,7 +2250,7 @@ describe('handleCreatePrototype', () => {
 
     describe('workspace handling', () => {
         it('should use provided workspace ID if user has access', async () => {
-            const targetWorkspaceId = workspaceId.toString();
+            const targetWorkspaceId = workspaceId3.toString();
             const request = httpMocks.createRequest({
                 body: {
                     prompt: 'Create a form',
@@ -2248,7 +2310,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt,
                     promptType: 'text',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2274,7 +2336,7 @@ describe('handleCreatePrototype', () => {
                     livePrototypePublicPassword: '',
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     timestamp: expect.any(String),
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 })
             );
         });
@@ -2388,6 +2450,84 @@ describe('handleCreatePrototype', () => {
 
             expect(response.statusCode).toBe(400);
             expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(0);
+        });
+
+        it('should set span attributes with error details if there is an active span', async () => {
+            validateTemplateDataTextMock.mockImplementationOnce(() => {
+                const error = new Error('Invalid JSON');
+                error.name = 'ValidationError';
+                error.message = 'Invalid JSON';
+                error.stack = 'custom stack trace';
+                throw error;
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    prompt: '{invalid:}',
+                    promptType: 'json',
+                },
+                method: 'POST',
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
+            getActiveSpanMock.mockReturnValueOnce({
+                setAttribute: setSpanAttributeMock,
+            });
+
+            await handleCreatePrototype(request, response);
+
+            expect(response.statusCode).toBe(400);
+            expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(3);
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.name',
+                'ValidationError'
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.message',
+                'Invalid JSON'
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.stack',
+                'custom stack trace'
+            );
+        });
+
+        it('should set span attributes with empty strings if there is an active span', async () => {
+            validateTemplateDataTextMock.mockImplementationOnce(() => {
+                const error = new Error('Invalid JSON');
+                error.name = undefined as unknown as string;
+                error.message = undefined as unknown as string;
+                error.stack = undefined as unknown as string;
+                throw error;
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    prompt: '{invalid:}',
+                    promptType: 'json',
+                },
+                method: 'POST',
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
+            getActiveSpanMock.mockReturnValueOnce({
+                setAttribute: setSpanAttributeMock,
+            });
+
+            await handleCreatePrototype(request, response);
+
+            expect(response.statusCode).toBe(400);
+            expect(response._getJSONData()).toHaveProperty('message');
+            expect(setSpanAttributeMock).toHaveBeenCalledTimes(3);
+            expect(setSpanAttributeMock).toHaveBeenCalledWith('error.name', '');
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.message',
+                ''
+            );
+            expect(setSpanAttributeMock).toHaveBeenCalledWith(
+                'error.stack',
+                ''
+            );
         });
 
         it('should throw for OpenAI API errors', async () => {
@@ -2433,7 +2573,7 @@ describe('handleCreatePrototype', () => {
                 designSystem: 'HMRC',
                 prompt: 'Create a comprehensive feedback form',
                 promptType: 'text',
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             };
 
             const request = httpMocks.createRequest({

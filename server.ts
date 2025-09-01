@@ -21,6 +21,7 @@ import { helpRouter } from './src/routes/help-routes';
 import {
     attachRequestData,
     errorHandler,
+    notFoundHandler,
     verifyUser,
 } from './src/routes/middleware';
 import { prototypeRouter } from './src/routes/prototype-routes';
@@ -170,16 +171,7 @@ app.use('/user', userRouter);
 app.use('/help', helpRouter);
 
 // Handle 404 errors
-app.use(verifyUser, (req, res) => {
-    const secFetchDest = req.header('sec-fetch-dest');
-    if (secFetchDest === 'empty') {
-        res.status(404).json({ message: 'Page not found' });
-        return;
-    }
-    res.status(404).render('page-not-found.njk', {
-        insideIframe: secFetchDest === 'iframe',
-    });
-});
+app.use(verifyUser, notFoundHandler);
 
 // Attach middleware to handle errors
 app.use(errorHandler);

@@ -610,3 +610,46 @@ describe('errorHandler', () => {
         expect(nextFunctionMock).toHaveBeenCalledWith(error);
     });
 });
+describe('notFoundHandler', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let notFoundHandler: (req: any, res: any) => void;
+    beforeEach(async () => {
+        ({ notFoundHandler } = await import('../middleware'));
+    });
+
+    it('should return 404 JSON if sec-fetch-dest is empty', () => {
+        const req = httpMocks.createRequest({
+            headers: { 'sec-fetch-dest': 'empty' },
+        });
+        const res = httpMocks.createResponse();
+
+        notFoundHandler(req, res);
+
+        expect(res.statusCode).toBe(404);
+        expect(res._getJSONData()).toEqual({ message: 'Page not found' });
+    });
+
+    it.each([
+        { expectedInsideIframe: true, secFetchDest: 'iframe' },
+        { expectedInsideIframe: false, secFetchDest: 'other' },
+        { expectedInsideIframe: false, secFetchDest: undefined },
+    ])(
+        'should render page-not-found.njk with insideIframe $expectedInsideIframe if sec-fetch-dest is $secFetchDest',
+        ({ expectedInsideIframe, secFetchDest }) => {
+            const req = httpMocks.createRequest(
+                secFetchDest !== undefined
+                    ? { headers: { 'sec-fetch-dest': secFetchDest } }
+                    : undefined
+            );
+            const res = httpMocks.createResponse();
+
+            notFoundHandler(req, res);
+
+            expect(res.statusCode).toBe(404);
+            expect(res._getRenderView()).toBe('page-not-found.njk');
+            expect(res._getRenderData()).toEqual({
+                insideIframe: expectedInsideIframe,
+            });
+        }
+    );
+});

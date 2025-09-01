@@ -9,7 +9,7 @@ import {
     user2,
     userId1,
     userId2,
-    workspaceId,
+    workspaceId3,
 } from '../../../jest/mockTestData';
 import { IUser, IWorkspace } from '../../types';
 
@@ -39,13 +39,13 @@ beforeEach(() => {
         .fn()
         .mockImplementation((userId: string, wsId: string) => {
             if (userId === userId1.toString()) {
-                if (wsId === workspaceId.toString()) {
+                if (wsId === workspaceId3.toString()) {
                     return Promise.resolve(2);
                 } else if (wsId === user1PersonalWorkspaceId.toString()) {
                     return Promise.resolve(1);
                 }
             } else if (userId === userId2.toString()) {
-                if (wsId === workspaceId.toString()) {
+                if (wsId === workspaceId3.toString()) {
                     return Promise.resolve(1);
                 }
             }
@@ -93,7 +93,7 @@ beforeEach(() => {
     storeWorkspaceMock = jest.fn().mockImplementation((data: IWorkspace) => {
         return Promise.resolve({
             ...data,
-            _id: workspaceId as unknown as mongoose.Schema.Types.ObjectId,
+            _id: workspaceId3 as unknown as mongoose.Schema.Types.ObjectId,
         });
     });
     updateUserMock = jest.fn();
@@ -252,6 +252,38 @@ describe('registerUser', () => {
             );
             expect(storeUserMock).not.toHaveBeenCalled();
             expect(storeWorkspaceMock).not.toHaveBeenCalled();
+        }
+    );
+
+    it.each([
+        [
+            'mydomain.com',
+            true,
+            'Enter an email address with the domain mydomain.com',
+        ],
+        ['mydomain.com', false, 'Enter a valid email address'],
+    ])(
+        'should validate email domain and return error: %s, reveal=%s',
+        async (domain, reveal, expectedError) => {
+            getEnvironmentVariablesMock.mockReturnValue({
+                EMAIL_ADDRESS_ALLOWED_DOMAIN: domain,
+                EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: reveal,
+            });
+            const request = httpMocks.createRequest({
+                body: {
+                    email: `user@example.com`,
+                    name: 'Test',
+                    password1: 'Password123!',
+                    password2: 'Password123!',
+                },
+                method: 'POST',
+            });
+            const response = httpMocks.createResponse();
+            await registerUser(request, response);
+            expect(response.statusCode).toBe(400);
+            expect(JSON.stringify(response._getJSONData())).toContain(
+                expectedError
+            );
         }
     );
 
@@ -604,7 +636,7 @@ describe('renderWorkspacePage', () => {
     it('should render workspace page with correct data', async () => {
         const request = httpMocks.createRequest({
             method: 'GET',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();
@@ -621,7 +653,7 @@ describe('renderWorkspacePage', () => {
         };
         expect(data.allUsers).toEqual(allUsers);
         expect(data.userId).toBe(user1.id);
-        expect(data.workspaceId).toBe(workspaceId.toString());
+        expect(data.workspaceId).toBe(workspaceId3.toString());
         expect(data.ws).toBeDefined();
     });
 
@@ -642,7 +674,7 @@ describe('renderWorkspacePage', () => {
         canUserAccessWorkspaceMock.mockResolvedValueOnce(false);
         const request = httpMocks.createRequest({
             method: 'GET',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();
@@ -698,7 +730,7 @@ describe('updateWorkspace', () => {
         const request = httpMocks.createRequest({
             body: { name: 'Workspace', sharedWithUserIds: [] },
             method: 'POST',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();
@@ -717,7 +749,7 @@ describe('updateWorkspace', () => {
         const request = httpMocks.createRequest({
             body: { name: 'Workspace', sharedWithUserIds: ['non-existent'] },
             method: 'POST',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();
@@ -736,7 +768,7 @@ describe('updateWorkspace', () => {
                 sharedWithUserIds: [user1.id, user2.id, user1.id],
             },
             method: 'POST',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();
@@ -746,7 +778,7 @@ describe('updateWorkspace', () => {
             'Workspace updated successfully.'
         );
         expect(updateWorkspaceMock).toHaveBeenCalledWith(
-            workspaceId.toString(),
+            workspaceId3.toString(),
             {
                 isPersonalWorkspace: false,
                 name: 'Workspace New Name',
@@ -791,7 +823,7 @@ describe('updateWorkspace', () => {
         const request = httpMocks.createRequest({
             body: { name: 'Workspace', sharedWithUserIds: [user1.id] },
             method: 'POST',
-            params: { id: workspaceId.toString() },
+            params: { id: workspaceId3.toString() },
             user: user1,
         });
         const response = httpMocks.createResponse();

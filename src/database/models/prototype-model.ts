@@ -5,29 +5,10 @@ import {
     Prototype,
     PrototypeQuery,
 } from '../../types/schemas/prototype-schema';
-import { WorkspaceModel } from './workspaceModel';
+import { WorkspaceModel } from './workspace-model';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class PrototypeModel {
-    /**
-     * Add a user to shared users list
-     */
-    static async addSharedUser(
-        prototypeId: string,
-        userId: string
-    ): Promise<IPrototypeData | null> {
-        try {
-            return await Prototype.findByIdAndUpdate(
-                prototypeId,
-                { $addToSet: { sharedWithUserIds: userId } },
-                { new: true }
-            );
-        } catch (error) {
-            console.error('Error adding shared user to prototype:', error);
-            throw error;
-        }
-    }
-
     /**
      * Check if a user can access a prototype
      */
@@ -241,25 +222,6 @@ export class PrototypeModel {
             return previousPrototypes;
         } catch (error) {
             console.error('Error getting previous prototypes:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Remove a user from shared users list
-     */
-    static async removeSharedUser(
-        prototypeId: string,
-        userId: string
-    ): Promise<IPrototypeData | null> {
-        try {
-            return await Prototype.findByIdAndUpdate(
-                prototypeId,
-                { $pull: { sharedWithUserIds: userId } },
-                { new: true }
-            );
-        } catch (error) {
-            console.error('Error removing shared user from prototype:', error);
             throw error;
         }
     }
