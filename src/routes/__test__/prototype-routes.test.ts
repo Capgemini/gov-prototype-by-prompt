@@ -284,6 +284,21 @@ describe('renderHistoryPage', () => {
         expect(response._getRedirectUrl()).toContain('/history?');
     });
 
+    it('should redirect if query parameters are missing', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            query: {},
+            url: '/history',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderHistoryPage(request, response);
+
+        expect(response.statusCode).toBe(302); // redirect
+        expect(response._getRedirectUrl()).toContain('/history?');
+    });
+
     it('should render history.njk with pagination', async () => {
         const request = httpMocks.createRequest({
             method: 'GET',
@@ -704,35 +719,44 @@ describe('handleUpdateSharing', () => {
         }
     );
 
-    it('should update prototype and return 200 on success', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                livePrototypePublic: true,
-                livePrototypePublicPassword: 'pass',
-                sharedWithUserIds: [user1.id],
-                workspaceId: user1PersonalWorkspaceId.toString(),
-            },
-            method: 'POST',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
+    it.each([
+        ['pass', 'pass'],
+        [undefined, ''],
+    ])(
+        'should update prototype and return 200 on success with password=%s',
+        async (bodyPassword, expectedPassword) => {
+            const request = httpMocks.createRequest({
+                body: {
+                    livePrototypePublic: true,
+                    livePrototypePublicPassword: bodyPassword,
+                    sharedWithUserIds: [user1.id],
+                    workspaceId: user1PersonalWorkspaceId.toString(),
+                },
+                method: 'POST',
+                params: { id: prototypeData1.id },
+                prototypeData: prototypeData1,
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
 
-        await handleUpdateSharing(request, response);
+            await handleUpdateSharing(request, response);
 
-        expect(response.statusCode).toBe(200);
-        expect(response._getJSONData()).toEqual({
-            message: 'Prototype sharing settings updated successfully.',
-        });
-        expect(updatePrototypeMock).toHaveBeenCalledTimes(1);
-        expect(updatePrototypeMock).toHaveBeenCalledWith(prototypeData1.id, {
-            livePrototypePublic: true,
-            livePrototypePublicPassword: 'pass',
-            sharedWithUserIds: [user1.id],
-            workspaceId: user1PersonalWorkspaceId.toString(),
-        });
-    });
+            expect(response.statusCode).toBe(200);
+            expect(response._getJSONData()).toEqual({
+                message: 'Prototype sharing settings updated successfully.',
+            });
+            expect(updatePrototypeMock).toHaveBeenCalledTimes(1);
+            expect(updatePrototypeMock).toHaveBeenCalledWith(
+                prototypeData1.id,
+                {
+                    livePrototypePublic: true,
+                    livePrototypePublicPassword: expectedPassword,
+                    sharedWithUserIds: [user1.id],
+                    workspaceId: user1PersonalWorkspaceId.toString(),
+                }
+            );
+        }
+    );
 });
 
 describe('handleLivePrototypePasswordSubmission', () => {
@@ -1105,6 +1129,34 @@ describe('renderResultsPage', () => {
         const data = response._getRenderData() as ResultsTemplatePayload;
         expect(data.additionalCountPreviousPrototypes).toBe(8);
         expect(data.previousPrototypesRows).toHaveLength(8); // 7 shown + 1 current
+        expect(data.totalCountPreviousPrototypes).toBe(15);
+    });
+
+    it('should show an unknown user if creator of previous prototype does not exist', async () => {
+        const manyPreviousPrototypes = Array.from({ length: 15 }, (_, i) => ({
+            ...prototypeData2,
+            changesMade: `Change ${String(i)}`,
+            creatorUserId: 'unknown-id',
+            id: `prototype-${String(i)}`,
+            timestamp: new Date().toISOString(),
+        }));
+        getPreviousPrototypesMock.mockResolvedValueOnce(manyPreviousPrototypes);
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        const data = response._getRenderData() as ResultsTemplatePayload;
+        expect(data.additionalCountPreviousPrototypes).toBe(8);
+        expect(data.previousPrototypesRows).toHaveLength(8); // 7 shown + 1 current
+        expect(data.previousPrototypesRows[2][0].html).toContain(
+            'an&nbsp;unknown&nbsp;user'
+        );
         expect(data.totalCountPreviousPrototypes).toBe(15);
     });
 

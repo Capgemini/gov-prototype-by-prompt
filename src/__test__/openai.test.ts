@@ -114,13 +114,23 @@ describe('createFormWithOpenAI', () => {
         }
     );
 
-    it('log the prompt if there is an opentelemetry span', async () => {
+    it('logs the prompt if there is an opentelemetry span', async () => {
         chatCreateMock.mockReturnValueOnce({
             choices: [{ message: { content: '{"name":"Test Form"}' } }],
         });
         await createFormWithOpenAI(envVars, prompt, 'GOV.UK', false);
         expect(getActiveSpanMock).toHaveBeenCalled();
         expect(setAttributeMock).toHaveBeenCalledWith('openai.prompt', prompt);
+    });
+
+    it('does not log the prompt if there is not an opentelemetry span', async () => {
+        getActiveSpanMock.mockReturnValueOnce(undefined);
+        chatCreateMock.mockReturnValueOnce({
+            choices: [{ message: { content: '{"name":"Test Form"}' } }],
+        });
+        await createFormWithOpenAI(envVars, prompt, 'GOV.UK', false);
+        expect(getActiveSpanMock).toHaveBeenCalled();
+        expect(setAttributeMock).not.toHaveBeenCalled();
     });
 
     it('returns {} if OpenAI response content is undefined', async () => {
@@ -212,7 +222,7 @@ describe('updateFormWithOpenAI', () => {
         }
     );
 
-    it('log the prompt if there is an opentelemetry span', async () => {
+    it('logs the prompt if there is an opentelemetry span', async () => {
         chatCreateMock.mockReturnValueOnce({
             choices: [{ message: { content: '{"name":"Test Form"}' } }],
         });
@@ -225,6 +235,22 @@ describe('updateFormWithOpenAI', () => {
         );
         expect(getActiveSpanMock).toHaveBeenCalled();
         expect(setAttributeMock).toHaveBeenCalledWith('openai.prompt', prompt);
+    });
+
+    it('does not log the prompt if there is not an opentelemetry span', async () => {
+        getActiveSpanMock.mockReturnValueOnce(undefined);
+        chatCreateMock.mockReturnValueOnce({
+            choices: [{ message: { content: '{"name":"Test Form"}' } }],
+        });
+        await updateFormWithOpenAI(
+            envVars,
+            prompt,
+            {} as TemplateData, // Mocking TemplateData as an empty object
+            'GOV.UK',
+            false
+        );
+        expect(getActiveSpanMock).toHaveBeenCalled();
+        expect(setAttributeMock).not.toHaveBeenCalled();
     });
 
     it('returns {} if OpenAI response content is undefined', async () => {

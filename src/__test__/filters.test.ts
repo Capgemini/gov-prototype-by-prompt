@@ -32,10 +32,13 @@ describe('arrayOrStringIncludes', () => {
         ['hello world', 'nope', false],
         [[], 'x', false],
         ['', 'x', false],
+        [45, 'x', false],
     ])(
         'arrayOrStringIncludes(%p, %p) returns %p',
         (input, search, expected) => {
-            expect(arrayOrStringIncludes(input, search)).toBe(expected);
+            expect(
+                arrayOrStringIncludes(input as string | string[], search)
+            ).toBe(expected);
         }
     );
 });
@@ -134,6 +137,7 @@ describe('isoDateFromDateInput', () => {
         ],
         [{ day: '15', month: '03', year: '2020' }, undefined, '2020-03-15'],
         [{ month: '02', year: '2012' }, undefined, '2012-02'],
+        [{ day: '15', month: '02' }, undefined, ''],
         [{}, undefined, ''],
         [{ 'dob-month': '02', 'dob-year': '2012' }, 'dob', '2012-02'],
         [

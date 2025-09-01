@@ -14,10 +14,10 @@ const config: Config = {
     ],
     coverageThreshold: {
         global: {
-            branches: 70,
-            functions: 70,
-            lines: 70,
-            statements: 70,
+            branches: 85,
+            functions: 85,
+            lines: 85,
+            statements: 85,
         },
     },
     globalSetup: '<rootDir>/jest/globalSetup.ts',
@@ -25,7 +25,7 @@ const config: Config = {
     maxWorkers: 4,
     preset: 'ts-jest',
     setupFilesAfterEnv: ['<rootDir>/jest/setupFile.ts'],
-    silent: false,
+    silent: true,
     testTimeout: 30000,
     verbose: false,
 };

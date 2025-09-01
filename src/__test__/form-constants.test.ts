@@ -223,4 +223,28 @@ describe('getStartPage', () => {
             }
         }
     );
+
+    it.each([
+        [1, 'around 1 minute'],
+        [5, 'around 5 minutes'],
+        [15, 'around 15 minutes'],
+    ] as [number, string][])(
+        'returns start page with correct minutes',
+        (duration, instruction) => {
+            const result = getStartPage(
+                { ...data, duration },
+                urlPrefix,
+                'GOV.UK',
+                false
+            );
+            expect(result).toContain(`pageTitle = "${data.title}"`);
+            expect(result).toContain(data.description);
+            expect(result).toContain(
+                `Completing this form takes ${instruction}.`
+            );
+            expect(result).toContain(`href: "/${urlPrefix}/question-1"`);
+            expect(result).toContain('Before you start');
+            expect(result).toContain(data.before_you_start);
+        }
+    );
 });
