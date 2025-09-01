@@ -137,11 +137,15 @@
           // Otherwise provide the errors
           } else {
             const responseJson = await response.json();
-            for (const input of formInputs) {
-              const errorElement = document.getElementById(`${input.id}ErrorMessage`);
-              errorElement.style.display = '';
-              input.classList.add('govuk-input--error');
-              errorElement.parentNode.classList.add('govuk-form-group--error');
+            for (const error of responseJson.errors ?? []) {
+              const input = document.getElementById(error.path);
+              if (input) {
+                const errorElement = document.getElementById(`${error.path}ErrorMessage`);
+                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                errorElement.style.display = '';
+                input.classList.add('govuk-input--error');
+                errorElement.parentNode.classList.add('govuk-form-group--error');
+              }
             }
             throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
           }

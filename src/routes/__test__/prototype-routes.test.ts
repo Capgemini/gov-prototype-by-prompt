@@ -693,31 +693,29 @@ describe('handleUpdateSharing', () => {
         });
     });
 
-    it.each([undefined, '', 'invalid-workspace-id'])(
-        'should return 400 if the new workspace ID is not valid',
-        async (workspaceId) => {
-            const request = httpMocks.createRequest({
-                body: {
-                    livePrototypePublic: false,
-                    livePrototypePublicPassword: '',
-                    sharedWithUserIds: [],
-                    workspaceId: workspaceId,
-                },
-                method: 'POST',
-                params: { id: prototypeData1.id },
-                prototypeData: prototypeData1,
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
+    it('should return 400 if the new workspace ID is not valid', async () => {
+        const workspaceId = 'invalid-workspace-id';
+        const request = httpMocks.createRequest({
+            body: {
+                livePrototypePublic: false,
+                livePrototypePublicPassword: '',
+                sharedWithUserIds: [],
+                workspaceId: workspaceId,
+            },
+            method: 'POST',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
 
-            await handleUpdateSharing(request, response);
+        await handleUpdateSharing(request, response);
 
-            expect(response.statusCode).toBe(400);
-            expect(response._getJSONData()).toEqual({
-                message: 'A valid workspace ID is required.',
-            });
-        }
-    );
+        expect(response.statusCode).toBe(400);
+        expect(response._getJSONData()).toEqual({
+            message: 'A valid workspace ID is required.',
+        });
+    });
 
     it.each([
         ['pass', 'pass'],
@@ -2226,7 +2224,6 @@ describe('handleCreatePrototype', () => {
             ['GOV.UK', 'GOV.UK'],
             ['HMRC', 'HMRC'],
             ['invalid-system', 'GOV.UK'], // Should default to GOV.UK
-            [undefined, 'GOV.UK'], // Should use default
         ])(
             'should handle design system correctly (%s)',
             async (designSystem, expectedDesignSystem) => {

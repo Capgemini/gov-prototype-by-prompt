@@ -198,8 +198,22 @@ export function getHmrcAssetsVersion(): string {
 export function handleValidationErrors(req: Request, res: Response): boolean {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        const errorArray = errors.array();
+        let errorMessage: string;
+
+        // Use the validation error message if there's only one or they're all the same
+        if (
+            errorArray.length === 1 ||
+            errorArray.every((err) => err.msg === errorArray[0].msg)
+        ) {
+            errorMessage = errorArray[0].msg as string;
+        } else {
+            errorMessage = 'Resolve the errors and try again.';
+        }
+
         res.status(400).json({
-            errors: errors.array(),
+            errors: errorArray,
+            message: errorMessage,
         });
         return true;
     }

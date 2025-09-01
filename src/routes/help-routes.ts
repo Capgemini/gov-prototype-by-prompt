@@ -93,10 +93,7 @@ export function renderHelpFile(
 helpRouter.get(
     '/:filename',
     verifyUser,
-    param('filename')
-        .isString()
-        .matches(/^[a-zA-Z0-9_-]+$/)
-        .withMessage('Invalid filename format'),
+    param('filename').trim().notEmpty(),
     renderHelpFile
 );
 
