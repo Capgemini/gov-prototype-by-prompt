@@ -3,7 +3,7 @@ import {
     user1PersonalWorkspaceId,
 } from '../../../../jest/mockTestData';
 import { disconnectFromDatabase } from '../../connection/mongoose';
-import { WorkspaceModel } from '../workspaceModel';
+import { WorkspaceModel } from '../workspace-model';
 
 const workspaceId = user1PersonalWorkspaceId.toString();
 const mockWorkspace = user1PersonalWorkspace;

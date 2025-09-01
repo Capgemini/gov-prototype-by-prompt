@@ -5,7 +5,7 @@ import {
     Prototype,
     PrototypeQuery,
 } from '../../types/schemas/prototype-schema';
-import { WorkspaceModel } from './workspaceModel';
+import { WorkspaceModel } from './workspace-model';
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class PrototypeModel {

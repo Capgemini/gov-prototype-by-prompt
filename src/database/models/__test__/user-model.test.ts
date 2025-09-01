@@ -1,7 +1,7 @@
 import { user1 } from '../../../../jest/mockTestData';
 import { IUser } from '../../../types';
 import { disconnectFromDatabase } from '../../connection/mongoose';
-import { UserModel } from '../userModel';
+import { UserModel } from '../user-model';
 
 const mockUser = user1;
 
