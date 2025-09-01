@@ -277,7 +277,7 @@ describe('PrototypeModel', () => {
             expect(result).toHaveLength(1);
         });
 
-        it('should not previous prototypes if the user cannot access them', async () => {
+        it('should not return previous prototypes if the user cannot access them', async () => {
             const newPrototype = new Prototype(mockPrototype1);
             await newPrototype.save();
             const newPrototype2 = new Prototype({
