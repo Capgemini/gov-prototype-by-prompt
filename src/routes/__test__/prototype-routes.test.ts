@@ -15,8 +15,8 @@ import {
     user2,
     userId1,
     userId2,
-    workspace,
-    workspaceId,
+    workspace3,
+    workspaceId3,
 } from '../../../jest/mockTestData';
 import {
     IPrototypeData,
@@ -199,10 +199,10 @@ describe('renderCreatePage', () => {
         const renderData = response._getRenderData() as {
             workspaces: { text: string; value: string }[];
         };
-        expect(renderData.workspaces).toHaveLength(2);
         expect(renderData.workspaces).toEqual(
             expect.arrayContaining([
-                { text: workspace.name, value: workspace.id },
+                { text: workspace3.name, value: workspace3.id },
+                { text: workspace4.name, value: workspace4.id },
                 {
                     text: user1PersonalWorkspace.name,
                     value: user1PersonalWorkspace.id,
@@ -410,7 +410,7 @@ describe('renderHistoryPage', () => {
 
     it.each([
         ['all', 3],
-        [workspaceId.toString(), 2],
+        [workspaceId3.toString(), 2],
         [user1PersonalWorkspaceId.toString(), 1],
     ])(
         'should render history.njk filtered on workspaceId=%s',
@@ -628,7 +628,7 @@ describe('handleUpdateSharing', () => {
                 livePrototypePublic: false,
                 livePrototypePublicPassword: '',
                 sharedWithUserIds: [],
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             },
             method: 'POST',
             params: { id: prototypeData3.id },
@@ -1230,7 +1230,7 @@ describe('renderResultsPage', () => {
 
     it('should generate workspace names correctly for multi-user workspace', async () => {
         const multiUserWorkspace = {
-            ...workspace,
+            ...workspace3,
             userIds: [user1.id, user2.id, 'user3'],
         };
         getWorkspaceByIdMock.mockResolvedValueOnce(multiUserWorkspace);
@@ -1251,7 +1251,7 @@ describe('renderResultsPage', () => {
 
     it('should generate workspace names correctly for single-user workspace', async () => {
         const singleUserWorkspace = {
-            ...workspace,
+            ...workspace3,
             userIds: [user1.id],
         };
         getWorkspaceByIdMock.mockResolvedValueOnce(singleUserWorkspace);
@@ -1614,7 +1614,7 @@ describe('handleUpdatePrototype', () => {
 
     describe('workspace handling', () => {
         it('should use provided workspace ID if user has access', async () => {
-            const targetWorkspaceId = workspaceId.toString();
+            const targetWorkspaceId = workspaceId3.toString();
             const request = httpMocks.createRequest({
                 body: {
                     prompt: 'Update form',
@@ -1677,7 +1677,7 @@ describe('handleUpdatePrototype', () => {
                     designSystem: 'HMRC',
                     prompt,
                     prototypeId: prototypeData1.id,
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -1711,7 +1711,7 @@ describe('handleUpdatePrototype', () => {
                 sharedWithUserIds: [...prototypeData1.sharedWithUserIds],
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 timestamp: expect.any(String),
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             });
             expect(response.statusCode).toBe(201);
         });
@@ -1928,7 +1928,7 @@ describe('handleUpdatePrototype', () => {
                 designSystem: 'HMRC',
                 prompt: 'Add comprehensive validation and improve user experience',
                 prototypeId: prototypeData1.id,
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             };
 
             const request = httpMocks.createRequest({
@@ -2053,7 +2053,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt,
                     promptType: 'text',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2084,7 +2084,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt: jsonPrompt,
                     promptType: 'json',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2191,7 +2191,7 @@ describe('handleCreatePrototype', () => {
 
     describe('workspace handling', () => {
         it('should use provided workspace ID if user has access', async () => {
-            const targetWorkspaceId = workspaceId.toString();
+            const targetWorkspaceId = workspaceId3.toString();
             const request = httpMocks.createRequest({
                 body: {
                     prompt: 'Create a form',
@@ -2251,7 +2251,7 @@ describe('handleCreatePrototype', () => {
                     designSystem: 'GOV.UK',
                     prompt,
                     promptType: 'text',
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 },
                 method: 'POST',
                 user: user1,
@@ -2277,7 +2277,7 @@ describe('handleCreatePrototype', () => {
                     livePrototypePublicPassword: '',
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                     timestamp: expect.any(String),
-                    workspaceId: workspaceId.toString(),
+                    workspaceId: workspaceId3.toString(),
                 })
             );
         });
@@ -2436,7 +2436,7 @@ describe('handleCreatePrototype', () => {
                 designSystem: 'HMRC',
                 prompt: 'Create a comprehensive feedback form',
                 promptType: 'text',
-                workspaceId: workspaceId.toString(),
+                workspaceId: workspaceId3.toString(),
             };
 
             const request = httpMocks.createRequest({

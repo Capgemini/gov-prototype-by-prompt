@@ -7,7 +7,8 @@ const userId1 = new mongoose.Types.ObjectId();
 const userId2 = new mongoose.Types.ObjectId();
 const user1PersonalWorkspaceId = new mongoose.Types.ObjectId();
 const user2PersonalWorkspaceId = new mongoose.Types.ObjectId();
-const workspaceId = new mongoose.Types.ObjectId();
+const workspaceId3 = new mongoose.Types.ObjectId();
+const workspaceId4 = new mongoose.Types.ObjectId();
 const prototypeId1 = new mongoose.Types.ObjectId();
 const prototypeId2 = new mongoose.Types.ObjectId();
 const prototypeId3 = new mongoose.Types.ObjectId();
@@ -85,7 +86,7 @@ const prototypeData2: IPrototypeData = {
         title: 'Test Prototype 2',
     },
     previousId: prototypeId1.toString(),
-    workspaceId: workspaceId.toString(),
+    workspaceId: workspaceId3.toString(),
 };
 const prototypeData3 = {
     ...prototypeData1,
@@ -98,7 +99,7 @@ const prototypeData3 = {
     },
     livePrototypePublic: true,
     sharedWithUserIds: [userId2.toString()],
-    workspaceId: workspaceId.toString(),
+    workspaceId: workspaceId3.toString(),
 };
 const prototypeData4: IPrototypeData = {
     ...prototypeData1,
@@ -132,14 +133,21 @@ const user2PersonalWorkspace: IWorkspace = {
     name: 'Test User 2 Personal Workspace',
     userIds: [user2.id],
 };
-const workspace: IWorkspace = {
-    _id: workspaceId as unknown as mongoose.Schema.Types.ObjectId,
+const workspace3: IWorkspace = {
+    _id: workspaceId3 as unknown as mongoose.Schema.Types.ObjectId,
     createdAt: new Date().toISOString(),
-    id: workspaceId.toString(),
+    id: workspaceId3.toString(),
     isPersonalWorkspace: false,
-    name: 'Workspace Two',
+    name: 'Workspace Three',
     updatedAt: new Date().toISOString(),
     userIds: [user1.id, new mongoose.Types.ObjectId().toString()],
+};
+const workspace4: IWorkspace = {
+    ...workspace3,
+    _id: workspaceId4 as unknown as mongoose.Schema.Types.ObjectId,
+    id: workspaceId4.toString(),
+    name: 'Workspace Four',
+    userIds: [user1.id],
 };
 
 // Collections of all
@@ -153,7 +161,8 @@ const allPrototypes: IPrototypeData[] = [
 const allWorkspaces: IWorkspace[] = [
     user1PersonalWorkspace,
     user2PersonalWorkspace,
-    workspace,
+    workspace3,
+    workspace4,
 ];
 
 export {
@@ -176,6 +185,8 @@ export {
     user2PersonalWorkspaceId,
     userId1,
     userId2,
-    workspace,
-    workspaceId,
+    workspace3,
+    workspace4,
+    workspaceId3,
+    workspaceId4,
 };
