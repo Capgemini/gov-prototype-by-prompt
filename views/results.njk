@@ -121,7 +121,7 @@
         <ol>
           {% for question in json["questions"] %}
             <li>
-              <strong>{{ question.answer_type }}</strong>: {{ question.question_text }}
+              <a href="javascript:changePreviewPage('question-{{ loop.index }}')"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }}
               {% if question.options %}
                 <ul>
                   {% for option in question.options %}
@@ -404,6 +404,11 @@
         window.location.reload();
       }
     });
+
+    // Allow the user to jump to a page
+    function changePreviewPage(newPage) {
+      previewFrame.src = `/prototype/{{ prototypeId }}/${newPage}`;
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
 
