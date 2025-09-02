@@ -121,7 +121,7 @@
         <ol>
           {% for question in json["questions"] %}
             <li>
-              <a href="javascript:changePreviewPage('question-{{ loop.index }}')"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }}
+              <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }}
               {% if question.options %}
                 <ul>
                   {% for option in question.options %}
@@ -405,13 +405,8 @@
       }
     });
 
-    // Allow the user to jump to a page
-    function changePreviewPage(newPage) {
-      previewFrame.src = `/prototype/{{ prototypeId }}/${newPage}`;
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
-
+      
       const promptForm = document.getElementById('promptForm');
       const textPromptInput = document.getElementById('textPrompt');
       const designSystemSelect = document.getElementById('designSystem');
@@ -730,6 +725,14 @@
           });
         });
       {% endif %}
+
+      // Allow the user to change the preview to a specific page
+      document.querySelectorAll('a.change-preview-page').forEach(function(link) {
+        link.addEventListener('click', function(event) {
+          event.preventDefault();
+          previewFrame.src = `/prototype/{{ prototypeId }}/${link.getAttribute('data-preview-page')}`;
+        });
+      });
 
       // Handle the reset button click event
       const resetButton = document.getElementById('resetDemoButton');
