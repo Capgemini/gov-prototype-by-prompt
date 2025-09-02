@@ -517,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Create the error message element for all non-date inputs
     let labelElements = document.querySelectorAll(
-        '.govuk-label:not(.govuk-date-input__label)'
+        '.govuk-label:not(.govuk-date-input__label, .govuk-checkboxes__label, .govuk-radios__label)'
     );
     labelElements.forEach((labelElement, index) => {
         const errorElement = document.createElement('p');
@@ -531,10 +531,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Create the error message element for all date inputs
     labelElements = document.querySelectorAll(
-        '.govuk-label.govuk-date-input__label'
+        '.govuk-label.govuk-date-input__label, .govuk-label.govuk-checkboxes__label, .govuk-label.govuk-radios__label'
     );
     labelElements.forEach((labelElement, index) => {
-        const dateInputGroup = labelElement.closest('.govuk-date-input');
+        const dateInputGroup = labelElement.closest(
+            '.govuk-date-input, .govuk-checkboxes, .govuk-radios'
+        );
         if (!dateInputGroup.parentNode.querySelector('.govuk-error-message')) {
             const errorElement = document.createElement('p');
             errorElement.className = 'govuk-error-message';
