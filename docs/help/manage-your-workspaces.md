@@ -1,4 +1,4 @@
-## Manage your workspaces <!-- markdownlint-disable-line first-line-h1 -->
+# Manage your workspaces
 
 Workspaces are like folders. Every prototype belongs to a workspace, and every workspace has one or more users.
 

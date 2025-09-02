@@ -1,4 +1,4 @@
-## Manage your prototypes  <!-- markdownlint-disable-line first-line-h1 -->
+# Manage your prototypes
 
 On the ["Your prototypes" page](/history), you can view all the prototypes you can access.
 

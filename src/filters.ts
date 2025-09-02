@@ -26,6 +26,7 @@ export function arrayOrStringIncludes(
  * Convert a Markdown string to GOV.UK HTML
  * @param {string} markdown the Markdown string to convert
  * @param {Partial<MarkedExtension>} options optional options for the conversion
+ * @param {string} options.headingsStartWith optional heading level to start from, defaults to 'xl'
  * @returns {string} the converted HTML string
  */
 export function convertToGovukMarkdown(

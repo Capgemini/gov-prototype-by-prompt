@@ -1,4 +1,4 @@
-## Update a prototype <!-- markdownlint-disable-line first-line-h1 -->
+# Update a prototype
 
 You can update a prototype by:
 
@@ -7,7 +7,7 @@ You can update a prototype by:
 
 Updating a prototype creates a new version with a new URL. Previous versions are stored in the "History" tab.
 
-### Sharing
+## Sharing
 
 The previous workspace is reused unless you choose a different one. If you are not a member of the workspace, your personal workspace is used instead.
 

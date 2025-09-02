@@ -1,10 +1,10 @@
-## Test a prototype <!-- markdownlint-disable-line first-line-h1 -->
+# Test a prototype
 
 You can interact with a live demo of the prototype produced using the viewer on the right hand side; you can also reset this view.
 
 Data entered into the live demo is unique for each user. You can reset this for the current user using the "Reset demo" button.
 
-### Running the generated prototype locally
+## Running the generated prototype locally
 
 The Nunjucks template files and associated files can also be downloaded in a ZIP file within an Express (Node.js TypeScript) project, which you can use to run the prototype locally.
 
