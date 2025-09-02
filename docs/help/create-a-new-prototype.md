@@ -1,4 +1,4 @@
-## Create a new prototype <!-- markdownlint-disable-line first-line-h1 -->
+# Create a new prototype
 
 Visit the [create a prototype page](/create) to create a new prototype.
 
@@ -9,7 +9,7 @@ For example:
 
 Once created, the high-level structure of the prototype can be previewed in the "Structure" tab.
 
-### Supported form and question fields
+## Supported form and question fields
 
 Each form contains the following data:
 
