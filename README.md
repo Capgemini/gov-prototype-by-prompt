@@ -6,11 +6,11 @@ The generated prototypes use GOV.UK Design System components and best practices.
 
 You can test prototypes live, share them with others, and download them to run them locally. You can also edit prototypes to make iterative improvements.
 
+This is an exploratory proof-of-concept developed by the AI & Innovation Lab within Capgemini's Digital Excellence team to showcase the potential for AI to transform user research.
+
 See [the user guides](/docs/help/) for more information about how the application works. These are also available when the application is running.
 
-If you would like to contribute, please see the instructions in [docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md).
-
-Notable changes will be documented in [docs/CHANGELOG.md](/docs/CHANGELOG.md).
+If you would like to contribute, please see the instructions in [docs/CONTRIBUTING.md](/docs/CONTRIBUTING.md). Notable changes will be documented in [docs/CHANGELOG.md](/docs/CHANGELOG.md).
 
 If you want to contact the maintainers directly, please [complete this form](https://forms.office.com/e/bctaftxd8h).
 
