@@ -10,11 +10,14 @@ updates:
           - '/'
           - '/data/zip-download'
       schedule:
-          interval: 'weekly'
-          day: 'tuesday'
-          time: '03:00'
+          interval: 'cron'
+          cronjob: '0 3 */2 * 2'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
+      labels:
+          - 'dependencies'
+      open-pull-requests-limit: 5
+      rebase-strategy: 'auto'
       commit-message:
           include: 'scope'
           prefix: ''
@@ -24,10 +27,6 @@ updates:
                   - '*'
               update-types:
                   - 'minor'
-      labels:
-          - 'dependencies'
-      open-pull-requests-limit: 5
-      rebase-strategy: 'auto'
       ignore:
           # Ignore all patch updates
           - dependency-name: '*'
@@ -42,10 +41,15 @@ updates:
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
-          interval: 'daily'
-          time: '03:00'
+          interval: 'cron'
+          cronjob: '0 3 */2 * 2'
           timezone: 'Europe/London'
+      assignees: ['cmenon12']
       labels:
           - 'dependencies'
       open-pull-requests-limit: 5
       rebase-strategy: 'auto'
+      ignore:
+          # Ignore all patch updates
+          - dependency-name: '*'
+            update-types: ['version-update:semver-patch']
