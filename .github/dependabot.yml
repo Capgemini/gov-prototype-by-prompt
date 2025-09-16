@@ -49,7 +49,3 @@ updates:
           - 'dependencies'
       open-pull-requests-limit: 5
       rebase-strategy: 'auto'
-      ignore:
-          # Ignore all patch updates
-          - dependency-name: '*'
-            update-types: ['version-update:semver-patch']
