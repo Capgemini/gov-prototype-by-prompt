@@ -51,6 +51,9 @@ beforeEach(() => {
             getActiveSpan: () => activeSpanMock,
         },
     }));
+    jest.doMock('uuid', () => ({
+        v4: jest.fn().mockReturnValue('test-uuid-v4'),
+    }));
 });
 
 afterEach(() => {
