@@ -74,14 +74,14 @@
         "govuk-frontend": "~5.11.1",
         "govuk-markdown": "~0.8.0",
         "helmet": "~8.1.0",
-        "hmrc-frontend": "~6.89.0",
+        "hmrc-frontend": "~6.93.0",
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
-        "marked": "~16.2.1",
+        "marked": "~16.3.0",
         "moment": "~2.30.1",
         "mongoose": "~8.18.0",
         "nunjucks": "~3.2.4",
-        "openai": "~5.20.1",
+        "openai": "~5.21.0",
         "uuid": "~13.0.0",
         "zod": "~3.25.76"
     },
@@ -112,7 +112,7 @@
         "ts-node": "~10.9.2",
         "tsx": "~4.20.3",
         "typescript": "~5.9.2",
-        "typescript-eslint": "~8.43.0"
+        "typescript-eslint": "~8.44.0"
     },
     "overrides": {
         "form-data": "4.0.4"
