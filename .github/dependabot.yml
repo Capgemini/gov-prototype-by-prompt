@@ -10,8 +10,9 @@ updates:
           - '/'
           - '/data/zip-download'
       schedule:
-          interval: 'cron'
-          cronjob: '0 3 */2 * 2'
+          interval: 'weekly'
+          day: 'tuesday'
+          time: '03:00'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:
@@ -41,8 +42,9 @@ updates:
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
-          interval: 'cron'
-          cronjob: '0 3 */2 * 2'
+          interval: 'weekly'
+          day: 'tuesday'
+          time: '03:00'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:
