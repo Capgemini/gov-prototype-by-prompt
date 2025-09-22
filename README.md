@@ -37,12 +37,11 @@ Before you can run the application, you need to set up a MongoDB database.
 
 ### Setup MongoDB Atlas CLI for local development
 
-1. Install MongoDB Atlas CLI:  
-    - On macOS, run `brew install mongodb-atlas-cli`.
-    - For other platforms, follow the [official installation guide](https://www.mongodb.com/docs/atlas/cli/installation/).
-2. Run `atlas auth login` to authenticate with Atlas.
-3. Run `atlas deployments setup gpbp --type LOCAL --mdbVersion 8.0 --port 27017 --username admin --password password123` to create a local MongoDB v8 deployment.
-4. Connect to the deployment and switch to the `gpbp` database to create the collections:
+1. Install [Docker](https://www.docker.com/), which is required to create a local MongoDB Atlas deployment.
+2. Install the [MongoDB Atlas CLI](https://www.mongodb.com/docs/atlas/cli/current/install-atlas-cli/).
+3. Run `atlas auth login` to authenticate with Atlas.
+4. Run `atlas deployments setup gpbp --type LOCAL --mdbVersion 8.0 --port 27017 --username admin --password password123` to create a local MongoDB v8 deployment.
+5. Connect to the deployment and switch to the `gpbp` database to create the collections:
 
       ```shell
       atlas deployments connect gpbp --connectWith mongosh
@@ -53,7 +52,7 @@ Before you can run the application, you need to set up a MongoDB database.
       exit
       ```
 
-5. The connection string for your `.env` file in the next stage should be:  
+6. The connection string for your `.env` file in the next stage should be:  
   `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin`
 
 ### Setup the application
