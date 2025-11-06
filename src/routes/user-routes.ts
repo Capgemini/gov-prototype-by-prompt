@@ -198,22 +198,8 @@ userRouter.post(
     registerUser
 );
 
-export async function renderManageAccountPage(req: Request, res: Response) {
-    const userId = req.session.currentUserId;
-
-    if (!userId) {
-        res.redirect('/user/sign-in');
-        return;
-    }
-
-    const user = await getUserById(userId);
-
-    if (!user) {
-        res.status(404).render('error.njk', {
-            message: 'User not found',
-        });
-        return;
-    }
+export function renderManageAccountPage(req: Request, res: Response) {
+    const user = (req as unknown as Request & { user: IUser }).user;
 
     res.render('manage-account.njk', {
         user: user,
@@ -238,11 +224,10 @@ export async function handleUpdateUser(
 ) {
     if (handleValidationErrors(req, res)) return;
     const errors: Partial<ValidationError>[] = [];
-    const userId = req.session.currentUserId;
-    if (!userId) {
-        res.redirect('/user/sign-in');
-        return;
-    }
+
+    const user = (req as unknown as Request & { user: IUser }).user;
+
+    const userId = user.id;
     const { name, password1, password2 } = req.body
 
     if(!name && !password1){
@@ -336,6 +321,7 @@ userRouter.post(
         body('password1').optional(),
         body('password2').optional(),
     ],
+    [verifyUser, query('*').trim()],
     handleUpdateUser
 );
 
