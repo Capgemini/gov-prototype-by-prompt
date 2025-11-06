@@ -198,6 +198,144 @@ userRouter.post(
     registerUser
 );
 
+export async function renderManageAccountPage(req: Request, res: Response) {
+    const userId = req.session.currentUserId;
+
+    if (!userId) {
+        return res.redirect('/user/sign-in');
+    }
+
+    const user = await getUserById(userId);
+
+    if (!user) {
+        return res.status(404).render('error.njk', {
+            message: 'User not found',
+        });
+    }
+
+    res.render('manage-account.njk', {
+        user: user,
+    });
+}
+userRouter.get('/manage-account', verifyUser, renderManageAccountPage);
+
+
+
+//Updates current user
+export async function handleUpdateUser(
+    req: Request<
+        {},
+        {},
+        {
+            name?: string;
+            password1?: string;
+            password2?: string;
+        }
+    >,
+    res: Response<APIResponse>
+) {
+    if (handleValidationErrors(req, res)) return;
+    const errors: Partial<ValidationError>[] = [];
+    const userId = req.session.currentUserId;
+    if (!userId) {
+        return res.redirect('/user/sign-in');
+    }
+    const { name, password1, password2 } = req.body
+
+    if(!name && !password1){
+        errors.push(
+            { msg: 'Name field required', path: 'name' },
+            { msg: 'Password field required', path: 'password1' },
+            { msg: 'Password field required', path: 'password2' },
+        );
+    } 
+
+    if (name){
+        if (name.trim().length < 2) {
+            errors.push({ msg: 'Name must be at least 2 characters', path: 'name' });
+        }
+    }
+
+    if (password1){
+        if (password1 !== password2) {
+        errors.push(
+            { msg: 'The passwords must match', path: 'password1' },
+            { msg: 'The passwords must match', path: 'password2' }
+        );
+        } else if (password1.length < 12) {
+            errors.push(
+                {
+                    msg: 'The password must be at least 12 characters long',
+                    path: 'password1',
+                },
+                {
+                    msg: 'The password must be at least 12 characters long',
+                    path: 'password2',
+                }
+            );
+        } else if (
+            !/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(password1)
+        ) {
+            errors.push(
+                {
+                    msg: 'The password must contain at least one letter, one number, and one symbol',
+                    path: 'password1',
+                },
+                {
+                    msg: 'The password must contain at least one letter, one number, and one symbol',
+                    path: 'password2',
+                }
+            );
+        } else if (commonPasswords.passwords.includes(password1)) {
+            errors.push({
+                msg: 'This password is too common',
+                path: 'password1',
+            });
+            errors.push({
+                msg: 'This password is too common',
+                path: 'password2',
+            });
+        }
+    }
+
+    if (errors.length > 0) {
+        res.status(400).json({
+            errors: errors,
+            message: 'Resolve the errors and try again.',
+        });
+        return;
+    }
+
+    const updates: Record<string, any> = {};
+    if (name) {
+        updates.name = name.trim();
+    }
+    if (password1) {
+        const hashedPassword = await bcrypt.hash(password1, 10);
+        updates.passwordHash = hashedPassword;
+    }
+    const timestamp = new Date().toISOString();
+    updates.updatedAt = timestamp
+
+    await updateUser(userId, updates);
+
+    res.status(200).json({
+        message: 'User updated successfully',
+    });
+
+}
+
+userRouter.post(
+    '/updateUser',
+    [
+        body('*').trim(),
+        body('name').optional(),
+        body('password1').optional(),
+        body('password2').optional(),
+    ],
+    handleUpdateUser
+);
+
 // Render the sign in page
 export function renderSignInPage(req: Request, res: Response) {
     let referrer = '';

@@ -1,0 +1,273 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  Manage account – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+      <h1 class="govuk-heading-l">Account details</h1>
+      
+      <p class="govuk-body"><strong>Name</strong></p>
+      <p class="govuk-body">{{user.name}}</p>
+      <p class="govuk-body"><strong>Email</strong></p>
+      <p class="govuk-body">{{user.email}}</p>
+
+      <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'logoutButton',
+            text: "Log out",
+            type: "submit",
+            href: "/user/log-out",
+            preventDoubleClick: true
+          }) }}
+        </div>
+    </div>
+    <div class="govuk-grid-column-one-half">
+      
+      <h1 class="govuk-heading-l">Update Details</h1>
+
+      {% set successHtml %} 
+        <h3 class="govuk-notification-banner__heading">
+          Password updated successfully
+        </h3>
+      {% endset %}
+      {{ govukNotificationBanner({
+        html: successHtml,
+        type: "success",
+        classes: "success-banner display-none"
+      }) }}
+
+      <form id="updateNameForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        {{ govukInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Name"
+          },
+          name: "name",
+          id: "name",
+          spellcheck: false,
+          autocomplete: "name"
+        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'updateNameButton',
+            text: "Update name",
+            type: "submit",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      </form>
+
+      <form id="updatePasswordForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "New password"
+          },
+          name: "password1",
+          id: "password1",
+          autocomplete: "new-password"
+        }) }}
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Confirm new password"
+          },
+          name: "password2",
+          id: "password2",
+          autocomplete: "new-password"
+        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'updatePasswordButton',
+            text: "Update password",
+            type: "submit",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      </form>
+      {{ govukErrorSummary({
+        classes: "govuk-!-margin-bottom-7 display-none",
+        titleText: "There was a problem",
+        descriptionHtml: "Check the form."
+      }) }}
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  {{ super() }}
+  <script>
+    // Reload the page if the user navigates back
+    window.addEventListener("pageshow", function(event) {
+      const historyTraversal = event.persisted || 
+                            (typeof window.performance != "undefined" && 
+                            window.performance.navigation.type === 2);
+      if (historyTraversal) {
+        window.location.reload();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', async function() {
+
+      const updateNameForm = document.getElementById('updateNameForm');
+      const nameFormInputs = updateNameForm.querySelectorAll('input, select');
+      const updateNameButton = document.getElementById('updateNameButton');
+
+      const updatePasswordForm = document.getElementById('updatePasswordForm');
+      const passwordFormInputs = updatePasswordForm.querySelectorAll('input, select');
+      const updatePasswordButton = document.getElementById('updatePasswordButton');
+
+      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+      const successBanner = document.querySelector('.success-banner');
+
+      // Add a hidden error element to the name form inputs
+      for (const input of nameFormInputs) {
+        const errorElement = document.createElement('p');
+        errorElement.id = `${input.id}NameErrorMessage`;
+        errorElement.className = 'govuk-error-message';
+        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
+        errorElement.style.display = 'none';
+        input.parentNode.insertBefore(
+          errorElement,
+          input
+        );
+      }
+
+      // Add a hidden error element to the password form inputs
+      for (const input of passwordFormInputs) {
+        const errorElement = document.createElement('p');
+        errorElement.id = `${input.id}PasswordErrorMessage`;
+        errorElement.className = 'govuk-error-message';
+        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
+        errorElement.style.display = 'none';
+        input.parentNode.parentNode.insertBefore(
+          errorElement,
+          input.parentNode
+        );
+      }
+
+      updateNameForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        updateNameButton.disabled = true;
+        updateNameButton.textContent = 'Processing...';
+        
+        const data = new URLSearchParams();
+        for (const pair of new FormData(updateNameForm)) {
+            data.append(pair[0], pair[1]);
+        }
+        fetch('/user/updateUser', {
+          method: 'POST',
+          body: data,
+          credentials: 'include'
+        }).then(async response => {
+          const responseJson = await response.json();
+
+          //Reset button state
+          updateNameButton.disabled = false;
+          updateNameButton.textContent = 'Update name';
+
+          nameFormInputs.forEach((input) => {
+            input.classList.remove('govuk-input--error');
+          });
+          document.querySelectorAll('.govuk-error-message').forEach((el) => {
+            el.style.display = 'none'; 
+            el.parentNode.classList.remove('govuk-form-group--error')
+          });
+          errorSummary.classList.add('display-none');
+
+          if (response.ok) {
+            updateNameForm.reset();
+            //reload page to show correct account details 
+            window.location.reload();
+          } else {
+            for (const error of responseJson.errors ?? []) {
+              const input = document.getElementById(error.path);
+              if (input) {
+                const errorElement = document.getElementById(`${error.path}NameErrorMessage`);
+                if(errorElement){
+                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                  errorElement.style.display = '';
+                  input.classList.add('govuk-input--error');
+                  errorElement.parentNode.classList.add('govuk-form-group--error');
+                }
+              }
+            }
+            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+          }
+        }).catch(err => {
+          errorSummary.classList.remove('display-none');
+          errorDescription.innerHTML =`${err.message}`;
+          updateNameButton.disabled = false;
+          updateNameButton.textContent = 'Update name';
+        });
+      })
+      
+      
+      updatePasswordForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        updatePasswordButton.disabled = true;
+        updatePasswordButton.textContent = 'Processing...';
+        
+        const data = new URLSearchParams();
+        for (const pair of new FormData(updatePasswordForm)) {
+            data.append(pair[0], pair[1]);
+        }
+        fetch('/user/updateUser', {
+          method: 'POST',
+          body: data,
+          credentials: 'include'
+        }).then(async response => {
+          const responseJson = await response.json();
+
+          //Reset button state
+          updatePasswordButton.disabled = false;
+          updatePasswordButton.textContent = 'Update Password';
+
+          passwordFormInputs.forEach((input) => {
+            input.classList.remove('govuk-input--error');
+          });
+          document.querySelectorAll('.govuk-error-message').forEach((el) => {
+            el.style.display = 'none'; 
+            el.parentNode.classList.remove('govuk-form-group--error')
+          });
+          errorSummary.classList.add('display-none');
+
+          if (response.ok) {
+            successBanner.classList.remove('display-none');
+            successBanner.scrollIntoView();
+            updatePasswordForm.reset();
+          } else {
+            successBanner.classList.add('display-none');
+            for (const error of responseJson.errors ?? []) {
+              const input = document.getElementById(error.path);
+              if (input) {
+                const errorElement = document.getElementById(`${error.path}PasswordErrorMessage`);
+                if(errorElement){
+                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                  errorElement.style.display = '';
+                  input.classList.add('govuk-input--error');
+                  errorElement.parentNode.classList.add('govuk-form-group--error');
+                }
+              }
+            }
+            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+          }
+        }).catch(err => {
+          errorSummary.classList.remove('display-none');
+          errorDescription.innerHTML =`${err.message}`;
+          updatePasswordButton.disabled = false;
+          updatePasswordButton.textContent = 'Update password';
+        });
+      })
+      
+    });
+
+  </script>
+{% endblock %}
