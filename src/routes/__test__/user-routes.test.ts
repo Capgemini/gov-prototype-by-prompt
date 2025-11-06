@@ -197,7 +197,7 @@ describe('renderManageAccountPage', () => {
         expect(response.statusCode).toBe(200);
         expect(response._getRenderView()).toBe('manage-account.njk');
     });
-})
+});
 
 describe('handleUpdateUser', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -207,14 +207,8 @@ describe('handleUpdateUser', () => {
     });
 
     it.each([
-        [
-            { name: '', password1: '', password2: '' },
-            'Name field required',
-        ],
-        [
-            { name: '', password1: '', password2: '' },
-            'Password field required',
-        ],
+        [{ name: '', password1: '', password2: '' }, 'Name field required'],
+        [{ name: '', password1: '', password2: '' }, 'Password field required'],
         [
             { name: 'A', password1: '', password2: '' },
             'Name must be at least 2 characters',
@@ -323,7 +317,7 @@ describe('handleUpdateUser', () => {
         );
         expect(updateUserMock).not.toHaveBeenCalled();
     });
-})
+});
 
 describe('renderRegisterPage', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -207,8 +207,6 @@ export function renderManageAccountPage(req: Request, res: Response) {
 }
 userRouter.get('/manage-account', verifyUser, renderManageAccountPage);
 
-
-
 //Updates current user
 export async function handleUpdateUser(
     req: Request<
@@ -228,28 +226,31 @@ export async function handleUpdateUser(
     const user = (req as unknown as Request & { user: IUser }).user;
 
     const userId = user.id;
-    const { name, password1, password2 } = req.body
+    const { name, password1, password2 } = req.body;
 
-    if(!name && !password1){
+    if (!name && !password1) {
         errors.push(
             { msg: 'Name field required', path: 'name' },
             { msg: 'Password field required', path: 'password1' },
-            { msg: 'Password field required', path: 'password2' },
+            { msg: 'Password field required', path: 'password2' }
         );
-    } 
+    }
 
-    if (name){
+    if (name) {
         if (name.trim().length < 2) {
-            errors.push({ msg: 'Name must be at least 2 characters', path: 'name' });
+            errors.push({
+                msg: 'Name must be at least 2 characters',
+                path: 'name',
+            });
         }
     }
 
-    if (password1){
+    if (password1) {
         if (password1 !== password2) {
-        errors.push(
-            { msg: 'The passwords must match', path: 'password1' },
-            { msg: 'The passwords must match', path: 'password2' }
-        );
+            errors.push(
+                { msg: 'The passwords must match', path: 'password1' },
+                { msg: 'The passwords must match', path: 'password2' }
+            );
         } else if (password1.length < 12) {
             errors.push(
                 {
@@ -261,9 +262,7 @@ export async function handleUpdateUser(
                     path: 'password2',
                 }
             );
-        } else if (
-            !/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(password1)
-        ) {
+        } else if (!/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(password1)) {
             errors.push(
                 {
                     msg: 'The password must contain at least one letter, one number, and one symbol',
@@ -303,14 +302,13 @@ export async function handleUpdateUser(
         updates.passwordHash = hashedPassword;
     }
     const timestamp = new Date().toISOString();
-    updates.updatedAt = timestamp
+    updates.updatedAt = timestamp;
 
     await updateUser(userId, updates);
 
     res.status(200).json({
         message: 'User updated successfully',
     });
-
 }
 
 userRouter.post(
