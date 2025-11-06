@@ -202,15 +202,17 @@ export async function renderManageAccountPage(req: Request, res: Response) {
     const userId = req.session.currentUserId;
 
     if (!userId) {
-        return res.redirect('/user/sign-in');
+        res.redirect('/user/sign-in');
+        return;
     }
 
     const user = await getUserById(userId);
 
     if (!user) {
-        return res.status(404).render('error.njk', {
+        res.status(404).render('error.njk', {
             message: 'User not found',
         });
+        return;
     }
 
     res.render('manage-account.njk', {
@@ -238,7 +240,8 @@ export async function handleUpdateUser(
     const errors: Partial<ValidationError>[] = [];
     const userId = req.session.currentUserId;
     if (!userId) {
-        return res.redirect('/user/sign-in');
+        res.redirect('/user/sign-in');
+        return;
     }
     const { name, password1, password2 } = req.body
 
@@ -306,7 +309,7 @@ export async function handleUpdateUser(
         return;
     }
 
-    const updates: Record<string, any> = {};
+    const updates: Record<string, string> = {};
     if (name) {
         updates.name = name.trim();
     }
