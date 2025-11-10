@@ -3,7 +3,6 @@ import express, { Request, Response } from 'express';
 import { body, param, query, ValidationError } from 'express-validator';
 import moment from 'moment';
 
-import commonPasswords from '../../data/valid-common-passwords.json';
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from '../constants';
 import {
     canUserAccessWorkspace,
@@ -25,6 +24,7 @@ import {
     generatePagination,
     getEnvironmentVariables,
     handleValidationErrors,
+    validatePasswords,
 } from '../utils';
 import { verifyNotUser, verifyUser } from './middleware';
 
@@ -89,45 +89,12 @@ export async function registerUser(
             });
         }
     }
-    if (req.body.password1 !== req.body.password2) {
-        errors.push(
-            { msg: 'The passwords must match', path: 'password1' },
-            { msg: 'The passwords must match', path: 'password2' }
-        );
-    } else if (req.body.password1.length < 12) {
-        errors.push(
-            {
-                msg: 'The password must be at least 12 characters long',
-                path: 'password1',
-            },
-            {
-                msg: 'The password must be at least 12 characters long',
-                path: 'password2',
-            }
-        );
-    } else if (
-        !/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(req.body.password1)
-    ) {
-        errors.push(
-            {
-                msg: 'The password must contain at least one letter, one number, and one symbol',
-                path: 'password1',
-            },
-            {
-                msg: 'The password must contain at least one letter, one number, and one symbol',
-                path: 'password2',
-            }
-        );
-    } else if (commonPasswords.passwords.includes(req.body.password1)) {
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password1',
-        });
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password2',
-        });
-    }
+
+    validatePasswords(req.body.password1, req.body.password2).forEach(
+        (error) => {
+            errors.push(error);
+        }
+    );
 
     if (errors.length > 0) {
         res.status(400).json({
@@ -196,6 +163,97 @@ userRouter.post(
         body('password2').notEmpty().withMessage('Confirm your password'),
     ],
     registerUser
+);
+
+export function renderManageAccountPage(req: Request, res: Response) {
+    const user = (req as unknown as Request & { user: IUser }).user;
+
+    res.render('manage-account.njk', {
+        user: user,
+    });
+}
+userRouter.get('/manage-account', verifyUser, renderManageAccountPage);
+
+//Updates current user
+export async function handleUpdateUser(
+    req: Request<
+        {},
+        {},
+        {
+            name?: string;
+            password1?: string;
+            password2?: string;
+        }
+    >,
+    res: Response<APIResponse>
+) {
+    if (handleValidationErrors(req, res)) return;
+    const errors: Partial<ValidationError>[] = [];
+
+    const user = (req as unknown as Request & { user: IUser }).user;
+
+    const userId = user.id;
+    const { name, password1, password2 } = req.body;
+
+    if (!name && !password1) {
+        errors.push(
+            { msg: 'Enter your name', path: 'name' },
+            { msg: 'Create new password', path: 'password1' },
+            { msg: 'Confirm new password', path: 'password2' }
+        );
+    }
+
+    if (name) {
+        if (name.trim().length < 2) {
+            errors.push({
+                msg: 'Name must be at least 2 characters',
+                path: 'name',
+            });
+        }
+    }
+
+    if (password1) {
+        validatePasswords(password1, password2).forEach((error) => {
+            errors.push(error);
+        });
+    }
+
+    if (errors.length > 0) {
+        res.status(400).json({
+            errors: errors,
+            message: 'Resolve the errors and try again.',
+        });
+        return;
+    }
+
+    const updates: Record<string, string> = {};
+    if (name) {
+        updates.name = name.trim();
+    }
+    if (password1) {
+        const hashedPassword = await bcrypt.hash(password1, 10);
+        updates.passwordHash = hashedPassword;
+    }
+    const timestamp = new Date().toISOString();
+    updates.updatedAt = timestamp;
+
+    await updateUser(userId, updates);
+
+    res.status(200).json({
+        message: 'User updated successfully',
+    });
+}
+
+userRouter.post(
+    '/updateUser',
+    [
+        body('*').trim(),
+        body('name').optional(),
+        body('password1').optional(),
+        body('password2').optional(),
+    ],
+    [verifyUser, query('*').trim()],
+    handleUpdateUser
 );
 
 // Render the sign in page

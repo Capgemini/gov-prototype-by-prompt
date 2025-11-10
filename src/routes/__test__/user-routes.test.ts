@@ -177,6 +177,148 @@ describe('redirectLogout', () => {
     });
 });
 
+describe('renderManageAccountPage', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let renderManageAccountPage: (req: any, res: any) => void;
+    beforeEach(async () => {
+        ({ renderManageAccountPage } = await import('../user-routes'));
+    });
+
+    it('should redirect permanently to manage account page', () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            url: '/manage-account',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        renderManageAccountPage(request, response);
+
+        expect(response.statusCode).toBe(200);
+        expect(response._getRenderView()).toBe('manage-account.njk');
+    });
+});
+
+describe('handleUpdateUser', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let handleUpdateUser: (req: any, res: any) => Promise<void>;
+    beforeEach(async () => {
+        ({ handleUpdateUser } = await import('../user-routes'));
+    });
+
+    it.each([
+        [{ name: '', password1: '', password2: '' }, 'Enter your name'],
+        [{ name: '', password1: '', password2: '' }, 'Create new password'],
+        [
+            { name: 'A', password1: '', password2: '' },
+            'Name must be at least 2 characters',
+        ],
+        [
+            {
+                name: '',
+                password1: 'abc',
+                password2: 'def',
+            },
+            'The passwords must match',
+        ],
+        [
+            {
+                name: '',
+                password1: 'short',
+                password2: 'short',
+            },
+            'The password must be at least 12 characters long',
+        ],
+        [
+            {
+                name: '',
+                password1: 'tyrannosaurus',
+                password2: 'tyrannosaurus',
+            },
+            'The password must contain at least one letter, one number, and one symbol',
+        ],
+    ])(
+        'should validate input and return error: %s',
+        async (body, expectedError) => {
+            const request = httpMocks.createRequest({
+                body,
+                method: 'POST',
+                user: user1,
+            });
+            const response = httpMocks.createResponse();
+            await handleUpdateUser(request, response);
+            expect(response.statusCode).toBe(400);
+            expect(JSON.stringify(response._getJSONData())).toContain(
+                expectedError
+            );
+            expect(updateUserMock).not.toHaveBeenCalled();
+        }
+    );
+
+    it('should update user name successfully', async () => {
+        const request = httpMocks.createRequest({
+            body: {
+                name: 'Test',
+                password1: '',
+                password2: '',
+            },
+            method: 'POST',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+        await handleUpdateUser(request, response);
+        expect(response.statusCode).toBe(200);
+        expect(JSON.stringify(response._getJSONData())).toContain(
+            'User updated successfully'
+        );
+        expect(updateUserMock).toHaveBeenCalled();
+    });
+
+    it('should update user password successfully', async () => {
+        const request = httpMocks.createRequest({
+            body: {
+                name: '',
+                password1: 'Password123!',
+                password2: 'Password123!',
+            },
+            method: 'POST',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+        await handleUpdateUser(request, response);
+        expect(response.statusCode).toBe(200);
+        expect(JSON.stringify(response._getJSONData())).toContain(
+            'User updated successfully'
+        );
+        expect(updateUserMock).toHaveBeenCalled();
+    });
+
+    it('should reject common passwords', async () => {
+        const request = httpMocks.createRequest({
+            body: {
+                name: '',
+                password1: 'Password@123',
+                password2: 'Password@123',
+            },
+            method: 'POST',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+        await handleUpdateUser(request, response);
+        expect(response.statusCode).toBe(400);
+        expect(
+            (response._getJSONData() as { errors: Record<string, string>[] })
+                .errors
+        ).toContainEqual(
+            expect.objectContaining({
+                msg: 'This password is too common',
+                path: 'password1',
+            })
+        );
+        expect(updateUserMock).not.toHaveBeenCalled();
+    });
+});
+
 describe('renderRegisterPage', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let renderRegisterPage: (req: any, res: any) => void;
