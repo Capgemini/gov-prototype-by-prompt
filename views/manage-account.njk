@@ -1,13 +1,31 @@
 {% extends "template.njk" %}
 
 {% block pageTitle %}
-  Manage account – Gov Prototype by Prompt
+  Manage your account – Gov Prototype by Prompt
 {% endblock %}
 
 {% block content %}
   <div class="govuk-grid-row">
+    <h1 class="govuk-heading-l">Manage your account</h1>
     <div class="govuk-grid-column-one-half">
-      <h1 class="govuk-heading-l">Account details</h1>
+      {% set successHtml %} 
+        <h3 class="govuk-notification-banner__heading">
+          Password updated successfully
+        </h3>
+      {% endset %}
+      {{ govukNotificationBanner({
+        html: successHtml,
+        type: "success",
+        classes: "success-banner display-none"
+      }) }}
+
+      {{ govukErrorSummary({
+        classes: "govuk-!-margin-bottom-7 display-none",
+        titleText: "There was a problem",
+        descriptionHtml: "Check the form."
+      }) }}
+      
+      <h2 class="govuk-heading-2">Account details</h2>
       
       <p class="govuk-body"><strong>Name</strong></p>
       <p class="govuk-body">{{user.name}}</p>
@@ -26,18 +44,7 @@
     </div>
     <div class="govuk-grid-column-one-half">
       
-      <h1 class="govuk-heading-l">Update Details</h1>
-
-      {% set successHtml %} 
-        <h3 class="govuk-notification-banner__heading">
-          Password updated successfully
-        </h3>
-      {% endset %}
-      {{ govukNotificationBanner({
-        html: successHtml,
-        type: "success",
-        classes: "success-banner display-none"
-      }) }}
+      <h2 class="govuk-heading-2">Update account details</h2>
 
       <form id="updateNameForm" class="govuk-form-group govuk-!-margin-0" novalidate>
         {{ govukInput({
@@ -88,11 +95,7 @@
           }) }}
         </div>
       </form>
-      {{ govukErrorSummary({
-        classes: "govuk-!-margin-bottom-7 display-none",
-        titleText: "There was a problem",
-        descriptionHtml: "Check the form."
-      }) }}
+      
     </div>
   </div>
 {% endblock %}
