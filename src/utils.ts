@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
-import { validationResult } from 'express-validator';
+import {
+    ValidationError as ExpressValidationError,
+    validationResult,
+} from 'express-validator';
 import fs from 'fs';
 import format from 'html-format';
 import { ValidationError, Validator, ValidatorResultError } from 'jsonschema';
+import commonPasswords from '../data/valid-common-passwords.json';
 
 import { EnvironmentVariables, JsonSchema, TemplateData } from './types';
 import { envVarSchema } from './validationSchemas/env';
@@ -275,4 +279,50 @@ export function validateTemplateDataText(
     });
 
     return templateData;
+}
+
+export function validatePasswords(
+    password1: string,
+    password2?: string
+): Partial<ExpressValidationError>[] {
+    const errors: Partial<ExpressValidationError>[] = [];
+
+    if (password1 !== password2) {
+        errors.push(
+            { msg: 'The passwords must match', path: 'password1' },
+            { msg: 'The passwords must match', path: 'password2' }
+        );
+    } else if (password1.length < 12) {
+        errors.push(
+            {
+                msg: 'The password must be at least 12 characters long',
+                path: 'password1',
+            },
+            {
+                msg: 'The password must be at least 12 characters long',
+                path: 'password2',
+            }
+        );
+    } else if (!/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(password1)) {
+        errors.push(
+            {
+                msg: 'The password must contain at least one letter, one number, and one symbol',
+                path: 'password1',
+            },
+            {
+                msg: 'The password must contain at least one letter, one number, and one symbol',
+                path: 'password2',
+            }
+        );
+    } else if (commonPasswords.passwords.includes(password1)) {
+        errors.push({
+            msg: 'This password is too common',
+            path: 'password1',
+        });
+        errors.push({
+            msg: 'This password is too common',
+            path: 'password2',
+        });
+    }
+    return errors;
 }

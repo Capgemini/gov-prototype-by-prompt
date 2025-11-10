@@ -3,7 +3,6 @@ import express, { Request, Response } from 'express';
 import { body, param, query, ValidationError } from 'express-validator';
 import moment from 'moment';
 
-import commonPasswords from '../../data/valid-common-passwords.json';
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from '../constants';
 import {
     canUserAccessWorkspace,
@@ -25,6 +24,7 @@ import {
     generatePagination,
     getEnvironmentVariables,
     handleValidationErrors,
+    validatePasswords,
 } from '../utils';
 import { verifyNotUser, verifyUser } from './middleware';
 
@@ -89,45 +89,8 @@ export async function registerUser(
             });
         }
     }
-    if (req.body.password1 !== req.body.password2) {
-        errors.push(
-            { msg: 'The passwords must match', path: 'password1' },
-            { msg: 'The passwords must match', path: 'password2' }
-        );
-    } else if (req.body.password1.length < 12) {
-        errors.push(
-            {
-                msg: 'The password must be at least 12 characters long',
-                path: 'password1',
-            },
-            {
-                msg: 'The password must be at least 12 characters long',
-                path: 'password2',
-            }
-        );
-    } else if (
-        !/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(req.body.password1)
-    ) {
-        errors.push(
-            {
-                msg: 'The password must contain at least one letter, one number, and one symbol',
-                path: 'password1',
-            },
-            {
-                msg: 'The password must contain at least one letter, one number, and one symbol',
-                path: 'password2',
-            }
-        );
-    } else if (commonPasswords.passwords.includes(req.body.password1)) {
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password1',
-        });
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password2',
-        });
-    }
+
+    errors.concat(validatePasswords(req.body.password1, req.body.password2));
 
     if (errors.length > 0) {
         res.status(400).json({
@@ -230,9 +193,9 @@ export async function handleUpdateUser(
 
     if (!name && !password1) {
         errors.push(
-            { msg: 'Name field required', path: 'name' },
-            { msg: 'Password field required', path: 'password1' },
-            { msg: 'Password field required', path: 'password2' }
+            { msg: 'Enter your name', path: 'name' },
+            { msg: 'Create new password', path: 'password1' },
+            { msg: 'Confirm new password', path: 'password2' }
         );
     }
 
@@ -246,43 +209,7 @@ export async function handleUpdateUser(
     }
 
     if (password1) {
-        if (password1 !== password2) {
-            errors.push(
-                { msg: 'The passwords must match', path: 'password1' },
-                { msg: 'The passwords must match', path: 'password2' }
-            );
-        } else if (password1.length < 12) {
-            errors.push(
-                {
-                    msg: 'The password must be at least 12 characters long',
-                    path: 'password1',
-                },
-                {
-                    msg: 'The password must be at least 12 characters long',
-                    path: 'password2',
-                }
-            );
-        } else if (!/(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])/.test(password1)) {
-            errors.push(
-                {
-                    msg: 'The password must contain at least one letter, one number, and one symbol',
-                    path: 'password1',
-                },
-                {
-                    msg: 'The password must contain at least one letter, one number, and one symbol',
-                    path: 'password2',
-                }
-            );
-        } else if (commonPasswords.passwords.includes(password1)) {
-            errors.push({
-                msg: 'This password is too common',
-                path: 'password1',
-            });
-            errors.push({
-                msg: 'This password is too common',
-                path: 'password2',
-            });
-        }
+        errors.concat(validatePasswords(password1, password2));
     }
 
     if (errors.length > 0) {
