@@ -90,7 +90,11 @@ export async function registerUser(
         }
     }
 
-    errors.concat(validatePasswords(req.body.password1, req.body.password2));
+    validatePasswords(req.body.password1, req.body.password2).forEach(
+        (error) => {
+            errors.push(error);
+        }
+    );
 
     if (errors.length > 0) {
         res.status(400).json({
@@ -209,7 +213,9 @@ export async function handleUpdateUser(
     }
 
     if (password1) {
-        errors.concat(validatePasswords(password1, password2));
+        validatePasswords(password1, password2).forEach((error) => {
+            errors.push(error);
+        });
     }
 
     if (errors.length > 0) {

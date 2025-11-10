@@ -6,8 +6,8 @@ import {
 import fs from 'fs';
 import format from 'html-format';
 import { ValidationError, Validator, ValidatorResultError } from 'jsonschema';
-import commonPasswords from '../data/valid-common-passwords.json';
 
+import commonPasswords from '../data/valid-common-passwords.json';
 import { EnvironmentVariables, JsonSchema, TemplateData } from './types';
 import { envVarSchema } from './validationSchemas/env';
 
@@ -244,43 +244,11 @@ export function prepareJsonValidationErrorMessage(error: Error): string {
 }
 
 /**
- * Validate the response text against the provided schema.
- * It parses the JSON, validates it, and removes any null values.
- * @param {string} responseText The JSON string to validate.
- * @param {object} schema The JSON schema to validate against.
- * @returns {TemplateData} The validated and cleaned TemplateData object.
+ * Validates password and retyped password against accepted criteria.
+ * @param {string} password1 The password to be validated.
+ * @param {string} password1 The password retyped for confirmation.
+ * @returns {Partial<ExpressValidationError>[]} Array of errors that may be generated when validating password.
  */
-export function validateTemplateDataText(
-    responseText: string,
-    schema: object
-): TemplateData {
-    // Parse the JSON
-    let templateData = JSON.parse(responseText) as TemplateData;
-
-    // Validate the JSON against the schema
-    const v = new Validator();
-    v.validate(templateData, schema, {
-        required: true,
-        throwAll: true,
-    });
-
-    // Parse the JSON again and remove any null values
-    templateData = JSON.parse(responseText, (key, value) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        if (value !== null) return value;
-    }) as TemplateData;
-
-    // Remove date of birth properties if not applicable
-    templateData.questions.forEach((question) => {
-        if (question.answer_type !== 'date_of_birth') {
-            delete question.date_of_birth_minimum_age;
-            delete question.date_of_birth_maximum_age;
-        }
-    });
-
-    return templateData;
-}
-
 export function validatePasswords(
     password1: string,
     password2?: string
@@ -325,4 +293,42 @@ export function validatePasswords(
         });
     }
     return errors;
+}
+
+/**
+ * Validate the response text against the provided schema.
+ * It parses the JSON, validates it, and removes any null values.
+ * @param {string} responseText The JSON string to validate.
+ * @param {object} schema The JSON schema to validate against.
+ * @returns {TemplateData} The validated and cleaned TemplateData object.
+ */
+export function validateTemplateDataText(
+    responseText: string,
+    schema: object
+): TemplateData {
+    // Parse the JSON
+    let templateData = JSON.parse(responseText) as TemplateData;
+
+    // Validate the JSON against the schema
+    const v = new Validator();
+    v.validate(templateData, schema, {
+        required: true,
+        throwAll: true,
+    });
+
+    // Parse the JSON again and remove any null values
+    templateData = JSON.parse(responseText, (key, value) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        if (value !== null) return value;
+    }) as TemplateData;
+
+    // Remove date of birth properties if not applicable
+    templateData.questions.forEach((question) => {
+        if (question.answer_type !== 'date_of_birth') {
+            delete question.date_of_birth_minimum_age;
+            delete question.date_of_birth_maximum_age;
+        }
+    });
+
+    return templateData;
 }

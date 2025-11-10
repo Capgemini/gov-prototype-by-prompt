@@ -207,8 +207,8 @@ describe('handleUpdateUser', () => {
     });
 
     it.each([
-        [{ name: '', password1: '', password2: '' }, 'Name field required'],
-        [{ name: '', password1: '', password2: '' }, 'Password field required'],
+        [{ name: '', password1: '', password2: '' }, 'Enter your name'],
+        [{ name: '', password1: '', password2: '' }, 'Create new password'],
         [
             { name: 'A', password1: '', password2: '' },
             'Name must be at least 2 characters',
