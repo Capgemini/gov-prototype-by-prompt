@@ -133,7 +133,7 @@ export async function renderHistoryPage(
     let perPage = parseInt(req.query.perPage ?? '10', 10);
     if (
         req.query.perPage === undefined ||
-        isNaN(perPage) ||
+        Number.isNaN(perPage) ||
         perPage < 1 ||
         perPage > 100
     ) {
@@ -209,7 +209,7 @@ export async function renderHistoryPage(
     let page = parseInt(req.query.page ?? '1', 10);
     if (
         req.query.page === undefined ||
-        isNaN(page) ||
+        Number.isNaN(page) ||
         page < 1 ||
         page > totalPages
     ) {

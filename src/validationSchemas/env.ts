@@ -52,7 +52,7 @@ export const envVarSchema = z
         if (env.RATE_LIMITER_ENABLED) {
             if (
                 env.RATE_LIMITER_MAX_REQUESTS === undefined ||
-                isNaN(env.RATE_LIMITER_MAX_REQUESTS)
+                Number.isNaN(env.RATE_LIMITER_MAX_REQUESTS)
             ) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
@@ -63,7 +63,7 @@ export const envVarSchema = z
             }
             if (
                 env.RATE_LIMITER_WINDOW_MINUTES === undefined ||
-                isNaN(env.RATE_LIMITER_WINDOW_MINUTES)
+                Number.isNaN(env.RATE_LIMITER_WINDOW_MINUTES)
             ) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
