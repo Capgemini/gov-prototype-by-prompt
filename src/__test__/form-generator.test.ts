@@ -790,7 +790,7 @@ describe('generateQuestionPage', () => {
                     );
 
                     expect(
-                        RegExp(new RegExp(fieldName, 'g')).exec(result)?.length
+                        new RegExp(fieldName, 'g').exec(result)?.length
                     ).toBe(1);
                     for (const option of options) {
                         expect(result.split(option).length - 1).toBe(3);
