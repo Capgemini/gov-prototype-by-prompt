@@ -283,14 +283,16 @@ export function validatePasswords(
             }
         );
     } else if (commonPasswords.passwords.includes(password1)) {
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password1',
-        });
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password2',
-        });
+        errors.push(
+            {
+                msg: 'This password is too common',
+                path: 'password1',
+            },
+            {
+                msg: 'This password is too common',
+                path: 'password2',
+            }
+        );
     }
     return errors;
 }

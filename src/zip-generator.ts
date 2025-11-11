@@ -243,23 +243,25 @@ function generateZipOfForm(
             name: `views/${urlPrefix}/question-${String(i + 1)}.njk`,
         });
     }
-    files.push({
-        input: generateCheckAnswersPage(
-            templateData,
-            urlPrefix,
-            designSystem,
-            showDemoWarning
-        ),
-        name: `views/${urlPrefix}/check-answers.njk`,
-    });
-    files.push({
-        input: generateConfirmationPage(
-            templateData,
-            designSystem,
-            showDemoWarning
-        ),
-        name: `views/${urlPrefix}/confirmation.njk`,
-    });
+    files.push(
+        {
+            input: generateCheckAnswersPage(
+                templateData,
+                urlPrefix,
+                designSystem,
+                showDemoWarning
+            ),
+            name: `views/${urlPrefix}/check-answers.njk`,
+        },
+        {
+            input: generateConfirmationPage(
+                templateData,
+                designSystem,
+                showDemoWarning
+            ),
+            name: `views/${urlPrefix}/confirmation.njk`,
+        }
+    );
 
     return files;
 }
