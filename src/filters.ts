@@ -55,7 +55,7 @@ export function formatList(array: string[]): string {
     if (array.length === 0) return '';
     if (array.length === 1) return array[0];
     if (array.length === 2) return `${array[0]} and ${array[1]}`;
-    return `${array.slice(0, -1).join(', ')}, and ${array[array.length - 1]}`;
+    return `${array.slice(0, -1).join(', ')}, and ${array.at(-1) ?? ''}`;
 }
 
 /**
