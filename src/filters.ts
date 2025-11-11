@@ -73,7 +73,9 @@ export function formatList(array: string[]): string {
 export function govukDate(dateString: string): string {
     if (!dateString) return '';
 
-    const dateParts = dateString.split('-').map((part) => parseInt(part, 10));
+    const dateParts = dateString
+        .split('-')
+        .map((part) => Number.parseInt(part, 10));
     if (dateParts.length === 2) return moment(dateString).format('MMMM YYYY');
     if (dateParts.length === 3) return moment(dateString).format('D MMMM YYYY');
     return dateString;

@@ -371,7 +371,7 @@ export async function renderWorkspacesPage(
 
     // Get and validate the pagination query parameters
     let invalidPagination = false;
-    let perPage = parseInt(req.query.perPage ?? '10', 10);
+    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
     if (
         req.query.perPage === undefined ||
         Number.isNaN(perPage) ||
@@ -384,7 +384,7 @@ export async function renderWorkspacesPage(
     const totalWorkspaces = await countWorkspacesByUserId(user.id);
     let totalPages = Math.ceil(totalWorkspaces / perPage);
     if (totalPages < 1) totalPages = 1;
-    let page = parseInt(req.query.page ?? '1', 10);
+    let page = Number.parseInt(req.query.page ?? '1', 10);
     if (
         req.query.page === undefined ||
         Number.isNaN(page) ||

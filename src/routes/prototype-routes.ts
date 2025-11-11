@@ -130,7 +130,7 @@ export async function renderHistoryPage(
 
     // Get and validate the pagination query parameters
     let invalidPagination = false;
-    let perPage = parseInt(req.query.perPage ?? '10', 10);
+    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
     if (
         req.query.perPage === undefined ||
         Number.isNaN(perPage) ||
@@ -206,7 +206,7 @@ export async function renderHistoryPage(
     // Validate the pagination parameters against the total prototypes
     let totalPages = Math.ceil(countPrototypes / perPage);
     if (totalPages < 1) totalPages = 1;
-    let page = parseInt(req.query.page ?? '1', 10);
+    let page = Number.parseInt(req.query.page ?? '1', 10);
     if (
         req.query.page === undefined ||
         Number.isNaN(page) ||
@@ -683,7 +683,7 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else {
-        const questionIndex = parseInt(pageNumber.split('-')[1], 10) - 1;
+        const questionIndex = Number.parseInt(pageNumber.split('-')[1], 10) - 1;
         pageContent = generateQuestionPage(
             prototypeData.json,
             urlPrefix,
