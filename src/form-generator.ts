@@ -522,7 +522,7 @@ function generateField({
                     macroOptions.attributes[
                         'data-date-of-birth-minimum-age-error-text'
                     ] =
-                        `You must be at least ${String(fieldItem.date_of_birth_minimum_age)} year${fieldItem.date_of_birth_minimum_age != 1 ? 's' : ''} old`;
+                        `You must be at least ${String(fieldItem.date_of_birth_minimum_age)} year${fieldItem.date_of_birth_minimum_age === 1 ? '' : 's'} old`;
                 }
                 if (fieldItem.date_of_birth_maximum_age) {
                     macroOptions.attributes['data-date-of-birth-maximum-age'] =
@@ -530,7 +530,7 @@ function generateField({
                     macroOptions.attributes[
                         'data-date-of-birth-maximum-age-error-text'
                     ] =
-                        `You must be no more than ${String(fieldItem.date_of_birth_maximum_age)} year${fieldItem.date_of_birth_minimum_age != 1 ? 's' : ''} old`;
+                        `You must be no more than ${String(fieldItem.date_of_birth_maximum_age)} year${fieldItem.date_of_birth_maximum_age === 1 ? '' : 's'} old`;
                 }
             }
             result = `{{ govukDateInput(${objectToJSFormat(macroOptions)}) }}`;

@@ -623,12 +623,12 @@ describe('generateQuestionPage', () => {
 
                     expect(result.match(/govukDateInput/g)?.length).toBe(1);
                     expect(result).toContain('For example, 31 3 2016');
-                    if (autocomplete !== undefined) {
+                    if (autocomplete === undefined) {
+                        expect(result).not.toContain('autocomplete');
+                    } else {
                         expect(result).toContain(
                             `autocomplete: '${autocomplete}`
                         );
-                    } else {
-                        expect(result).not.toContain('autocomplete');
                     }
                     expect(
                         result.includes('data-date-of-birth-error-text')
@@ -703,17 +703,17 @@ describe('generateQuestionPage', () => {
                     );
 
                     expect(result.match(/govukInput/g)?.length).toBe(1);
-                    if (autocomplete !== undefined) {
+                    if (autocomplete === undefined) {
+                        expect(result).not.toContain('autocomplete');
+                    } else {
                         expect(result).toContain(
                             `autocomplete: '${autocomplete}'`
                         );
-                    } else {
-                        expect(result).not.toContain('autocomplete');
                     }
-                    if (type !== undefined) {
-                        expect(result).toContain(`type: '${type}'`);
-                    } else {
+                    if (type === undefined) {
                         expect(result).not.toContain('type');
+                    } else {
+                        expect(result).toContain(`type: '${type}'`);
                     }
                     if (validationAttribute) {
                         expect(result.includes(validationAttribute)).toBe(true);

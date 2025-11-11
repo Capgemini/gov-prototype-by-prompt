@@ -297,13 +297,13 @@ export async function renderHistoryPage(
                               text: creator ?? 'Unknown',
                           },
                       ]),
-                ...(workspaceId !== 'all'
-                    ? []
-                    : [
+                ...(workspaceId === 'all'
+                    ? [
                           {
                               text: workspace ?? 'Unknown',
                           },
-                      ]),
+                      ]
+                    : []),
                 ...(onlyCreated
                     ? []
                     : [
@@ -331,13 +331,13 @@ export async function renderHistoryPage(
                       text: 'Created by',
                   },
               ]),
-        ...(workspaceId !== 'all'
-            ? []
-            : [
+        ...(workspaceId === 'all'
+            ? [
                   {
                       text: 'Workspace',
                   },
-              ]),
+              ]
+            : []),
         ...(onlyCreated ? [] : [{ text: 'Changes made' }]),
     ];
 
@@ -776,7 +776,7 @@ export async function renderResultsPage(
         if (ws.isPersonalWorkspace) {
             return `${ws.name} (private)`;
         } else {
-            return `${ws.name} (${ws.userIds.length !== 1 ? String(ws.userIds.length) + ' users' : 'just you'})`;
+            return `${ws.name} (${ws.userIds.length === 1 ? 'just you' : String(ws.userIds.length) + ' users'})`;
         }
     };
     const allWorkspaces = isOwner
@@ -869,18 +869,8 @@ export async function handleUpdatePrototype(
         designSystem = DefaultPrototypeDesignSystem;
     }
 
-    // Just update the design system if no prompt is provided
-    if (!prompt) {
-        const newJson = JSON.parse(
-            JSON.stringify(oldPrototypeData.json)
-        ) as ITemplateData;
-        newJson.changes_made = `Updated design system to ${designSystem}`;
-        newJson.explanation = `The design system has been updated to ${designSystem}.`;
-        responseText = JSON.stringify(newJson);
-        prompt = `Update the design system to ${designSystem}.`;
-
-        // Otherwise, prompt the OpenAI API to update the form
-    } else {
+    // Update the form if a prompt is provided, otherwise just update the design system
+    if (prompt) {
         responseText = await updateFormWithOpenAI(
             getEnvironmentVariables(),
             prompt,
@@ -892,6 +882,15 @@ export async function handleUpdatePrototype(
         responseText = responseText
             .replace(/\\"/g, '“')
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
+    } else {
+        // Otherwise, prompt the OpenAI API to update the form
+        const newJson = JSON.parse(
+            JSON.stringify(oldPrototypeData.json)
+        ) as ITemplateData;
+        newJson.changes_made = `Updated design system to ${designSystem}`;
+        newJson.explanation = `The design system has been updated to ${designSystem}.`;
+        responseText = JSON.stringify(newJson);
+        prompt = `Update the design system to ${designSystem}.`;
     }
 
     // Parse and validate the JSON response

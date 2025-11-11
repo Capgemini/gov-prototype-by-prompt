@@ -640,9 +640,9 @@ describe('notFoundHandler', () => {
         'should render page-not-found.njk with insideIframe $expectedInsideIframe if sec-fetch-dest is $secFetchDest',
         ({ expectedInsideIframe, secFetchDest }) => {
             const req = httpMocks.createRequest(
-                secFetchDest !== undefined
-                    ? { headers: { 'sec-fetch-dest': secFetchDest } }
-                    : undefined
+                secFetchDest === undefined
+                    ? undefined
+                    : { headers: { 'sec-fetch-dest': secFetchDest } }
             );
             const res = httpMocks.createResponse();
 
