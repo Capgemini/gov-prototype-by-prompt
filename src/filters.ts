@@ -39,7 +39,7 @@ export function convertToGovukMarkdown(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const extension: MarkedExtension = govukMarkdown({
         headingsStartWith: 'xl',
-        ...(options ?? {}),
+        ...options,
     }) as MarkedExtension;
     marked.use(extension);
 

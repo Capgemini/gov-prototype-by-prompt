@@ -635,7 +635,7 @@ export function renderPrototypePage(
         req.session.liveData ??= {};
         // Update the liveData for the prototypeId with the request body
         req.session.liveData[prototypeId] = {
-            ...(req.session.liveData[prototypeId] ?? {}),
+            ...req.session.liveData[prototypeId],
             ...req.body,
         };
     }
