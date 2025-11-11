@@ -39,7 +39,7 @@ export async function buildZipOfForm(
     ];
 
     // Set last modified time to now for all files
-    const now = new Date().getTime();
+    const now = Date.now();
     for (const file of files) {
         file.lastModified = now;
     }
