@@ -325,12 +325,12 @@ export function validateTemplateDataText(
     }) as TemplateData;
 
     // Remove date of birth properties if not applicable
-    templateData.questions.forEach((question) => {
+    for (const question of templateData.questions) {
         if (question.answer_type !== 'date_of_birth') {
             delete question.date_of_birth_minimum_age;
             delete question.date_of_birth_maximum_age;
         }
-    });
+    }
 
     return templateData;
 }

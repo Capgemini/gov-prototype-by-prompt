@@ -26,9 +26,9 @@ describe('setupStaticAssets', () => {
             'govuk-frontend.min.js',
             'govuk-frontend.min.js.map',
         ];
-        files.forEach((file) => {
+        for (const file of files) {
             expect(fs.existsSync(path.join(govukDir, file))).toBe(true);
-        });
+        }
     });
 
     it('GOV.UK assets directory exists', () => {
@@ -36,13 +36,14 @@ describe('setupStaticAssets', () => {
     });
 
     it('HMRC CSS and JS assets exist', () => {
-        fs.readdirSync(hmrcDir)
+        const hmrcAssets = fs
+            .readdirSync(hmrcDir)
             .filter((file) =>
                 /^hmrc-frontend-\d+\.\d+\.\d+\.min\.(css|js)$/.test(file)
-            )
-            .forEach((file) => {
-                expect(fs.existsSync(path.join(hmrcDir, file))).toBe(true);
-            });
+            );
+        for (const file of hmrcAssets) {
+            expect(fs.existsSync(path.join(hmrcDir, file))).toBe(true);
+        }
     });
 
     it('HMRC govuk assets directory exists', () => {
