@@ -3,9 +3,9 @@ import {
     ValidationError as ExpressValidationError,
     validationResult,
 } from 'express-validator';
-import fs from 'fs';
 import format from 'html-format';
 import { ValidationError, Validator, ValidatorResultError } from 'jsonschema';
+import fs from 'node:fs';
 
 import commonPasswords from '../data/valid-common-passwords.json';
 import { EnvironmentVariables, JsonSchema, TemplateData } from './types';

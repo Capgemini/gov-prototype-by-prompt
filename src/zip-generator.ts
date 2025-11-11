@@ -1,5 +1,5 @@
 import { downloadZip, InputWithSizeMeta } from 'client-zip';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 import zipDownloadPackageLockJson from '../data/zip-download/package-lock.json';
 import zipDownloadPackageJson from '../data/zip-download/package.json';

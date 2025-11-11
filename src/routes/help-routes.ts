@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { param } from 'express-validator';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import helpFiles from '../../docs/help/help-files.json';
 import { handleValidationErrors } from '../utils';

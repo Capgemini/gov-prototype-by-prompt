@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import path from 'path';
+import path from 'node:path';
 
 import { getContentType, getHmrcAssetsVersion } from '../utils';
 
