@@ -373,7 +373,7 @@ describe('generateQuestionPage', () => {
         } as TemplateData;
 
         // Act
-        for (const [index, question] of data.questions.entries()) {
+        for (const [index] of data.questions.entries()) {
             generateQuestionPage(
                 data,
                 urlPrefix,

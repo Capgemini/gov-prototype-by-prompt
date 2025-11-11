@@ -614,9 +614,9 @@ export async function updateWorkspaceController(
             return;
         }
         const allUsers = await getAllUsers();
-        const allUserIds = allUsers.map((user) => user.id);
+        const allUserIds = new Set(allUsers.map((user) => user.id));
         for (const userId of req.body.sharedWithUserIds) {
-            if (!allUserIds.includes(userId)) {
+            if (!allUserIds.has(userId)) {
                 res.status(400).json({
                     message: `User with ID ${userId} does not exist.`,
                 });

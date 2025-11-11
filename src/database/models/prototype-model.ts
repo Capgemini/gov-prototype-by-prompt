@@ -174,8 +174,8 @@ export class PrototypeModel {
         try {
             // First, get all workspaces the user has access to
             const userWorkspaces = await WorkspaceModel.getByUserId(userId);
-            const userWorkspaceIds = userWorkspaces.map(
-                (workspace) => workspace.id
+            const userWorkspaceIds = new Set(
+                userWorkspaces.map((workspace) => workspace.id)
             );
 
             // Build the chain of previous IDs
@@ -199,7 +199,7 @@ export class PrototypeModel {
                 // Check if user can access this prototype
                 const canAccess =
                     prototype.sharedWithUserIds.includes(userId) ||
-                    userWorkspaceIds.includes(prototype.workspaceId);
+                    userWorkspaceIds.has(prototype.workspaceId);
 
                 if (!canAccess) break;
 

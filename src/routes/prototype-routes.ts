@@ -117,14 +117,23 @@ export async function renderHistoryPage(
         createdBy = 'anyone';
     }
     const workspaces = await getWorkspacesByUserId(user.id);
-    const acceptedWorkspaceIds = [...workspaces.map((ws) => ws.id), 'all'];
+    const acceptedWorkspaceIds = new Set([
+        'all',
+        ...workspaces.map((ws) => ws.id),
+    ]);
     let workspaceId = req.query.workspaceId;
-    if (!workspaceId || !acceptedWorkspaceIds.includes(workspaceId)) {
+    if (!workspaceId || !acceptedWorkspaceIds.has(workspaceId)) {
         workspaceId = 'all';
     }
-    const sharingOptions = ['all', 'private', 'workspace', 'users', 'public'];
+    const sharingOptions = new Set([
+        'all',
+        'private',
+        'public',
+        'users',
+        'workspace',
+    ]);
     let sharing = req.query.sharing ?? 'all';
-    if (!sharingOptions.includes(sharing)) {
+    if (!sharingOptions.has(sharing)) {
         sharing = 'all';
     }
 
@@ -224,9 +233,9 @@ export async function renderHistoryPage(
         req.query.createdBy === undefined ||
         !['anyone', 'others', 'self'].includes(req.query.createdBy) ||
         req.query.workspaceId === undefined ||
-        !acceptedWorkspaceIds.includes(req.query.workspaceId) ||
+        !acceptedWorkspaceIds.has(req.query.workspaceId) ||
         req.query.sharing === undefined ||
-        !sharingOptions.includes(req.query.sharing) ||
+        !sharingOptions.has(req.query.sharing) ||
         invalidPagination
     ) {
         res.redirect(
@@ -511,9 +520,9 @@ export async function handleUpdateSharing(
 
     // Validate the sharedWithUserIds array
     const allUsers = await getAllUsers();
-    const allUserIds = allUsers.map((user) => user.id);
+    const allUserIds = new Set(allUsers.map((user) => user.id));
     for (const userId of req.body.sharedWithUserIds) {
-        if (!allUserIds.includes(userId)) {
+        if (!allUserIds.has(userId)) {
             res.status(400).json({
                 message: `User with ID ${userId} does not exist.`,
             });
@@ -533,7 +542,7 @@ export async function handleUpdateSharing(
     const updates = {
         livePrototypePublic: req.body.livePrototypePublic,
         livePrototypePublicPassword: req.body.livePrototypePublicPassword ?? '',
-        sharedWithUserIds: Array.from(new Set([...req.body.sharedWithUserIds])),
+        sharedWithUserIds: Array.from(new Set(...req.body.sharedWithUserIds)),
         workspaceId: workspaceId,
     };
 
@@ -931,9 +940,7 @@ export async function handleUpdatePrototype(
         livePrototypePublic: false,
         livePrototypePublicPassword: '',
         previousId: oldPrototypeId,
-        sharedWithUserIds: [
-            ...new Set([...oldPrototypeData.sharedWithUserIds]),
-        ],
+        sharedWithUserIds: [...new Set(...oldPrototypeData.sharedWithUserIds)],
         timestamp: timestamp,
         workspaceId: workspaceId,
     });
@@ -1052,7 +1059,7 @@ export async function handleCreatePrototype(
             livePrototypePublicPassword: '',
             previousId: req.body.prototypeId,
             sharedWithUserIds: oldPrototypeData
-                ? [...new Set([...oldPrototypeData.sharedWithUserIds])]
+                ? [...new Set(...oldPrototypeData.sharedWithUserIds)]
                 : [],
             timestamp: timestamp,
             workspaceId: workspaceId,
