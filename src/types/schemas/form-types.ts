@@ -21,9 +21,6 @@ export interface QuestionHeaderOptions {
     title: string;
 }
 
-// Re-export the template types from prototypeSchema
-export { ITemplateData, ITemplateField };
-
 export type TemplateData = ITemplateData;
 // Legacy type aliases for backward compatibility
 export type TemplateField = ITemplateField;
