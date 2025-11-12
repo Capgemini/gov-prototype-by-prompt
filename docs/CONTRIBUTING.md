@@ -16,7 +16,7 @@ See the [README](/README.md#setup) for setup instructions.
 
 If you are using Visual Studio Code, the `.vscode` folder contains configuration files to set up your IDE with the recommended settings and extensions for this project. You can install the recommended extensions by clicking on the "Extensions" icon in the sidebar, filtering by "Recommended", and then clicking on the "Install All" button.
 
-GitHub Actions pipelines exist to run the unit tests, check linting and formatting, and check for dependency vulnerabilities. Automatic fixes for linting and formatting errors will be applied when a pull request is opened.
+GitHub Actions pipelines exist to run the unit tests, check linting and formatting, check for dependency vulnerabilities, and assess code quality.
 
 ### Running tests
 
@@ -33,6 +33,10 @@ Please ensure that the prettier and the ESLint plugins have been installed for y
 ### Accessibility
 
 We use the [Axe accessibility devtools extension](https://chromewebstore.google.com/detail/axe-devtools-web-accessib/lhdoppojpmngadmnindnejefpokejbdd) to check for and resolve any accessibility issues in the UI.
+
+### GitHub Code Quality
+
+We use [GitHub Code Quality](https://docs.github.com/en/code-security/code-quality) to automatically check for issues that may impact reliability or maintainability. All issues identified in a pull request must be resolved (either fixed or dismissed) before it can be merged.
 
 ## Contributing checklist
 
