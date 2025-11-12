@@ -203,7 +203,7 @@ export function handleValidationErrors(req: Request, res: Response): boolean {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const errorArray = errors.array();
-        let errorMessage: string;
+        let errorMessage: string = 'example error message';
 
         // Use the validation error message if there's only one or they're all the same
         if (
