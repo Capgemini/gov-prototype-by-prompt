@@ -244,12 +244,10 @@ ${JSON.stringify(templateData, null, 2)}`;
  * @returns {string} The organization context for the design system.
  */
 function getOrgFor(designSystem: PrototypeDesignSystemsType): string {
-    switch (designSystem) {
-        case 'HMRC':
-            return ' for HMRC';
-        default:
-            return ' for the UK Government';
+    if (designSystem === 'HMRC') {
+        return ' for HMRC';
     }
+    return ' for the UK Government';
 }
 
 /**
