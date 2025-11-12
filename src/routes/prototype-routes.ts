@@ -891,7 +891,6 @@ export async function handleUpdatePrototype(
             .replace(/\\"/g, '“')
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
     } else {
-        // Otherwise, prompt the OpenAI API to update the form
         const newJson = structuredClone(oldPrototypeData.json);
         newJson.changes_made = `Updated design system to ${designSystem}`;
         newJson.explanation = `The design system has been updated to ${designSystem}.`;
