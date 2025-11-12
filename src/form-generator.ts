@@ -241,7 +241,7 @@ function generateField({
     const questionTextSize = questionsAsHeadings ? 'l' : 'm';
     const questionNumberString = String(questionNumber);
 
-    let macroOptions: FieldMacroOptions = { attributes: {} };
+    let macroOptions: FieldMacroOptions;
     let items;
     let result;
 
