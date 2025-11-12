@@ -541,7 +541,7 @@ export async function handleUpdateSharing(
     const updates = {
         livePrototypePublic: req.body.livePrototypePublic,
         livePrototypePublicPassword: req.body.livePrototypePublicPassword ?? '',
-        sharedWithUserIds: Array.from(new Set(...req.body.sharedWithUserIds)),
+        sharedWithUserIds: Array.from(new Set(req.body.sharedWithUserIds)),
         workspaceId: workspaceId,
     };
 
@@ -937,7 +937,7 @@ export async function handleUpdatePrototype(
         livePrototypePublic: false,
         livePrototypePublicPassword: '',
         previousId: oldPrototypeId,
-        sharedWithUserIds: [...new Set(...oldPrototypeData.sharedWithUserIds)],
+        sharedWithUserIds: [...new Set(oldPrototypeData.sharedWithUserIds)],
         timestamp: timestamp,
         workspaceId: workspaceId,
     });
@@ -1056,7 +1056,7 @@ export async function handleCreatePrototype(
             livePrototypePublicPassword: '',
             previousId: req.body.prototypeId,
             sharedWithUserIds: oldPrototypeData
-                ? [...new Set(...oldPrototypeData.sharedWithUserIds)]
+                ? [...new Set(oldPrototypeData.sharedWithUserIds)]
                 : [],
             timestamp: timestamp,
             workspaceId: workspaceId,
