@@ -24,7 +24,7 @@ export interface ITemplateField {
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     hint_text?: string;
-    options: string[];
+    options?: string[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
@@ -91,7 +91,11 @@ const templateFieldSchema = new Schema<ITemplateField>(
         date_of_birth_maximum_age: Number,
         date_of_birth_minimum_age: Number,
         hint_text: String,
-        options: [String],
+        options: {
+            type: [String],
+            required: false,
+            default: undefined,
+        },
         question_text: {
             required: true,
             type: String,
