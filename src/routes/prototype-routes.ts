@@ -41,7 +41,6 @@ import {
     CreateFormRequestBody,
     DefaultPrototypeDesignSystem,
     IPrototypeData,
-    ITemplateData,
     JsonSchema,
     PrototypeDesignSystems,
     PrototypeDesignSystemsType,
@@ -893,9 +892,7 @@ export async function handleUpdatePrototype(
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
     } else {
         // Otherwise, prompt the OpenAI API to update the form
-        const newJson = JSON.parse(
-            JSON.stringify(oldPrototypeData.json)
-        ) as ITemplateData;
+        const newJson = structuredClone(oldPrototypeData.json);
         newJson.changes_made = `Updated design system to ${designSystem}`;
         newJson.explanation = `The design system has been updated to ${designSystem}.`;
         responseText = JSON.stringify(newJson);
