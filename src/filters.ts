@@ -39,7 +39,7 @@ export function convertToGovukMarkdown(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const extension: MarkedExtension = govukMarkdown({
         headingsStartWith: 'xl',
-        ...(options ?? {}),
+        ...options,
     }) as MarkedExtension;
     marked.use(extension);
 
@@ -55,7 +55,7 @@ export function formatList(array: string[]): string {
     if (array.length === 0) return '';
     if (array.length === 1) return array[0];
     if (array.length === 2) return `${array[0]} and ${array[1]}`;
-    return `${array.slice(0, -1).join(', ')}, and ${array[array.length - 1]}`;
+    return `${array.slice(0, -1).join(', ')}, and ${array.at(-1) ?? ''}`;
 }
 
 /**
@@ -73,7 +73,9 @@ export function formatList(array: string[]): string {
 export function govukDate(dateString: string): string {
     if (!dateString) return '';
 
-    const dateParts = dateString.split('-').map((part) => parseInt(part, 10));
+    const dateParts = dateString
+        .split('-')
+        .map((part) => Number.parseInt(part, 10));
     if (dateParts.length === 2) return moment(dateString).format('MMMM YYYY');
     if (dateParts.length === 3) return moment(dateString).format('D MMMM YYYY');
     return dateString;

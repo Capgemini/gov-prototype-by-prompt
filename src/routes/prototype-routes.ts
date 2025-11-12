@@ -41,7 +41,6 @@ import {
     CreateFormRequestBody,
     DefaultPrototypeDesignSystem,
     IPrototypeData,
-    ITemplateData,
     JsonSchema,
     PrototypeDesignSystems,
     PrototypeDesignSystemsType,
@@ -117,23 +116,32 @@ export async function renderHistoryPage(
         createdBy = 'anyone';
     }
     const workspaces = await getWorkspacesByUserId(user.id);
-    const acceptedWorkspaceIds = [...workspaces.map((ws) => ws.id), 'all'];
+    const acceptedWorkspaceIds = new Set([
+        'all',
+        ...workspaces.map((ws) => ws.id),
+    ]);
     let workspaceId = req.query.workspaceId;
-    if (!workspaceId || !acceptedWorkspaceIds.includes(workspaceId)) {
+    if (!workspaceId || !acceptedWorkspaceIds.has(workspaceId)) {
         workspaceId = 'all';
     }
-    const sharingOptions = ['all', 'private', 'workspace', 'users', 'public'];
+    const sharingOptions = new Set([
+        'all',
+        'private',
+        'public',
+        'users',
+        'workspace',
+    ]);
     let sharing = req.query.sharing ?? 'all';
-    if (!sharingOptions.includes(sharing)) {
+    if (!sharingOptions.has(sharing)) {
         sharing = 'all';
     }
 
     // Get and validate the pagination query parameters
     let invalidPagination = false;
-    let perPage = parseInt(req.query.perPage ?? '10', 10);
+    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
     if (
         req.query.perPage === undefined ||
-        isNaN(perPage) ||
+        Number.isNaN(perPage) ||
         perPage < 1 ||
         perPage > 100
     ) {
@@ -206,10 +214,10 @@ export async function renderHistoryPage(
     // Validate the pagination parameters against the total prototypes
     let totalPages = Math.ceil(countPrototypes / perPage);
     if (totalPages < 1) totalPages = 1;
-    let page = parseInt(req.query.page ?? '1', 10);
+    let page = Number.parseInt(req.query.page ?? '1', 10);
     if (
         req.query.page === undefined ||
-        isNaN(page) ||
+        Number.isNaN(page) ||
         page < 1 ||
         page > totalPages
     ) {
@@ -224,9 +232,9 @@ export async function renderHistoryPage(
         req.query.createdBy === undefined ||
         !['anyone', 'others', 'self'].includes(req.query.createdBy) ||
         req.query.workspaceId === undefined ||
-        !acceptedWorkspaceIds.includes(req.query.workspaceId) ||
+        !acceptedWorkspaceIds.has(req.query.workspaceId) ||
         req.query.sharing === undefined ||
-        !sharingOptions.includes(req.query.sharing) ||
+        !sharingOptions.has(req.query.sharing) ||
         invalidPagination
     ) {
         res.redirect(
@@ -297,13 +305,13 @@ export async function renderHistoryPage(
                               text: creator ?? 'Unknown',
                           },
                       ]),
-                ...(workspaceId !== 'all'
-                    ? []
-                    : [
+                ...(workspaceId === 'all'
+                    ? [
                           {
                               text: workspace ?? 'Unknown',
                           },
-                      ]),
+                      ]
+                    : []),
                 ...(onlyCreated
                     ? []
                     : [
@@ -331,13 +339,13 @@ export async function renderHistoryPage(
                       text: 'Created by',
                   },
               ]),
-        ...(workspaceId !== 'all'
-            ? []
-            : [
+        ...(workspaceId === 'all'
+            ? [
                   {
                       text: 'Workspace',
                   },
-              ]),
+              ]
+            : []),
         ...(onlyCreated ? [] : [{ text: 'Changes made' }]),
     ];
 
@@ -511,9 +519,9 @@ export async function handleUpdateSharing(
 
     // Validate the sharedWithUserIds array
     const allUsers = await getAllUsers();
-    const allUserIds = allUsers.map((user) => user.id);
+    const allUserIds = new Set(allUsers.map((user) => user.id));
     for (const userId of req.body.sharedWithUserIds) {
-        if (!allUserIds.includes(userId)) {
+        if (!allUserIds.has(userId)) {
             res.status(400).json({
                 message: `User with ID ${userId} does not exist.`,
             });
@@ -533,7 +541,7 @@ export async function handleUpdateSharing(
     const updates = {
         livePrototypePublic: req.body.livePrototypePublic,
         livePrototypePublicPassword: req.body.livePrototypePublicPassword ?? '',
-        sharedWithUserIds: Array.from(new Set([...req.body.sharedWithUserIds])),
+        sharedWithUserIds: Array.from(new Set(req.body.sharedWithUserIds)),
         workspaceId: workspaceId,
     };
 
@@ -635,7 +643,7 @@ export function renderPrototypePage(
         req.session.liveData ??= {};
         // Update the liveData for the prototypeId with the request body
         req.session.liveData[prototypeId] = {
-            ...(req.session.liveData[prototypeId] ?? {}),
+            ...req.session.liveData[prototypeId],
             ...req.body,
         };
     }
@@ -683,7 +691,7 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else {
-        const questionIndex = parseInt(pageNumber.split('-')[1], 10) - 1;
+        const questionIndex = Number.parseInt(pageNumber.split('-')[1], 10) - 1;
         pageContent = generateQuestionPage(
             prototypeData.json,
             urlPrefix,
@@ -776,7 +784,7 @@ export async function renderResultsPage(
         if (ws.isPersonalWorkspace) {
             return `${ws.name} (private)`;
         } else {
-            return `${ws.name} (${ws.userIds.length !== 1 ? String(ws.userIds.length) + ' users' : 'just you'})`;
+            return `${ws.name} (${ws.userIds.length === 1 ? 'just you' : String(ws.userIds.length) + ' users'})`;
         }
     };
     const allWorkspaces = isOwner
@@ -869,18 +877,8 @@ export async function handleUpdatePrototype(
         designSystem = DefaultPrototypeDesignSystem;
     }
 
-    // Just update the design system if no prompt is provided
-    if (!prompt) {
-        const newJson = JSON.parse(
-            JSON.stringify(oldPrototypeData.json)
-        ) as ITemplateData;
-        newJson.changes_made = `Updated design system to ${designSystem}`;
-        newJson.explanation = `The design system has been updated to ${designSystem}.`;
-        responseText = JSON.stringify(newJson);
-        prompt = `Update the design system to ${designSystem}.`;
-
-        // Otherwise, prompt the OpenAI API to update the form
-    } else {
+    // Update the form if a prompt is provided, otherwise just update the design system
+    if (prompt) {
         responseText = await updateFormWithOpenAI(
             getEnvironmentVariables(),
             prompt,
@@ -892,6 +890,12 @@ export async function handleUpdatePrototype(
         responseText = responseText
             .replace(/\\"/g, '“')
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
+    } else {
+        const newJson = structuredClone(oldPrototypeData.json);
+        newJson.changes_made = `Updated design system to ${designSystem}`;
+        newJson.explanation = `The design system has been updated to ${designSystem}.`;
+        responseText = JSON.stringify(newJson);
+        prompt = `Update the design system to ${designSystem}.`;
     }
 
     // Parse and validate the JSON response
@@ -932,9 +936,7 @@ export async function handleUpdatePrototype(
         livePrototypePublic: false,
         livePrototypePublicPassword: '',
         previousId: oldPrototypeId,
-        sharedWithUserIds: [
-            ...new Set([...oldPrototypeData.sharedWithUserIds]),
-        ],
+        sharedWithUserIds: [...new Set(oldPrototypeData.sharedWithUserIds)],
         timestamp: timestamp,
         workspaceId: workspaceId,
     });
@@ -1053,7 +1055,7 @@ export async function handleCreatePrototype(
             livePrototypePublicPassword: '',
             previousId: req.body.prototypeId,
             sharedWithUserIds: oldPrototypeData
-                ? [...new Set([...oldPrototypeData.sharedWithUserIds])]
+                ? [...new Set(oldPrototypeData.sharedWithUserIds)]
                 : [],
             timestamp: timestamp,
             workspaceId: workspaceId,

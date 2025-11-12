@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import session from 'express-session';
+import path from 'node:path';
 import * as nunjucks from 'nunjucks';
-import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import {
     arrayOrStringIncludes,

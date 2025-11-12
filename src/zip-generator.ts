@@ -1,5 +1,5 @@
 import { downloadZip, InputWithSizeMeta } from 'client-zip';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 import zipDownloadPackageLockJson from '../data/zip-download/package-lock.json';
 import zipDownloadPackageJson from '../data/zip-download/package.json';
@@ -39,10 +39,10 @@ export async function buildZipOfForm(
     ];
 
     // Set last modified time to now for all files
-    const now = new Date().getTime();
-    files.forEach((file) => {
+    const now = Date.now();
+    for (const file of files) {
         file.lastModified = now;
-    });
+    }
 
     return downloadZip(files).blob();
 }
@@ -167,14 +167,14 @@ function generateZipOfAssets(
         'govuk-frontend.min.js',
         'govuk-frontend.min.js.map',
     ];
-    govukAssets.forEach((file) => {
+    for (const file of govukAssets) {
         files.push({
             input: fs.readFileSync(
                 `./node_modules/govuk-frontend/dist/govuk/${file}`
             ),
             name: `assets/${file}`,
         });
-    });
+    }
 
     // Add the GOV.UK fonts and images
     addFilesRecursively(
@@ -189,14 +189,14 @@ function generateZipOfAssets(
             `hmrc-frontend-${hmrcVersion}.min.css`,
             `hmrc-frontend-${hmrcVersion}.min.js`,
         ];
-        hmrcAssets.forEach((file) => {
+        for (const file of hmrcAssets) {
             files.push({
                 input: fs.readFileSync(
                     `./node_modules/hmrc-frontend/hmrc/${file}`
                 ),
                 name: `assets/${file}`,
             });
-        });
+        }
     }
 
     return files;
@@ -243,23 +243,25 @@ function generateZipOfForm(
             name: `views/${urlPrefix}/question-${String(i + 1)}.njk`,
         });
     }
-    files.push({
-        input: generateCheckAnswersPage(
-            templateData,
-            urlPrefix,
-            designSystem,
-            showDemoWarning
-        ),
-        name: `views/${urlPrefix}/check-answers.njk`,
-    });
-    files.push({
-        input: generateConfirmationPage(
-            templateData,
-            designSystem,
-            showDemoWarning
-        ),
-        name: `views/${urlPrefix}/confirmation.njk`,
-    });
+    files.push(
+        {
+            input: generateCheckAnswersPage(
+                templateData,
+                urlPrefix,
+                designSystem,
+                showDemoWarning
+            ),
+            name: `views/${urlPrefix}/check-answers.njk`,
+        },
+        {
+            input: generateConfirmationPage(
+                templateData,
+                designSystem,
+                showDemoWarning
+            ),
+            name: `views/${urlPrefix}/confirmation.njk`,
+        }
+    );
 
     return files;
 }

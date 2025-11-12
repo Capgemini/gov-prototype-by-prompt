@@ -115,12 +115,12 @@ describe('generateCheckAnswersPage', () => {
         expect(result.split('?referrer=check-answers').length - 1).toBe(
             data.questions.length
         );
-        data.questions.forEach((question, index) => {
+        for (const [index, question] of data.questions.entries()) {
             expect(result).toContain(
                 `href: '/${urlPrefix}/question-${String(index + 1)}?referrer=check-answers'`
             );
             expect(result).toContain(`text: '${question.question_text}'`);
-        });
+        }
     });
 
     it('generates correct Nunjucks for a multiple-choice question', () => {
@@ -195,9 +195,9 @@ describe('generateCheckAnswersPage', () => {
                 'GOV.UK',
                 false
             );
-            expectedFields.forEach((field) => {
+            for (const field of expectedFields) {
                 expect(result).toContain(field);
-            });
+            }
             expect(result).toContain('force-multiline-row');
             expect(result).toContain('force-multiline-value');
         }
@@ -335,7 +335,7 @@ describe('generateQuestionPage', () => {
         } as TemplateData;
 
         // Throw error for invalid index
-        [-12, -1, 3, 99].forEach((index) => {
+        for (const index of [-12, -1, 3, 99]) {
             expect(() =>
                 generateQuestionPage(
                     data,
@@ -345,10 +345,10 @@ describe('generateQuestionPage', () => {
                     showDemoWarning
                 )
             ).toThrow(`Invalid question index: ${String(index)}`);
-        });
+        }
 
         // Don't throw error for valid index
-        [0, 1].forEach((index) => {
+        for (const index of [0, 1]) {
             expect(() =>
                 generateQuestionPage(
                     data,
@@ -358,7 +358,7 @@ describe('generateQuestionPage', () => {
                     showDemoWarning
                 )
             ).not.toThrow();
-        });
+        }
     });
 
     it('calls getQuestionHeader with correct parameters', () => {
@@ -373,7 +373,7 @@ describe('generateQuestionPage', () => {
         } as TemplateData;
 
         // Act
-        data.questions.forEach((question, index) => {
+        for (const [index] of data.questions.entries()) {
             generateQuestionPage(
                 data,
                 urlPrefix,
@@ -381,7 +381,7 @@ describe('generateQuestionPage', () => {
                 designSystem,
                 showDemoWarning
             );
-        });
+        }
 
         // Assert
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
@@ -519,9 +519,9 @@ describe('generateQuestionPage', () => {
                     expect(result.match(/govukInput/g)?.length).toBe(
                         inputCount
                     );
-                    fieldNames.forEach((fieldName) => {
+                    for (const fieldName of fieldNames) {
                         expect(result).toContain(fieldName);
-                    });
+                    }
                     expect(
                         result.match(/data-required-error-text/g)?.length
                     ).toBe(requiredCount);
@@ -623,12 +623,12 @@ describe('generateQuestionPage', () => {
 
                     expect(result.match(/govukDateInput/g)?.length).toBe(1);
                     expect(result).toContain('For example, 31 3 2016');
-                    if (autocomplete !== undefined) {
+                    if (autocomplete === undefined) {
+                        expect(result).not.toContain('autocomplete');
+                    } else {
                         expect(result).toContain(
                             `autocomplete: '${autocomplete}`
                         );
-                    } else {
-                        expect(result).not.toContain('autocomplete');
                     }
                     expect(
                         result.includes('data-date-of-birth-error-text')
@@ -703,17 +703,17 @@ describe('generateQuestionPage', () => {
                     );
 
                     expect(result.match(/govukInput/g)?.length).toBe(1);
-                    if (autocomplete !== undefined) {
+                    if (autocomplete === undefined) {
+                        expect(result).not.toContain('autocomplete');
+                    } else {
                         expect(result).toContain(
                             `autocomplete: '${autocomplete}'`
                         );
-                    } else {
-                        expect(result).not.toContain('autocomplete');
                     }
-                    if (type !== undefined) {
-                        expect(result).toContain(`type: '${type}'`);
-                    } else {
+                    if (type === undefined) {
                         expect(result).not.toContain('type');
+                    } else {
+                        expect(result).toContain(`type: '${type}'`);
                     }
                     if (validationAttribute) {
                         expect(result.includes(validationAttribute)).toBe(true);
@@ -790,11 +790,11 @@ describe('generateQuestionPage', () => {
                     );
 
                     expect(
-                        RegExp(new RegExp(fieldName, 'g')).exec(result)?.length
+                        new RegExp(fieldName, 'g').exec(result)?.length
                     ).toBe(1);
-                    options.forEach((option) => {
+                    for (const option of options) {
                         expect(result.split(option).length - 1).toBe(3);
-                    });
+                    }
                     expect(result.includes('data-required-error-text')).toBe(
                         required
                     );

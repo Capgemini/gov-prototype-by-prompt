@@ -90,11 +90,7 @@ export async function registerUser(
         }
     }
 
-    validatePasswords(req.body.password1, req.body.password2).forEach(
-        (error) => {
-            errors.push(error);
-        }
-    );
+    errors.push(...validatePasswords(req.body.password1, req.body.password2));
 
     if (errors.length > 0) {
         res.status(400).json({
@@ -213,9 +209,7 @@ export async function handleUpdateUser(
     }
 
     if (password1) {
-        validatePasswords(password1, password2).forEach((error) => {
-            errors.push(error);
-        });
+        errors.push(...validatePasswords(password1, password2));
     }
 
     if (errors.length > 0) {
@@ -371,10 +365,10 @@ export async function renderWorkspacesPage(
 
     // Get and validate the pagination query parameters
     let invalidPagination = false;
-    let perPage = parseInt(req.query.perPage ?? '10', 10);
+    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
     if (
         req.query.perPage === undefined ||
-        isNaN(perPage) ||
+        Number.isNaN(perPage) ||
         perPage < 1 ||
         perPage > 100
     ) {
@@ -384,10 +378,10 @@ export async function renderWorkspacesPage(
     const totalWorkspaces = await countWorkspacesByUserId(user.id);
     let totalPages = Math.ceil(totalWorkspaces / perPage);
     if (totalPages < 1) totalPages = 1;
-    let page = parseInt(req.query.page ?? '1', 10);
+    let page = Number.parseInt(req.query.page ?? '1', 10);
     if (
         req.query.page === undefined ||
-        isNaN(page) ||
+        Number.isNaN(page) ||
         page < 1 ||
         page > totalPages
     ) {
@@ -620,9 +614,9 @@ export async function updateWorkspaceController(
             return;
         }
         const allUsers = await getAllUsers();
-        const allUserIds = allUsers.map((user) => user.id);
+        const allUserIds = new Set(allUsers.map((user) => user.id));
         for (const userId of req.body.sharedWithUserIds) {
-            if (!allUserIds.includes(userId)) {
+            if (!allUserIds.has(userId)) {
                 res.status(400).json({
                     message: `User with ID ${userId} does not exist.`,
                 });

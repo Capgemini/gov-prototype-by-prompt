@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
-import path from 'path';
+import path from 'node:path';
 
 import { getContentType, getHmrcAssetsVersion } from '../utils';
 
@@ -17,7 +17,8 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
         'govuk-frontend.min.js',
         'govuk-frontend.min.js.map',
     ];
-    govukAssets.forEach((file) => {
+
+    for (const file of govukAssets) {
         app.use(
             `/assets/${file}`,
             (req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +33,7 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
                 )
             )
         );
-    });
+    }
 
     // Serve GOV.UK fonts and images
     app.use(
@@ -48,7 +49,7 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
         `hmrc-frontend-${hmrcVersion}.min.css`,
         `hmrc-frontend-${hmrcVersion}.min.js`,
     ];
-    hmrcAssets.forEach((file) => {
+    for (const file of hmrcAssets) {
         app.use(
             `/assets/${file}`,
             (req: Request, res: Response, next: NextFunction) => {
@@ -59,7 +60,7 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
                 path.join(dirname, 'node_modules/hmrc-frontend/hmrc', file)
             )
         );
-    });
+    }
 
     // Serve HMRC GOV.UK assets where the HMRC CSS expects them
     app.use('/assets/govuk', (req: Request, res: Response) => {

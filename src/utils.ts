@@ -3,9 +3,9 @@ import {
     ValidationError as ExpressValidationError,
     validationResult,
 } from 'express-validator';
-import fs from 'fs';
 import format from 'html-format';
 import { ValidationError, Validator, ValidatorResultError } from 'jsonschema';
+import fs from 'node:fs';
 
 import commonPasswords from '../data/valid-common-passwords.json';
 import { EnvironmentVariables, JsonSchema, TemplateData } from './types';
@@ -283,14 +283,16 @@ export function validatePasswords(
             }
         );
     } else if (commonPasswords.passwords.includes(password1)) {
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password1',
-        });
-        errors.push({
-            msg: 'This password is too common',
-            path: 'password2',
-        });
+        errors.push(
+            {
+                msg: 'This password is too common',
+                path: 'password1',
+            },
+            {
+                msg: 'This password is too common',
+                path: 'password2',
+            }
+        );
     }
     return errors;
 }
@@ -323,12 +325,12 @@ export function validateTemplateDataText(
     }) as TemplateData;
 
     // Remove date of birth properties if not applicable
-    templateData.questions.forEach((question) => {
+    for (const question of templateData.questions) {
         if (question.answer_type !== 'date_of_birth') {
             delete question.date_of_birth_minimum_age;
             delete question.date_of_birth_maximum_age;
         }
-    });
+    }
 
     return templateData;
 }

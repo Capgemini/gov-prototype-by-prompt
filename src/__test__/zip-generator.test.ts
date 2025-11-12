@@ -1,5 +1,5 @@
 import { InputWithSizeMeta } from 'client-zip';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 import exampleLlmResponse from '../../data/example-llm-response.json';
 import { PrototypeDesignSystemsType, TemplateData } from '../types';

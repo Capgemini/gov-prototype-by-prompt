@@ -37,11 +37,11 @@ export const envVarSchema = z
         ),
         RATE_LIMITER_MAX_REQUESTS: z
             .string()
-            .transform((value) => parseInt(value, 10))
+            .transform((value) => Number.parseInt(value, 10))
             .optional(),
         RATE_LIMITER_WINDOW_MINUTES: z
             .string()
-            .transform((value) => parseInt(value, 10))
+            .transform((value) => Number.parseInt(value, 10))
             .optional(),
         SESSION_SECRET: z.string(),
         SUGGESTIONS_ENABLED: trueFalseString.transform(
@@ -52,7 +52,7 @@ export const envVarSchema = z
         if (env.RATE_LIMITER_ENABLED) {
             if (
                 env.RATE_LIMITER_MAX_REQUESTS === undefined ||
-                isNaN(env.RATE_LIMITER_MAX_REQUESTS)
+                Number.isNaN(env.RATE_LIMITER_MAX_REQUESTS)
             ) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
@@ -63,7 +63,7 @@ export const envVarSchema = z
             }
             if (
                 env.RATE_LIMITER_WINDOW_MINUTES === undefined ||
-                isNaN(env.RATE_LIMITER_WINDOW_MINUTES)
+                Number.isNaN(env.RATE_LIMITER_WINDOW_MINUTES)
             ) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,

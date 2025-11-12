@@ -5,8 +5,8 @@ import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
 import session from 'express-session';
 import helmet from 'helmet';
 import moment from 'moment';
+import path from 'node:path';
 import * as nunjucks from 'nunjucks';
-import path from 'path';
 
 import { connectToDatabase, disconnectFromDatabase } from './src/database';
 import {

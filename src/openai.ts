@@ -150,12 +150,12 @@ export async function updateFormWithOpenAI(
     const updateSchema = structuredClone(formSchema);
     updateSchema.required.push('changes_made');
 
-    // Remove suggestions from the schema if not enabled, otherwise ensure it is required
-    if (!enableSuggestions) {
+    // Mark suggestions as required if enabled, otherwise remove it from the schema
+    if (enableSuggestions) {
+        updateSchema.required.push('suggestions');
+    } else {
         delete (updateSchema.properties as unknown as { suggestions?: string })
             .suggestions;
-    } else {
-        updateSchema.required.push('suggestions');
     }
 
     // Ensure suggestions are empty in the prototype data
@@ -244,12 +244,10 @@ ${JSON.stringify(templateData, null, 2)}`;
  * @returns {string} The organization context for the design system.
  */
 function getOrgFor(designSystem: PrototypeDesignSystemsType): string {
-    switch (designSystem) {
-        case 'HMRC':
-            return ' for HMRC';
-        default:
-            return ' for the UK Government';
+    if (designSystem === 'HMRC') {
+        return ' for HMRC';
     }
+    return ' for the UK Government';
 }
 
 /**

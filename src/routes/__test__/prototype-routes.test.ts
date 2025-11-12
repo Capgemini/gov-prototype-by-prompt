@@ -1405,9 +1405,9 @@ describe('renderResultsPage', () => {
             'totalCountPreviousPrototypes',
             'workspace',
         ];
-        requiredFields.forEach((field) => {
+        for (const field of requiredFields) {
             expect(data).toHaveProperty(field);
-        });
+        }
     });
 
     it('should filter allUsers to exclude current user for owners', async () => {
