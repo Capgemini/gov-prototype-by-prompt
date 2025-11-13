@@ -92,9 +92,9 @@ const templateFieldSchema = new Schema<ITemplateField>(
         date_of_birth_minimum_age: Number,
         hint_text: String,
         options: {
-            type: [String],
-            required: false,
             default: undefined,
+            required: false,
+            type: [String],
         },
         question_text: {
             required: true,
