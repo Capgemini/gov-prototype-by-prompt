@@ -803,6 +803,11 @@ export async function renderResultsPage(
               },
           ];
 
+    //Remove explanation and suggestions from json editor
+    const maskedJson = { ...prototypeData.json };
+    delete maskedJson.explanation;
+    delete maskedJson.suggestions;
+
     const data: ResultsTemplatePayload = {
         additionalCountPreviousPrototypes: additionalCountPreviousPrototypes,
         allUsers: isOwner
@@ -816,10 +821,7 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
-        jsonText: JSON.stringify(prototypeData.json, null, 2).replace(
-            /\\"/g,
-            '\\\\"'
-        ),
+        jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
         livePrototypeUrl: `/prototype/${prototypeId}/start`,
         previousPrototypesRows: previousPrototypesRows,
@@ -920,14 +922,17 @@ export async function handleUpdatePrototype(
     // Create new prototype
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
-        chatHistory: [
-            ...oldPrototypeData.chatHistory,
-            {
-                assistantMessage: templateData.explanation,
-                timestamp: timestamp,
-                userMessage: prompt,
-            },
-        ],
+        chatHistory:
+            oldPrototypeData.chatHistory && templateData.explanation
+                ? [
+                      ...oldPrototypeData.chatHistory,
+                      {
+                          assistantMessage: templateData.explanation,
+                          timestamp: timestamp,
+                          userMessage: prompt,
+                      },
+                  ]
+                : undefined,
         creatorUserId: user.id,
         designSystem: designSystem,
         firstPrompt: oldPrototypeData.firstPrompt,
@@ -1039,13 +1044,15 @@ export async function handleCreatePrototype(
                 promptType === 'text'
                     ? 'Created prototype'
                     : 'Updated prototype JSON',
-            chatHistory: [
-                {
-                    assistantMessage: templateData.explanation,
-                    timestamp: timestamp,
-                    userMessage: prompt,
-                },
-            ],
+            chatHistory: templateData.explanation
+                ? [
+                      {
+                          assistantMessage: templateData.explanation,
+                          timestamp: timestamp,
+                          userMessage: prompt,
+                      },
+                  ]
+                : undefined,
             creatorUserId: user.id,
             designSystem: designSystem,
             firstPrompt: prompt,

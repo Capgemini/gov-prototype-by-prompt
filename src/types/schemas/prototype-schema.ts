@@ -11,7 +11,7 @@ export interface ITemplateData {
     changes_made?: string;
     description: string;
     duration: number;
-    explanation: string;
+    explanation?: string;
     form_type: string;
     questions: ITemplateField[];
     suggestions?: string[];
@@ -39,7 +39,7 @@ export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
 export interface IPrototypeData {
     _id: ObjectId;
     changesMade: string;
-    chatHistory: IChatMessage[];
+    chatHistory?: IChatMessage[];
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
@@ -127,7 +127,7 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: Number,
         },
         explanation: {
-            required: true,
+            required: false,
             type: String,
         },
         form_type: {
@@ -135,7 +135,11 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: String,
         },
         questions: [templateFieldSchema],
-        suggestions: [String],
+        suggestions: {
+            default: undefined,
+            required: false,
+            type: [String],
+        },
         title: {
             required: true,
             type: String,
@@ -156,7 +160,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
             default: '',
             type: String,
         },
-        chatHistory: [chatMessageSchema],
+        chatHistory: {
+            default: null,
+            type: [chatMessageSchema],
+        },
         creatorUserId: {
             required: true,
             type: String,

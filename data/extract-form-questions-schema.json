@@ -14,7 +14,7 @@
     ],
     "properties": {
         "explanation": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "An explanation of why you as the LLM have generated the form in this way. Include any assumptions you have made and data you have generated that was not provided in the user prompt. This must be specific and concise, and not state the obvious nor duplicate any information already provided elsewhere. If the user is asking for an existing form to be updated, only explain the changes that have been made. Refer to yourself in the first person, the user creating the prompt in the second person, and the user filling out the form in the third person. For example, 'I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.' or 'I have added a multiple choice question to allow the user to select their preferred contact methods.'"
         },
         "changes_made": {
@@ -22,7 +22,7 @@
             "description": "A brief one-line summary of the changes that you as the LLM have made to the form. This should be concise and specific up to 80 characters long with no full stop, such as 'Removed email address question' or 'Added a question about preferred contact method'"
         },
         "suggestions": {
-            "type": "array",
+            "type": ["array", "null"],
             "description": "List possible suggestions to change the form. Each suggestion must be unique and a specific and direct instruction. Suggestions must be to add, update, or remove a question. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'",
             "items": {
                 "type": "string",

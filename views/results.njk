@@ -381,16 +381,6 @@
   {{ super() }}
   <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
   <script>
-    const fullJson = {{ jsonText | safe }};
-    const keysToHide = ["explanation", "suggestions"];
-
-    // Remove keys from top-level JSON
-    function removeTopLevelKeys(obj, keys) {
-      const clone = { ...obj };
-      keys.forEach(key => delete clone[key]);
-      return clone;
-    }
-
     // Initialize the Ace editor for JSON input
     var editor = ace.edit("editor");
     editor.session.setMode("ace/mode/json");
@@ -403,8 +393,7 @@
       jsonCodeInput.value = editor.getValue().replace(/\\"/g, '“').replace(/\\/g, '\\\\');
     });
 
-    const maskedJson = JSON.stringify(removeTopLevelKeys(fullJson, keysToHide), null, 2);
-    editor.setValue(maskedJson, -1);
+    editor.setValue(`{{ jsonText | safe }}`, -1);
 
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
@@ -653,15 +642,6 @@
           button.disabled = true; // Enable suggestion buttons
         });
 
-        //Add in fields hidden from json editor 
-        if(promptTypeInput.value==='json'){
-          const editedJson = JSON.parse(editor.getValue());
-          // Add back hidden fields
-          editedJson.explanation = fullJson.explanation;
-          editedJson.suggestions = fullJson.suggestions;
-          // Update hidden input
-          jsonCodeInput.value = JSON.stringify(editedJson);
-        }
 
         // Request to create the prototype
         const data = new URLSearchParams();

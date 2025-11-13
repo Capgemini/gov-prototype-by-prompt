@@ -12,7 +12,7 @@ export interface ResultsTemplatePayload {
     allWorkspaces: { selected: boolean; text: string; value: string }[];
     designSystem: PrototypeDesignSystemsType;
     enableSuggestions: boolean;
-    explanation: string;
+    explanation?: string;
     firstPrompt: string;
     isLivePrototypePublic: boolean;
     isOwner: boolean;

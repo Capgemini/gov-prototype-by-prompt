@@ -1752,7 +1752,7 @@ describe('handleUpdatePrototype', () => {
             expect(storeCall).toEqual({
                 changesMade: prototypeData2.json.changes_made,
                 chatHistory: [
-                    ...prototypeData1.chatHistory,
+                    ...(prototypeData1.chatHistory ?? []),
                     {
                         assistantMessage: prototypeData2.json.explanation,
                         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -1835,8 +1835,10 @@ describe('handleUpdatePrototype', () => {
                 storePrototypeMock.mock.calls[0] as IPrototypeData[]
             )[0];
             expect(storeCall.chatHistory).toHaveLength(2);
-            expect(storeCall.chatHistory[0]).toEqual(existingChatHistory[0]);
-            expect(storeCall.chatHistory[1]).toEqual({
+            expect(storeCall.chatHistory && storeCall.chatHistory[0]).toEqual(
+                existingChatHistory[0]
+            );
+            expect(storeCall.chatHistory && storeCall.chatHistory[1]).toEqual({
                 assistantMessage: prototypeData2.json.explanation,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 timestamp: expect.any(String),
@@ -2378,7 +2380,7 @@ describe('handleCreatePrototype', () => {
             const storeCall = (
                 storePrototypeMock.mock.calls[0] as IPrototypeData[]
             )[0];
-            expect(storeCall.chatHistory[0]).toEqual({
+            expect(storeCall.chatHistory && storeCall.chatHistory[0]).toEqual({
                 assistantMessage: prototypeData2.json.explanation,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 timestamp: expect.any(String),
