@@ -161,7 +161,7 @@ const prototypeSchema = new Schema<IPrototypeData>(
             type: String,
         },
         chatHistory: {
-            default: null,
+            default: undefined,
             type: [chatMessageSchema],
         },
         creatorUserId: {

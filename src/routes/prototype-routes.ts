@@ -2,6 +2,7 @@ import opentelemetry from '@opentelemetry/api';
 import express, { Request, Response } from 'express';
 import { body, param, query } from 'express-validator';
 import moment from 'moment';
+import { Document } from 'mongoose';
 import * as nunjucks from 'nunjucks';
 
 import formSchema from '../../data/extract-form-questions-schema.json';
@@ -804,7 +805,10 @@ export async function renderResultsPage(
           ];
 
     //Remove explanation and suggestions from json editor
-    const maskedJson = { ...prototypeData.json };
+    const maskedJson = {
+        ...((prototypeData as unknown as Document).toObject() as IPrototypeData)
+            .json,
+    };
     delete maskedJson.explanation;
     delete maskedJson.suggestions;
 
@@ -922,17 +926,15 @@ export async function handleUpdatePrototype(
     // Create new prototype
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
-        chatHistory:
-            oldPrototypeData.chatHistory && templateData.explanation
-                ? [
-                      ...oldPrototypeData.chatHistory,
-                      {
-                          assistantMessage: templateData.explanation,
-                          timestamp: timestamp,
-                          userMessage: prompt,
-                      },
-                  ]
-                : undefined,
+        chatHistory: [
+            ...(oldPrototypeData.chatHistory ?? []),
+            {
+                assistantMessage:
+                    templateData.explanation ?? 'Updated prototype JSON',
+                timestamp: timestamp,
+                userMessage: prompt,
+            },
+        ],
         creatorUserId: user.id,
         designSystem: designSystem,
         firstPrompt: oldPrototypeData.firstPrompt,
@@ -1044,15 +1046,14 @@ export async function handleCreatePrototype(
                 promptType === 'text'
                     ? 'Created prototype'
                     : 'Updated prototype JSON',
-            chatHistory: templateData.explanation
-                ? [
-                      {
-                          assistantMessage: templateData.explanation,
-                          timestamp: timestamp,
-                          userMessage: prompt,
-                      },
-                  ]
-                : undefined,
+            chatHistory: [
+                {
+                    assistantMessage:
+                        templateData.explanation ?? 'Updated prototype JSON',
+                    timestamp: timestamp,
+                    userMessage: prompt,
+                },
+            ],
             creatorUserId: user.id,
             designSystem: designSystem,
             firstPrompt: prompt,
