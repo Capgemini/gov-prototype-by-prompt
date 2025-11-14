@@ -2,6 +2,7 @@ import opentelemetry from '@opentelemetry/api';
 import express, { Request, Response } from 'express';
 import { body, param, query } from 'express-validator';
 import moment from 'moment';
+import { Document } from 'mongoose';
 import * as nunjucks from 'nunjucks';
 
 import formSchema from '../../data/extract-form-questions-schema.json';
@@ -803,6 +804,19 @@ export async function renderResultsPage(
               },
           ];
 
+    //Remove explanation and suggestions from json editor
+    let rawData: IPrototypeData;
+    try {
+        rawData = (
+            prototypeData as unknown as Document
+        ).toObject() as IPrototypeData;
+    } catch {
+        rawData = prototypeData; // fallback if toObject() is missing
+    }
+    const maskedJson = { ...rawData.json };
+    delete maskedJson.explanation;
+    delete maskedJson.suggestions;
+
     const data: ResultsTemplatePayload = {
         additionalCountPreviousPrototypes: additionalCountPreviousPrototypes,
         allUsers: isOwner
@@ -816,10 +830,7 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
-        jsonText: JSON.stringify(prototypeData.json, null, 2).replace(
-            /\\"/g,
-            '\\\\"'
-        ),
+        jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
         livePrototypeUrl: `/prototype/${prototypeId}/start`,
         previousPrototypesRows: previousPrototypesRows,
@@ -921,9 +932,10 @@ export async function handleUpdatePrototype(
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
         chatHistory: [
-            ...oldPrototypeData.chatHistory,
+            ...(oldPrototypeData.chatHistory ?? []),
             {
-                assistantMessage: templateData.explanation,
+                assistantMessage:
+                    templateData.explanation ?? 'Updated prototype JSON',
                 timestamp: timestamp,
                 userMessage: prompt,
             },
@@ -1041,7 +1053,8 @@ export async function handleCreatePrototype(
                     : 'Updated prototype JSON',
             chatHistory: [
                 {
-                    assistantMessage: templateData.explanation,
+                    assistantMessage:
+                        templateData.explanation ?? 'Updated prototype JSON',
                     timestamp: timestamp,
                     userMessage: prompt,
                 },

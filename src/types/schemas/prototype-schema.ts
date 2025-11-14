@@ -11,7 +11,7 @@ export interface ITemplateData {
     changes_made?: string;
     description: string;
     duration: number;
-    explanation: string;
+    explanation?: string;
     form_type: string;
     questions: ITemplateField[];
     suggestions?: string[];
@@ -24,7 +24,7 @@ export interface ITemplateField {
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     hint_text?: string;
-    options: string[];
+    options?: string[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
@@ -39,7 +39,7 @@ export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
 export interface IPrototypeData {
     _id: ObjectId;
     changesMade: string;
-    chatHistory: IChatMessage[];
+    chatHistory?: IChatMessage[];
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
@@ -91,7 +91,11 @@ const templateFieldSchema = new Schema<ITemplateField>(
         date_of_birth_maximum_age: Number,
         date_of_birth_minimum_age: Number,
         hint_text: String,
-        options: [String],
+        options: {
+            default: undefined,
+            required: false,
+            type: [String],
+        },
         question_text: {
             required: true,
             type: String,
@@ -123,7 +127,7 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: Number,
         },
         explanation: {
-            required: true,
+            required: false,
             type: String,
         },
         form_type: {
@@ -131,7 +135,11 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: String,
         },
         questions: [templateFieldSchema],
-        suggestions: [String],
+        suggestions: {
+            default: undefined,
+            required: false,
+            type: [String],
+        },
         title: {
             required: true,
             type: String,
@@ -152,7 +160,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
             default: '',
             type: String,
         },
-        chatHistory: [chatMessageSchema],
+        chatHistory: {
+            default: undefined,
+            type: [chatMessageSchema],
+        },
         creatorUserId: {
             required: true,
             type: String,

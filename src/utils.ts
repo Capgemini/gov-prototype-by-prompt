@@ -324,11 +324,17 @@ export function validateTemplateDataText(
         if (value !== null) return value;
     }) as TemplateData;
 
-    // Remove date of birth properties if not applicable
+    // Remove extra properties if not applicable
     for (const question of templateData.questions) {
         if (question.answer_type !== 'date_of_birth') {
             delete question.date_of_birth_minimum_age;
             delete question.date_of_birth_maximum_age;
+        }
+        if (
+            question.answer_type !== 'multiple_choice' &&
+            question.answer_type !== 'single_choice'
+        ) {
+            delete question.options;
         }
     }
 

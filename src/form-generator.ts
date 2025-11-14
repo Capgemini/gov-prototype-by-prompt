@@ -703,7 +703,7 @@ function generateField({
             result = `{{ govukFileUpload(${objectToJSFormat(macroOptions)}) }}`;
             break;
         case 'multiple_choice':
-            items = fieldItem.options.map((option: string) => {
+            items = fieldItem.options?.map((option: string) => {
                 return {
                     checked: `data['question-${questionNumberString}'] | includes('${option.replace(/'/g, "\\'")}')`,
                     text: option,
@@ -875,7 +875,7 @@ function generateField({
             result += `{{ govukSelect(${objectToJSFormat(macroOptions)}) }}`;
             break;
         case 'single_choice':
-            items = fieldItem.options.map((option: string) => {
+            items = fieldItem.options?.map((option: string) => {
                 return {
                     checked: `data['question-${questionNumberString}'] == '${option.replace(/'/g, "\\'")}'`,
                     text: option,
