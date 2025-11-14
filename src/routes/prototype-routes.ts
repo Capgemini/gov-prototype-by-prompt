@@ -805,10 +805,15 @@ export async function renderResultsPage(
           ];
 
     //Remove explanation and suggestions from json editor
-    const maskedJson = {
-        ...((prototypeData as unknown as Document).toObject() as IPrototypeData)
-            .json,
-    };
+    let rawData: IPrototypeData;
+    try {
+        rawData = (
+            prototypeData as unknown as Document
+        ).toObject() as IPrototypeData;
+    } catch {
+        rawData = prototypeData; // fallback if toObject() is missing
+    }
+    const maskedJson = { ...rawData.json };
     delete maskedJson.explanation;
     delete maskedJson.suggestions;
 
