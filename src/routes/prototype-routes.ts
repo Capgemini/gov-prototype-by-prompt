@@ -633,10 +633,10 @@ export function renderPrototypePage(
 ) {
     if (handleValidationErrors(req, res)) return;
     // Get the prototype
-    const prototypeId = req.params.id;
     const prototypeData = (
         req as unknown as Request & { prototypeData: IPrototypeData }
     ).prototypeData;
+    const prototypeId = prototypeData.id;
 
     // Handle live data updates with POST requests
     if (req.method === 'POST') {
@@ -729,7 +729,6 @@ export async function renderResultsPage(
 ) {
     if (handleValidationErrors(req, res)) return;
     // Get the prototype
-    const prototypeId = req.params.id;
     const prototypeData = (
         req as unknown as Request & { prototypeData: IPrototypeData }
     ).prototypeData;
@@ -737,7 +736,7 @@ export async function renderResultsPage(
 
     // Get the previous prototypes
     const allPreviousPrototypes = await getPreviousPrototypes(
-        prototypeId,
+        prototypeData.id,
         user.id
     );
     const previousPrototypes = allPreviousPrototypes.slice(
@@ -832,9 +831,9 @@ export async function renderResultsPage(
         json: prototypeData.json,
         jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
-        livePrototypeUrl: `/prototype/${prototypeId}/start`,
+        livePrototypeUrl: `/prototype/${prototypeData.id}/start`,
         previousPrototypesRows: previousPrototypesRows,
-        prototypeId: prototypeId,
+        prototypeId: prototypeData.id,
         prototypeTitle: prototypeData.json.title,
         sharedWithUsers: sharedWithUsers,
         showJsonPrompt: prototypeData.generatedFrom === 'json',
