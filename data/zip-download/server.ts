@@ -78,8 +78,12 @@ declare module 'express-session' {
 // Attach session middleware
 // Use a random UUID as the session secret
 // This should be replaced with a more secure secret in production
+// Also note that in production, secure cookies should be used
 app.use(
     session({
+        cookie: {
+            secure: false,
+        },
         secret: uuidv4(),
         resave: false,
         saveUninitialized: true,
