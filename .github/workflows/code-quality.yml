@@ -1,5 +1,8 @@
 name: Code quality checks
 
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   push:
