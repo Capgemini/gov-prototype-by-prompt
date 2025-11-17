@@ -1,3 +1,10 @@
+// Sanitise text by placing it in a <span>
+function sanitiseHtml(text) {
+    const textElement = document.createElement('span');
+    textElement.textContent = text; // escape everything
+    return textElement.innerHTML;
+}
+
 function removeAllErrorClasses() {
     document.querySelectorAll('.govuk-error-message').forEach(function (el) {
         el.style.display = 'none';
@@ -22,7 +29,7 @@ function addInputErrorClasses(inputElement, errorMessage) {
     // Add the error message and display it
     const errorElement = formGroup.querySelector('.govuk-error-message');
     errorElement.style.display = '';
-    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${errorMessage}`;
+    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${sanitiseHtml(errorMessage)}`;
 
     // Add error classes to the input and form group
     inputElement.classList.add('govuk-input--error');
@@ -39,7 +46,7 @@ function addSelectErrorClasses(inputElement, errorMessage) {
 
     if (errorElement) {
         errorElement.style.display = '';
-        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${errorMessage}`;
+        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${sanitiseHtml(errorMessage)}`;
     }
 
     inputElement.classList.add('govuk-select--error');
@@ -66,7 +73,7 @@ function addDateInputErrorClasses(dateInputGroup, inputs, errorMessage) {
         '.govuk-error-message'
     );
     errorElement.style.display = '';
-    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${errorMessage}`;
+    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${sanitiseHtml(errorMessage)}`;
 
     // Add error class to the form group
     dateInputGroup.parentNode.parentNode.classList.add(
@@ -77,7 +84,7 @@ function addDateInputErrorClasses(dateInputGroup, inputs, errorMessage) {
 function addAllErrorClasses(errorMessage) {
     document.querySelectorAll('.govuk-error-message').forEach(function (el) {
         el.style.display = '';
-        el.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${errorMessage}`;
+        el.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${sanitiseHtml(errorMessage)}`;
     });
     document.querySelectorAll('.govuk-form-group').forEach(function (el) {
         el.classList.add('govuk-form-group--error');
