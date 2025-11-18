@@ -283,15 +283,19 @@ export async function signInUser(
 ) {
     if (handleValidationErrors(req, res)) return;
 
+    const errorMessage = 'Your email address and password do not match.';
+    const errorResponse = {
+        errors: [
+            { msg: errorMessage, path: 'email' },
+            { msg: errorMessage, path: 'password' },
+        ],
+        message: errorMessage,
+    };
+
     // Check if the email exists
     const user = await getUserByEmail(req.body.email);
     if (!user) {
-        const message =
-            'This account does not exist. You must create an account first.';
-        res.status(401).json({
-            errors: [{ msg: message, path: 'email' }],
-            message,
-        });
+        res.status(401).json(errorResponse);
         return;
     }
 
@@ -301,14 +305,7 @@ export async function signInUser(
         user.passwordHash
     );
     if (!passwordMatch) {
-        const message = 'Your email address and password do not match.';
-        res.status(401).json({
-            errors: [
-                { msg: message, path: 'email' },
-                { msg: message, path: 'password' },
-            ],
-            message,
-        });
+        res.status(401).json(errorResponse);
         return;
     }
 
