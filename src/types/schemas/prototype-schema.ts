@@ -25,9 +25,16 @@ export interface ITemplateField {
     date_of_birth_minimum_age?: number;
     hint_text?: string;
     options?: string[];
+    options_branching?: IBranchingOptions[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
+    next_question_value?: number;
+}
+
+export interface IBranchingOptions {
+    text_value: string;
+    next_question_value: number;
 }
 
 export const PrototypeDesignSystems = ['GOV.UK', 'HMRC'] as const;
@@ -82,6 +89,16 @@ const chatMessageSchema = new Schema<IChatMessage>(
     }
 );
 
+const branchingOptionsSchema = new Schema<IBranchingOptions>(
+    {
+        text_value: String,
+        next_question_value: Number,
+    },
+    {
+        _id: false,
+    }
+);
+
 const templateFieldSchema = new Schema<ITemplateField>(
     {
         answer_type: {
@@ -96,6 +113,11 @@ const templateFieldSchema = new Schema<ITemplateField>(
             required: false,
             type: [String],
         },
+        options_branching: {
+            default: undefined,
+            required: false,
+            type: [branchingOptionsSchema],
+        },
         question_text: {
             required: true,
             type: String,
@@ -105,6 +127,7 @@ const templateFieldSchema = new Schema<ITemplateField>(
             type: Boolean,
         },
         required_error_text: String,
+        next_question_value: Number,
     },
     {
         _id: false,

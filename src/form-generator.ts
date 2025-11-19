@@ -12,6 +12,7 @@ import {
     CheckAnswersMacroOptions,
     FieldGeneratorOptions,
     FieldMacroOptions,
+    IBranchingOptions,
     PrototypeDesignSystemsType,
     QuestionHeaderOptions,
     TemplateData,
@@ -156,6 +157,20 @@ export function generateQuestionPage(
     ) {
         throw new Error(`Invalid question index: ${String(questionIndex)}`);
     }
+    const currentQuestion = data.questions[questionIndex];
+
+    let formAction: string;
+    if (currentQuestion.next_question_value != null) {
+        formAction =
+            currentQuestion.next_question_value === -1
+                ? `/${urlPrefix}/check-answers`
+                : `/${urlPrefix}/question-${String(currentQuestion.next_question_value + 1)}`;
+    } else {
+        formAction =
+            questionIndex === data.questions.length - 1
+                ? `/${urlPrefix}/check-answers`
+                : `/${urlPrefix}/question-${String(questionIndex + 2)}`;
+    }
 
     const questionHeaderOptions: QuestionHeaderOptions = {
         backLinkHref:
@@ -163,10 +178,7 @@ export function generateQuestionPage(
                 ? `/${urlPrefix}/start`
                 : `/${urlPrefix}/question-${String(questionIndex)}`,
         designSystem: designSystem,
-        formAction:
-            questionIndex === data.questions.length - 1
-                ? `/${urlPrefix}/check-answers`
-                : `/${urlPrefix}/question-${String(questionIndex + 2)}`,
+        formAction: formAction,
         questionTitle: data.questions[questionIndex].question_text,
         showDemoWarning: showDemoWarning,
         title: data.title,
@@ -882,6 +894,38 @@ function generateField({
                     value: option,
                 };
             });
+            macroOptions = {
+                attributes: {},
+                fieldset: {
+                    legend: {
+                        classes: `govuk-fieldset__legend--${questionTextSize}`,
+                        isPageHeading: questionsAsHeadings,
+                        text: fieldItem.question_text,
+                    },
+                },
+                hint: {
+                    text: fieldItem.hint_text,
+                },
+                items: items,
+                name: `question-${questionNumberString}`,
+            };
+            if (fieldItem.required) {
+                macroOptions.attributes['data-required-error-text'] =
+                    fieldItem.required_error_text ??
+                    `Answer this question to continue`;
+            }
+            result = `{{ govukRadios(${objectToJSFormat(macroOptions)}) }}`;
+            break;
+        case 'branching_choice':
+            items = fieldItem.options_branching?.map(
+                (option: IBranchingOptions) => {
+                    return {
+                        checked: `data['question-${questionNumberString}'] == '${option.text_value.replace(/'/g, "\\'")}'`,
+                        text: option.text_value,
+                        value: option.text_value,
+                    };
+                }
+            );
             macroOptions = {
                 attributes: {},
                 fieldset: {
