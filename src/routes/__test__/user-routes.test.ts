@@ -552,7 +552,7 @@ describe('signInUser', () => {
         [
             { email: 'notfound@example.com', password: 'Password123!' },
             401,
-            'This account does not exist. You must create an account first.',
+            'Your email address and password do not match.',
         ],
         [
             { email: user1.email, password: 'WrongPassword!' },

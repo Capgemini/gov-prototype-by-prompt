@@ -151,7 +151,7 @@
           }
         }).catch(err => {
           errorSummary.classList.remove('display-none');
-          errorDescription.innerHTML =`${err.message}`;
+          errorDescription.textContent = err.message;
           signinButton.disabled = false;
           signinButton.textContent = 'Sign in';
         });

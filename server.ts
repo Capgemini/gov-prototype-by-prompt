@@ -115,6 +115,9 @@ declare module 'express-session' {
 // Attach session
 app.use(
     session({
+        cookie: {
+            secure: nodeEnv === 'production',
+        },
         resave: false,
         saveUninitialized: true,
         secret: envVars.SESSION_SECRET,

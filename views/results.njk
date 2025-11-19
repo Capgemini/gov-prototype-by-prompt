@@ -529,7 +529,7 @@
             }
           }).catch(err => {
             errorSummary.classList.remove('display-none');
-            errorDescription.innerHTML =`${err.message}`;
+            errorDescription.textContent = err.message;
             sharingButton.disabled = false;
             sharingButton.textContent = 'Save public sharing';
             publicSharingPassword.disabled = false;
@@ -661,7 +661,7 @@
           }
         }).catch(err => {
           errorSummary.classList.remove('display-none');
-          errorDescription.innerHTML =`${err.message}`;
+          errorDescription.textContent = err.message;
           startButton.disabled = false;
           startButton.textContent = 'Update prototype';
           switchPromptTypeButton.disabled = false;
@@ -711,7 +711,7 @@
           .catch(err => {
             console.error('There was a problem refreshing the suggestions:', err);
             errorSummary.classList.remove('display-none');
-            errorDescription.innerHTML =`${err.message}`;
+            errorDescription.textContent = err.message;
             refreshSuggestionsLink.href = 'javascript:;';
             refreshSuggestionsLink.textContent = 'refresh';
           });
