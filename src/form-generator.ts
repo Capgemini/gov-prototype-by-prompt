@@ -92,7 +92,7 @@ export function generateCheckAnswersPage(
             actions: {
                 items: [
                     {
-                        href: `/${urlPrefix}/question-${indexPlusOne}?referrer=check-answers`,
+                        href: `/${urlPrefix}/question-${indexPlusOne}${formFields[i].answer_type === 'branching_choice' ? '' : '?referrer=check-answers'}`,
                         text: 'Change',
                         visuallyHiddenText: formFields[i].question_text,
                     },
@@ -157,20 +157,9 @@ export function generateQuestionPage(
     ) {
         throw new Error(`Invalid question index: ${String(questionIndex)}`);
     }
-    const currentQuestion = data.questions[questionIndex];
 
-    let formAction: string;
-    if (currentQuestion.next_question_value != null) {
-        formAction =
-            currentQuestion.next_question_value === -1
-                ? `/${urlPrefix}/check-answers`
-                : `/${urlPrefix}/question-${String(currentQuestion.next_question_value + 1)}`;
-    } else {
-        formAction =
-            questionIndex === data.questions.length - 1
-                ? `/${urlPrefix}/check-answers`
-                : `/${urlPrefix}/question-${String(questionIndex + 2)}`;
-    }
+    // Set the form action to the submit endpoint for the current question
+    const formAction = `/${urlPrefix}/question-${String(questionIndex + 1)}/submit`;
 
     const questionHeaderOptions: QuestionHeaderOptions = {
         backLinkHref:

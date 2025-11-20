@@ -625,6 +625,94 @@ prototypeRouter.post(
 );
 
 /**
+ * Handle the user submitting an answer to a prototype question.
+ */
+export function handlePrototypeSubmitQuestion(
+    req: Request<{ id: string; page: string }, {}, Record<string, string>>,
+    res: Response
+) {
+    if (handleValidationErrors(req, res)) return;
+    // Get the prototype
+    const prototypeData = (
+        req as unknown as Request & { prototypeData: IPrototypeData }
+    ).prototypeData;
+    const prototypeId = prototypeData.id;
+
+    // Check if liveData is present in the session
+    req.session.liveData ??= {};
+
+    // Update the liveData for the prototypeId with the request body
+    req.session.liveData[prototypeId] = {
+        ...req.session.liveData[prototypeId],
+        ...req.body,
+    };
+
+    // Validate the question page number
+    const questions = prototypeData.json.questions;
+    const pageNumber = req.params.page;
+    const questionNumber = Number.parseInt(pageNumber.split('-')[1], 10);
+    if (questionNumber < 1 || questionNumber > questions.length) {
+        res.status(404).render('page-not-found.njk', {
+            insideIframe: req.header('sec-fetch-dest') === 'iframe',
+        });
+        return;
+    }
+
+    // Check if they came from the check answers page
+    const sendToCheckAnswers = (req.get('referrer') ?? '').includes(
+        'referrer=check-answers'
+    );
+
+    // Redirect to the next page
+    const question = questions[questionNumber - 1];
+    if (question.answer_type === 'branching_choice') {
+        // Get the user answer and the matching option, return to the current question if not found
+        const userAnswer =
+            req.session.liveData[prototypeId][
+                `question-${String(questionNumber)}`
+            ];
+        const userAnswerOption = question.options_branching?.find(
+            (option) => option.text_value === userAnswer
+        );
+        if (userAnswer === undefined || userAnswerOption === undefined) {
+            res.redirect(
+                `/prototype/${prototypeId}/question-${String(questionNumber)}`
+            );
+            return;
+        }
+
+        // Redirect based on the next_question_value of the selected option
+        if (userAnswerOption.next_question_value === -1) {
+            res.redirect(`/prototype/${prototypeId}/check-answers`);
+        } else {
+            res.redirect(
+                `/prototype/${prototypeId}/question-${String(
+                    userAnswerOption.next_question_value
+                )}`
+            );
+        }
+    } else if (
+        sendToCheckAnswers ||
+        question.next_question_value === -1 ||
+        (question.next_question_value === undefined &&
+            questionNumber === questions.length)
+    ) {
+        // Send to check answers if they came from there, or if this is the last question
+        res.redirect(`/prototype/${prototypeId}/check-answers`);
+    } else {
+        // Send to the next question in sequence
+        res.redirect(
+            `/prototype/${prototypeId}/question-${String(question.next_question_value ?? questionNumber + 1)}`
+        );
+    }
+}
+prototypeRouter.post(
+    '/prototype/:id/:page/submit',
+    [param('*').trim().notEmpty(), verifyLivePrototype],
+    handlePrototypeSubmitQuestion
+);
+
+/**
  * Render the prototype page for a specific prototype and page.
  */
 export function renderPrototypePage(
@@ -637,17 +725,6 @@ export function renderPrototypePage(
         req as unknown as Request & { prototypeData: IPrototypeData }
     ).prototypeData;
     const prototypeId = prototypeData.id;
-
-    // Handle live data updates with POST requests
-    if (req.method === 'POST') {
-        // Check if liveData is present in the session
-        req.session.liveData ??= {};
-        // Update the liveData for the prototypeId with the request body
-        req.session.liveData[prototypeId] = {
-            ...req.session.liveData[prototypeId],
-            ...req.body,
-        };
-    }
 
     // Validate the page number
     const validPageNumbers = ['start', 'check-answers', 'confirmation'];
@@ -714,7 +791,7 @@ export function renderPrototypePage(
         )
     );
 }
-prototypeRouter.all(
+prototypeRouter.get(
     '/prototype/:id/:page',
     [param('*').trim().notEmpty(), verifyLivePrototype],
     renderPrototypePage
