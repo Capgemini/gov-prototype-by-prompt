@@ -440,6 +440,38 @@ function generateField({
             };
             result += `\n{{ govukInput(${objectToJSFormat(macroOptions)}) }}`;
             break;
+        case 'branching_choice':
+            items = fieldItem.options_branching?.map(
+                (option: IBranchingOptions) => {
+                    return {
+                        checked: `data['question-${questionNumberString}'] == '${option.text_value.replace(/'/g, "\\'")}'`,
+                        text: option.text_value,
+                        value: option.text_value,
+                    };
+                }
+            );
+            macroOptions = {
+                attributes: {},
+                fieldset: {
+                    legend: {
+                        classes: `govuk-fieldset__legend--${questionTextSize}`,
+                        isPageHeading: questionsAsHeadings,
+                        text: fieldItem.question_text,
+                    },
+                },
+                hint: {
+                    text: fieldItem.hint_text,
+                },
+                items: items,
+                name: `question-${questionNumberString}`,
+            };
+            if (fieldItem.required) {
+                macroOptions.attributes['data-required-error-text'] =
+                    fieldItem.required_error_text ??
+                    `Answer this question to continue`;
+            }
+            result = `{{ govukRadios(${objectToJSFormat(macroOptions)}) }}`;
+            break;
         case 'country':
         case 'nationality':
             macroOptions = {
@@ -894,38 +926,6 @@ function generateField({
                     value: option,
                 };
             });
-            macroOptions = {
-                attributes: {},
-                fieldset: {
-                    legend: {
-                        classes: `govuk-fieldset__legend--${questionTextSize}`,
-                        isPageHeading: questionsAsHeadings,
-                        text: fieldItem.question_text,
-                    },
-                },
-                hint: {
-                    text: fieldItem.hint_text,
-                },
-                items: items,
-                name: `question-${questionNumberString}`,
-            };
-            if (fieldItem.required) {
-                macroOptions.attributes['data-required-error-text'] =
-                    fieldItem.required_error_text ??
-                    `Answer this question to continue`;
-            }
-            result = `{{ govukRadios(${objectToJSFormat(macroOptions)}) }}`;
-            break;
-        case 'branching_choice':
-            items = fieldItem.options_branching?.map(
-                (option: IBranchingOptions) => {
-                    return {
-                        checked: `data['question-${questionNumberString}'] == '${option.text_value.replace(/'/g, "\\'")}'`,
-                        text: option.text_value,
-                        value: option.text_value,
-                    };
-                }
-            );
             macroOptions = {
                 attributes: {},
                 fieldset: {
