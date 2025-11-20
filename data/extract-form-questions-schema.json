@@ -92,7 +92,7 @@
                     },
                     "next_question_value": {
                         "type": ["integer", "null"],
-                        "description": "The index of the next question in the standard sequence of the form. Use -1 if this question is the last in the form."
+                        "description": "The number of the next question (starting from 1) in the standard sequence of the form. This is typically the next question number. Use -1 if the user should finish the form with no further questions. This field is ignored for branching_choice answer types."
                     },
                     "answer_type": {
                         "type": "string",
@@ -144,7 +144,7 @@
                                 },
                                 "next_question_value": {
                                     "type": "integer",
-                                    "description": "The index of the next question to display if this option requires additional information or if the form continues after this option. Use -1 only if this option ends the form entirely (i.e., no further questions remain)."
+                                    "description": "The number of the next question to jump to (starting from 1) if this option requires additional information or if the form continues after this option. Use -1 if the user should finish the form with no further questions."
                                 }
                             }
                         }
