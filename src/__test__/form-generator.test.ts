@@ -385,7 +385,6 @@ describe('generateQuestionPage', () => {
 
         // Assert
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            backLinkHref: `/${urlPrefix}/start`,
             designSystem,
             formAction: `/${urlPrefix}/question-2`,
             questionTitle: 'Q1',
@@ -393,7 +392,6 @@ describe('generateQuestionPage', () => {
             title: data.title,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            backLinkHref: `/${urlPrefix}/question-1`,
             designSystem,
             formAction: `/${urlPrefix}/question-3`,
             questionTitle: 'Q2',
@@ -401,7 +399,6 @@ describe('generateQuestionPage', () => {
             title: data.title,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            backLinkHref: `/${urlPrefix}/question-2`,
             designSystem,
             formAction: `/${urlPrefix}/check-answers`,
             questionTitle: 'Q3',

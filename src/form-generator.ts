@@ -111,7 +111,6 @@ export function generateCheckAnswersPage(
     return formatHtml(
         `${getCheckAnswersHeader(
             data.title,
-            `/${urlPrefix}/question-${String(data.questions.length)}`,
             designSystem,
             showDemoWarning
         )}\n{{ govukSummaryList(${objectToJSFormat(macroOptions)}) }}\n${getCheckAnswersFooter(urlPrefix)}`
@@ -162,10 +161,6 @@ export function generateQuestionPage(
     const formAction = `/${urlPrefix}/question-${String(questionIndex + 1)}/submit`;
 
     const questionHeaderOptions: QuestionHeaderOptions = {
-        backLinkHref:
-            questionIndex === 0
-                ? `/${urlPrefix}/start`
-                : `/${urlPrefix}/question-${String(questionIndex)}`,
         designSystem: designSystem,
         formAction: formAction,
         questionTitle: data.questions[questionIndex].question_text,
