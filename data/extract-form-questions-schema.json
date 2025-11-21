@@ -37,7 +37,7 @@
         },
         "description": {
             "type": "string",
-            "description": "A description of the form in plain text, with no formatting except for line breaks. This is displayed below the title and provides additional context or instructions for filling out the form."
+            "description": "A description of the form displayed below the title to provide additional context or instructions for filling out the form. This must be in Markdown with no headings."
         },
         "duration": {
             "type": "integer",
@@ -45,11 +45,11 @@
         },
         "before_you_start": {
             "type": "string",
-            "description": "A description of what the user should know or do before starting the form. This should be in plain text and provide clear instructions or information about eligibility or prerequisites. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
+            "description": "A description of what the user should know or do before starting the form. It should provide clear instructions or information about eligibility or prerequisites. This must be in Markdown with no headings. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
         },
         "what_happens_next": {
             "type": "string",
-            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This should be in clear plain text. An example is 'We've sent your submission to Hackney Electoral Register Office. They will contact you either to confirm your registration, or to ask for more information.'"
+            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This must be in Markdown with no headings. An example is 'We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information.'"
         },
         "form_type": {
             "type": "string",
