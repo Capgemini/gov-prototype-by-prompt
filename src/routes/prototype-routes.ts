@@ -651,7 +651,11 @@ export function handlePrototypeSubmitQuestion(
     const questions = prototypeData.json.questions;
     const pageNumber = req.params.page;
     const questionNumber = Number.parseInt(pageNumber.split('-')[1], 10);
-    if (questionNumber < 1 || questionNumber > questions.length) {
+    if (
+        Number.isNaN(questionNumber) ||
+        questionNumber < 1 ||
+        questionNumber > questions.length
+    ) {
         res.status(404).render('page-not-found.njk', {
             insideIframe: req.header('sec-fetch-dest') === 'iframe',
         });

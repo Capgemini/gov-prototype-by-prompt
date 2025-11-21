@@ -864,6 +864,163 @@ describe('handleLivePrototypePasswordSubmission', () => {
     });
 });
 
+describe('handlePrototypeSubmitQuestion', () => {
+    const defaultRequest = {
+        method: 'POST',
+        params: { id: prototypeData1.id, page: 'question-1' },
+        prototypeData: prototypeData1,
+        session: {},
+    } as const;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let handlePrototypeSubmitQuestion: (req: any, res: any) => void;
+    beforeEach(async () => {
+        ({ handlePrototypeSubmitQuestion } = await import(
+            '../prototype-routes'
+        ));
+    });
+
+    it.each([{}, { liveData: {} }])(
+        'should update liveData (session=%s)',
+        (session) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                body: { 'question-1': 'value' },
+                session: session,
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            expect(request.session.liveData?.[prototypeData1.id]).toEqual({
+                'question-1': 'value',
+            });
+        }
+    );
+
+    it.each([
+        ['question-1', true],
+        ['question-2', true],
+        ['question-3', false],
+        ['question-0', false],
+        ['question-9', false],
+        ['question-', false],
+        ['start', false],
+    ])(
+        'should return 404 for an invalid question page (page=%s, isValid=%s)',
+        (page, isValid) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData1.id, page: page },
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            if (isValid) {
+                expect(response.statusCode).toBe(302);
+            } else {
+                expect(response.statusCode).toBe(404);
+                expect(response._getRenderView()).toBe('page-not-found.njk');
+            }
+        }
+    );
+
+    it.each([
+        ['Yes', '/question-2'],
+        ['No', '/check-answers'],
+        ['Invalid', '/question-1'],
+    ])(
+        'for a branching_choice question with answer %s should redirect to %s',
+        (userAnswer, urlEndsWith) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData3.id, page: 'question-1' },
+                prototypeData: prototypeData3,
+                session: {
+                    liveData: {
+                        [prototypeData3.id]: { 'question-1': userAnswer },
+                    },
+                },
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            expect(response.statusCode).toBe(302);
+            expect(response._getRedirectUrl()).toBe(
+                `/prototype/${prototypeData3.id}${urlEndsWith}`
+            );
+        }
+    );
+
+    it.each([
+        ['question-1', '/question-2'],
+        ['question-2', '/check-answers'],
+    ])(
+        'for a question with next_question_value and page %s, should redirect to %s',
+        (page, urlEndsWith) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData2.id, page: page },
+                prototypeData: prototypeData2,
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            expect(response.statusCode).toBe(302);
+            expect(response._getRedirectUrl()).toBe(
+                `/prototype/${prototypeData2.id}${urlEndsWith}`
+            );
+        }
+    );
+
+    it.each([
+        ['question-1', '/question-2'],
+        ['question-2', '/check-answers'],
+    ])(
+        'for a question without next_question_value and page %s, should redirect to %s',
+        (page, urlEndsWith) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData1.id, page: page },
+                prototypeData: prototypeData1,
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            expect(response.statusCode).toBe(302);
+            expect(response._getRedirectUrl()).toBe(
+                `/prototype/${prototypeData1.id}${urlEndsWith}`
+            );
+        }
+    );
+
+    it.each(['question-1', 'question-2'])(
+        'for a question with the check answers referrer and page %s, should redirect to /check-answers',
+        (page) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                headers: {
+                    referer:
+                        'http://localhost/abc/question-2?referrer=check-answers',
+                },
+                params: { id: prototypeData1.id, page: page },
+                prototypeData: prototypeData1,
+            });
+            const response = httpMocks.createResponse();
+
+            handlePrototypeSubmitQuestion(request, response);
+
+            expect(response.statusCode).toBe(302);
+            expect(response._getRedirectUrl()).toBe(
+                `/prototype/${prototypeData1.id}/check-answers`
+            );
+        }
+    );
+});
+
 describe('renderPrototypePage', () => {
     const defaultRequest = {
         method: 'GET',
@@ -996,25 +1153,6 @@ describe('renderPrototypePage', () => {
             expect(response._getRenderView()).toBe('page-not-found.njk');
         }
     );
-
-    it('should update liveData on POST', () => {
-        const request = httpMocks.createRequest({
-            body: { field: 'value' },
-            method: 'POST',
-            params: { id: prototypeData1.id, page: 'start' },
-            prototypeData: prototypeData1,
-            session: {},
-        });
-        const response = httpMocks.createResponse();
-
-        renderPrototypePage(request, response);
-
-        expect(request.session.liveData?.[prototypeData1.id]).toEqual({
-            field: 'value',
-        });
-        expect(nunjucksRenderStringMock).toHaveBeenCalled();
-        expect(response._getData()).toBe('rendered-html');
-    });
 });
 
 describe('renderResultsPage', () => {
