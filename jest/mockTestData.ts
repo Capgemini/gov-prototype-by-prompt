@@ -60,8 +60,12 @@ const prototypeData1: IPrototypeData = {
         questions: [
             {
                 answer_type: 'text',
-                options: [],
                 question_text: 'What is your name?',
+                required: true,
+            },
+            {
+                answer_type: 'text',
+                question_text: 'What is your job role?',
                 required: true,
             },
         ],
@@ -83,6 +87,20 @@ const prototypeData2: IPrototypeData = {
     json: {
         ...prototypeData1.json,
         changes_made: 'Updated to prototype 2',
+        questions: [
+            {
+                answer_type: 'text',
+                next_question_value: 2,
+                question_text: 'What is your name?',
+                required: true,
+            },
+            {
+                answer_type: 'text',
+                next_question_value: -1,
+                question_text: 'What is your job role?',
+                required: true,
+            },
+        ],
         title: 'Test Prototype 2',
     },
     previousId: prototypeId1.toString(),
@@ -95,6 +113,31 @@ const prototypeData3 = {
     id: prototypeId3.toString(),
     json: {
         ...prototypeData1.json,
+        questions: [
+            {
+                answer_type: 'branching_choice',
+                next_question_value: 2,
+                options_branching: [
+                    {
+                        next_question_value: 2,
+                        text_value: 'Yes',
+                    },
+                    {
+                        next_question_value: -1,
+                        text_value: 'No',
+                    },
+                ],
+                question_text: 'Do you have a job?',
+                required: true,
+            },
+            {
+                answer_type: 'text',
+                next_question_value: -1,
+                options: [],
+                question_text: 'What is your job role?',
+                required: true,
+            },
+        ],
         title: 'Test Prototype 3',
     },
     livePrototypePublic: true,

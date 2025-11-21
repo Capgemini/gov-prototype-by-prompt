@@ -84,7 +84,6 @@ describe('generateCheckAnswersPage', () => {
         );
         expect(getCheckAnswersHeaderMocked).toHaveBeenCalledWith(
             data.title,
-            `/${urlPrefix}/question-${String(data.questions.length)}`,
             designSystem,
             showDemoWarning
         );
@@ -386,21 +385,21 @@ describe('generateQuestionPage', () => {
         // Assert
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
-            formAction: `/${urlPrefix}/question-2`,
+            formAction: `/${urlPrefix}/question-1/submit`,
             questionTitle: 'Q1',
             showDemoWarning,
             title: data.title,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
-            formAction: `/${urlPrefix}/question-3`,
+            formAction: `/${urlPrefix}/question-2/submit`,
             questionTitle: 'Q2',
             showDemoWarning,
             title: data.title,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
-            formAction: `/${urlPrefix}/check-answers`,
+            formAction: `/${urlPrefix}/question-3/submit`,
             questionTitle: 'Q3',
             showDemoWarning,
             title: data.title,
