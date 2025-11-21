@@ -829,7 +829,9 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
-        jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
+        jsonText: JSON.stringify(maskedJson, null, 2)
+            .replace(/\\"/g, '\\\\"')
+            .replace(/`/g, `\\\``),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
         livePrototypeUrl: `/prototype/${prototypeData.id}/start`,
         previousPrototypesRows: previousPrototypesRows,
