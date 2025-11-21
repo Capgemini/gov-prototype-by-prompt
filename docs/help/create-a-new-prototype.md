@@ -9,7 +9,7 @@ For example:
 
 Once created, the high-level structure of the prototype can be previewed in the "Structure" tab.
 
-## Supported form and question fields
+## Form fields
 
 Each form contains the following data:
 
@@ -19,6 +19,18 @@ Each form contains the following data:
 - Instructional text for the user before they fill out the form
 - Information for the user about what happens next when they have completed the form
 - A list of questions
+
+The description, instructional text, and what happens next can include [Markdown](https://www.markdownguide.org/basic-syntax/) formatting. Newlines can be created by inserting `\n\n` where needed.
+
+Supported Markdown features include:
+
+- *Italic text* with `*italic*` or `_italic_`
+- **Bold text** with `**bold**` or `__bold__`
+- Links with `[link text](https://example.com)`
+- Unordered lists with `- item 1` or `* item 2`
+- Ordered lists with `1. item 1` or `2. item 2`
+
+### Question fields
 
 Each question contains the following data:
 
