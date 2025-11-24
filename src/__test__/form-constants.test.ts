@@ -142,21 +142,18 @@ describe('getQuestionFooter', () => {
 describe('getQuestionHeader', () => {
     const baseOptions = {
         backLinkHref: '/back',
+        designSystem: 'GOV.UK' as PrototypeDesignSystemsType,
+        detailedExplanation: undefined,
         formAction: '/submit',
         questionTitle: 'What is your name?',
+        showDemoWarning: false,
         title: 'Test Form',
     };
-    it.each([
-        [true, 'GOV.UK'],
-        [false, 'GOV.UK'],
-        [true, 'HMRC'],
-        [false, 'HMRC'],
-    ] as [boolean, PrototypeDesignSystemsType][])(
-        'returns correct header for showDemoWarning=%s and designSystem=%s',
-        (showDemoWarning, designSystem) => {
+    it.each([true, false])(
+        'returns correct header for showDemoWarning=%s',
+        (showDemoWarning) => {
             const result = getQuestionHeader({
                 ...baseOptions,
-                designSystem,
                 showDemoWarning,
             } as QuestionHeaderOptions);
             expect(result).toContain(
@@ -165,11 +162,17 @@ describe('getQuestionHeader', () => {
             expect(result).toContain(`serviceTitle = "${baseOptions.title}"`);
             expect(result).toContain(`href: "${baseOptions.backLinkHref}"`);
             expect(result).toContain(`form action="${baseOptions.formAction}"`);
-            if (showDemoWarning) {
-                expect(result).toContain('Demo warning');
-            } else {
-                expect(result).not.toContain('Demo warning');
-            }
+            expect(result.includes('Demo warning')).toBe(showDemoWarning);
+        }
+    );
+
+    it.each(['GOV.UK', 'HMRC'] as PrototypeDesignSystemsType[])(
+        'returns correct header for designSystem=%s',
+        (designSystem) => {
+            const result = getQuestionHeader({
+                ...baseOptions,
+                designSystem,
+            } as QuestionHeaderOptions);
             if (designSystem === 'HMRC') {
                 expect(result).toContain('hmrcBanner');
             } else {
@@ -177,6 +180,32 @@ describe('getQuestionHeader', () => {
             }
         }
     );
+
+    it.each([true, false])(
+        'returns correct header for showProgressIndicators=%s',
+        (showProgressIndicators) => {
+            const result = getQuestionHeader({
+                ...baseOptions,
+                showProgressIndicators,
+            } as QuestionHeaderOptions);
+            expect(
+                result.includes('<span class="govuk-caption-l">Question')
+            ).toBe(showProgressIndicators);
+        }
+    );
+
+    it('returns correct header when detailedExplanation is provided', () => {
+        const detailedExplanation = {
+            explanation_text: 'This is a detailed explanation.',
+            question_title: 'Your name',
+        };
+        const result = getQuestionHeader({
+            ...baseOptions,
+            detailedExplanation,
+        } as QuestionHeaderOptions);
+        expect(result).toContain(detailedExplanation.question_title);
+        expect(result).toContain(detailedExplanation.explanation_text);
+    });
 });
 
 describe('getStartPage', () => {

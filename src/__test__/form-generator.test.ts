@@ -366,7 +366,13 @@ describe('generateQuestionPage', () => {
         const data = {
             questions: [
                 { question_text: 'Q1' },
-                { question_text: 'Q2' },
+                {
+                    detailed_explanation: {
+                        explanation_text: 'Q2 Explanation',
+                        question_title: 'Q2 Title',
+                    },
+                    question_text: 'Q2',
+                },
                 { question_text: 'Q3' },
             ],
             title: 'Test Form',
@@ -387,26 +393,41 @@ describe('generateQuestionPage', () => {
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             backLinkHref: `/${urlPrefix}/start`,
             designSystem,
+            detailedExplanation: undefined,
             formAction: `/${urlPrefix}/question-2`,
+            questionNumber: 1,
             questionTitle: 'Q1',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             backLinkHref: `/${urlPrefix}/question-1`,
             designSystem,
+            detailedExplanation: {
+                explanation_text: 'Q2 Explanation',
+                question_title: 'Q2 Title',
+            },
             formAction: `/${urlPrefix}/question-3`,
+            questionNumber: 2,
             questionTitle: 'Q2',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             backLinkHref: `/${urlPrefix}/question-2`,
             designSystem,
+            detailedExplanation: undefined,
             formAction: `/${urlPrefix}/check-answers`,
+            questionNumber: 3,
             questionTitle: 'Q3',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledTimes(3);
     });
