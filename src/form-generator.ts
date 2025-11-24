@@ -167,15 +167,16 @@ export function generateQuestionPage(
             questionIndex === data.questions.length - 1
                 ? `/${urlPrefix}/check-answers`
                 : `/${urlPrefix}/question-${String(questionIndex + 2)}`,
+        questionNumber: questionIndex + 1,
         questionTitle: data.questions[questionIndex].question_text,
         showDemoWarning: showDemoWarning,
         title: data.title,
+        totalQuestions: data.questions.length,
     };
     const fieldGeneratorOptions: FieldGeneratorOptions = {
         fieldItem: data.questions[questionIndex],
         questionNumber: questionIndex + 1,
         questionsAsHeadings: true,
-        totalQuestions: data.questions.length,
     };
 
     return formatHtml(
@@ -228,15 +229,13 @@ function formatValue(value: unknown): string {
  * @param {FieldGeneratorOptions} opts Options for generating the field
  * @param {TemplateField} opts.fieldItem The field item from the JSON template
  * @param {number} opts.questionNumber The question number in the form
- * @param {boolean} opts.questionsAsHeadings Whether to treat question titles as headings
- * @param {number} [opts.totalQuestions] The total number of questions in the form (optional)
+ * @param {boolean} opts.questionsAsHeadings Whether to treat question titles as headings (size l) or labels (size m)
  * @returns {string} The Nunjucks macro string for the field
  */
 function generateField({
     fieldItem,
     questionNumber,
     questionsAsHeadings,
-    totalQuestions,
 }: FieldGeneratorOptions): string {
     const questionTextSize = questionsAsHeadings ? 'l' : 'm';
     const questionNumberString = String(questionNumber);
@@ -929,9 +928,7 @@ function generateField({
             return ``;
     }
 
-    return totalQuestions
-        ? `<span class="govuk-caption-l">Question ${questionNumberString} of ${String(totalQuestions)}</span>\n${result}`
-        : result;
+    return result;
 }
 
 /**

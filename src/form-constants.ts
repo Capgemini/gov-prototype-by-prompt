@@ -245,21 +245,25 @@ export function getQuestionFooter(): string {
 /**
  * Generate the header text for the template with one question per page.
  * @param {QuestionHeaderOptions} opts Options for the header
- * @param {string} opts.title The title of the form
- * @param {string} opts.questionTitle The current question title
  * @param {string} opts.backLinkHref The URL for the back link
- * @param {string} opts.formAction The form action URL for the multi-page form
  * @param {PrototypeDesignSystemsType} opts.designSystem The design system to use for the prototype
+ * @param {string} opts.formAction The form action URL for the multi-page form
+ * @param {number} opts.questionNumber The question number in the form
+ * @param {string} opts.questionTitle The current question title
  * @param {boolean} opts.showDemoWarning Whether to warn the user that this is a demo of a service
+ * @param {string} opts.title The title of the form
+ * @param {number} opts.totalQuestions The total number of questions in the form
  * @returns {string} The header HTML text for the template
  */
 export function getQuestionHeader({
     backLinkHref,
     designSystem,
     formAction,
+    questionNumber,
     questionTitle,
     showDemoWarning,
     title,
+    totalQuestions,
 }: QuestionHeaderOptions): string {
     return [
         `{% extends "form-base.njk" %}`,
@@ -283,6 +287,7 @@ export function getQuestionHeader({
         `  <div class="govuk-grid-row">`,
         `    <div class="govuk-grid-column-two-thirds">`,
         `      <form action="${formAction}" method="post" novalidate>`,
+        `          <span class="govuk-caption-l">Question ${String(questionNumber)} of ${String(totalQuestions)}</span>\n`,
         ``,
     ].join('\n');
 }

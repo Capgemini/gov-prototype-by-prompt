@@ -9,16 +9,17 @@ export interface FieldGeneratorOptions {
     fieldItem: ITemplateField;
     questionNumber: number;
     questionsAsHeadings: boolean;
-    totalQuestions?: number;
 }
 
 export interface QuestionHeaderOptions {
     backLinkHref: string;
     designSystem: PrototypeDesignSystemsType;
     formAction: string;
+    questionNumber: number;
     questionTitle: string;
     showDemoWarning?: boolean;
     title: string;
+    totalQuestions: number;
 }
 
 export type TemplateData = ITemplateData;
