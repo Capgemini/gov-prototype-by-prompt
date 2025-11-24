@@ -163,6 +163,7 @@ export function generateQuestionPage(
                 ? `/${urlPrefix}/start`
                 : `/${urlPrefix}/question-${String(questionIndex)}`,
         designSystem: designSystem,
+        detailedExplanation: data.questions[questionIndex].detailed_explanation,
         formAction:
             questionIndex === data.questions.length - 1
                 ? `/${urlPrefix}/check-answers`
@@ -176,7 +177,8 @@ export function generateQuestionPage(
     const fieldGeneratorOptions: FieldGeneratorOptions = {
         fieldItem: data.questions[questionIndex],
         questionNumber: questionIndex + 1,
-        questionsAsHeadings: true,
+        questionsAsHeadings:
+            !data.questions[questionIndex].detailed_explanation,
     };
 
     return formatHtml(

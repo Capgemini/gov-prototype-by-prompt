@@ -247,6 +247,7 @@ export function getQuestionFooter(): string {
  * @param {QuestionHeaderOptions} opts Options for the header
  * @param {string} opts.backLinkHref The URL for the back link
  * @param {PrototypeDesignSystemsType} opts.designSystem The design system to use for the prototype
+ * @param {ITemplateDetailedExplanation} [opts.detailedExplanation] The detailed explanation for the question, if any
  * @param {string} opts.formAction The form action URL for the multi-page form
  * @param {number} opts.questionNumber The question number in the form
  * @param {string} opts.questionTitle The current question title
@@ -258,6 +259,7 @@ export function getQuestionFooter(): string {
 export function getQuestionHeader({
     backLinkHref,
     designSystem,
+    detailedExplanation,
     formAction,
     questionNumber,
     questionTitle,
@@ -288,6 +290,12 @@ export function getQuestionHeader({
         `    <div class="govuk-grid-column-two-thirds">`,
         `      <form action="${formAction}" method="post" novalidate>`,
         `          <span class="govuk-caption-l">Question ${String(questionNumber)} of ${String(totalQuestions)}</span>\n`,
+        ...(detailedExplanation
+            ? [
+                  `      <h1 class="govuk-heading-l">${detailedExplanation.question_title}</h1>`,
+                  `      {{ "${detailedExplanation.explanation_text.replace(/\n/g, '\\n').replace(/"/g, '\\"')}" | govukMarkdown | safe }}`,
+              ]
+            : []),
         ``,
     ].join('\n');
 }
