@@ -69,4 +69,4 @@ The form can contain the following answer types:
 - **text_area**: A longer free-text answer, multiple sentences
 - **vat_registration_number**: A UK VAT registration number
 
-Hint text is not shown for **address**, **bank details**, **date**, **date_of_birth**, **emergency contact details**, and **passport information** question types.
+Hint text is not shown for **address**, **bank_details**, **date**, **date_of_birth**, **emergency_contact_details**, and **passport_information** question types.
