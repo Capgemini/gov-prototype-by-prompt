@@ -44,7 +44,8 @@ export function generateCheckAnswersPage(
     data: TemplateData,
     urlPrefix: string,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
+    showDemoWarning: boolean,
+    seenQuestions?: string[]
 ): string {
     const formFields: TemplateField[] = data.questions;
     const macroOptions: CheckAnswersMacroOptions = { rows: [] };
@@ -88,25 +89,32 @@ export function generateCheckAnswersPage(
         } else {
             data = `data['question-${indexPlusOne}'] if data['question-${indexPlusOne}'] else 'Not provided'`;
         }
-        macroOptions.rows.push({
-            actions: {
-                items: [
-                    {
-                        href: `/${urlPrefix}/question-${indexPlusOne}${formFields[i].answer_type === 'branching_choice' ? '' : '?referrer=check-answers'}`,
-                        text: 'Change',
-                        visuallyHiddenText: formFields[i].question_text,
-                    },
-                ],
-            },
-            classes: data.includes('\\n') ? 'force-multiline-row' : '',
-            key: {
-                text: formFields[i].question_text,
-            },
-            value: {
-                classes: data.includes('\\n') ? 'force-multiline-value' : '',
-                text: data,
-            },
-        });
+        if (
+            !seenQuestions ||
+            seenQuestions.includes(`question-${indexPlusOne}`)
+        ) {
+            macroOptions.rows.push({
+                actions: {
+                    items: [
+                        {
+                            href: `/${urlPrefix}/question-${indexPlusOne}${formFields[i].answer_type === 'branching_choice' ? '' : '?referrer=check-answers'}`,
+                            text: 'Change',
+                            visuallyHiddenText: formFields[i].question_text,
+                        },
+                    ],
+                },
+                classes: data.includes('\\n') ? 'force-multiline-row' : '',
+                key: {
+                    text: formFields[i].question_text,
+                },
+                value: {
+                    classes: data.includes('\\n')
+                        ? 'force-multiline-value'
+                        : '',
+                    text: data,
+                },
+            });
+        }
     }
     return formatHtml(
         `${getCheckAnswersHeader(
