@@ -47,7 +47,10 @@
               Update the prototype
             </label>
           </h1>
-          <div id="editor" style="height: 350px" class="{{"" if showJsonPrompt else "display-none"}}"></div>
+          <div id="editor" class="{{"" if showJsonPrompt else "display-none"}}">
+            <div id="aceEditor" style="height: 350px"></div>
+            <p><a class="govuk-link" href="/help/supported-prototype-options" target="_blank">View available options</a></p>
+          </div>
           {{ govukTextarea({
             name: "prompt",
             id: "textPrompt",
@@ -382,7 +385,7 @@
   <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
   <script>
     // Initialize the Ace editor for JSON input
-    var editor = ace.edit("editor");
+    var editor = ace.edit("aceEditor");
     editor.session.setMode("ace/mode/json");
     editor.session.setUseWrapMode(true);
 
