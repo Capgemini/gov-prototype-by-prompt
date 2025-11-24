@@ -63,6 +63,7 @@
                 "required": [
                     "question_text",
                     "hint_text",
+                    "detailed_explanation",
                     "required",
                     "required_error_text",
                     "answer_type",
@@ -79,6 +80,22 @@
                     "hint_text": {
                         "type": ["string", "null"],
                         "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional."
+                    },
+                    "detailed_explanation": {
+                        "type": ["object", "null"],
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. If provided, it must be an object with a required title and explanation. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. This field is optional.",
+                        "properties": {
+                            "question_title": {
+                                "type": "string",
+                                "description": "A title for the detailed explanation, in sentence case as a statement. An example is 'Interview needs' or 'Vehicle transmission'."
+                            },
+                            "explanation_text": {
+                                "type": "string",
+                                "description": "A detailed explanation in Markdown. May include multiple sentences or paragraphs."
+                            }
+                        },
+                        "required": ["question_title", "explanation_text"],
+                        "additionalProperties": false
                     },
                     "required": {
                         "type": "boolean",

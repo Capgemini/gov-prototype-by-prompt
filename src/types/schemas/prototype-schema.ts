@@ -19,10 +19,16 @@ export interface ITemplateData {
     what_happens_next: string;
 }
 
+export interface ITemplateDetailedExplanation {
+    explanation_text: string;
+    question_title: string;
+}
+
 export interface ITemplateField {
     answer_type: string;
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
+    detailed_explanation?: ITemplateDetailedExplanation;
     hint_text?: string;
     options?: string[];
     question_text: string;
@@ -82,6 +88,23 @@ const chatMessageSchema = new Schema<IChatMessage>(
     }
 );
 
+const templateDetailedExplanationSchema =
+    new Schema<ITemplateDetailedExplanation>(
+        {
+            explanation_text: {
+                required: true,
+                type: String,
+            },
+            question_title: {
+                required: true,
+                type: String,
+            },
+        },
+        {
+            _id: false,
+        }
+    );
+
 const templateFieldSchema = new Schema<ITemplateField>(
     {
         answer_type: {
@@ -90,6 +113,11 @@ const templateFieldSchema = new Schema<ITemplateField>(
         },
         date_of_birth_maximum_age: Number,
         date_of_birth_minimum_age: Number,
+        detailed_explanation: {
+            default: undefined,
+            required: false,
+            type: templateDetailedExplanationSchema,
+        },
         hint_text: String,
         options: {
             default: undefined,
