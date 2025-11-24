@@ -434,9 +434,11 @@ function generateField({
         case 'nationality':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items:
                     fieldItem.answer_type === 'country'
                         ? getItems(countryData.countries, 'Choose country')
@@ -552,9 +554,11 @@ function generateField({
                         ? fieldItem.answer_type
                         : undefined,
                 classes: '',
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
                     isPageHeading: questionsAsHeadings,
@@ -686,9 +690,11 @@ function generateField({
         case 'file_upload':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 javascript: true,
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
@@ -721,9 +727,11 @@ function generateField({
                         text: fieldItem.question_text,
                     },
                 },
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items: items,
                 name: `question-${questionNumberString}`,
             };
@@ -893,9 +901,11 @@ function generateField({
                         text: fieldItem.question_text,
                     },
                 },
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items: items,
                 name: `question-${questionNumberString}`,
             };
@@ -909,9 +919,11 @@ function generateField({
         case 'text_area':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
                     isPageHeading: questionsAsHeadings,

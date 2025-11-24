@@ -460,7 +460,7 @@ describe('generateQuestionPage', () => {
         if (inputHint) {
             expect(result).toContain(`text: '${outputHint}'`);
         } else {
-            expect(result).toContain('hint: {\n\n},');
+            expect(result).not.toContain('hint');
         }
     });
 

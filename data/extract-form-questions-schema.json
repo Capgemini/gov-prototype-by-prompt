@@ -85,11 +85,11 @@
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional."
+                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional, and must be null if a detailed_explanation is provided."
                     },
                     "detailed_explanation": {
                         "type": ["object", "null"],
-                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. If provided, it must be an object with a required title and explanation. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. This field is optional.",
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. If provided, it must be an object with a required title and explanation. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. This field is optional. The hint text must be null if this is provided.",
                         "properties": {
                             "question_title": {
                                 "type": "string",

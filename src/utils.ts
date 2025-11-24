@@ -336,6 +336,9 @@ export function validateTemplateDataText(
         ) {
             delete question.options;
         }
+        if (question.detailed_explanation) {
+            delete question.hint_text;
+        }
     }
 
     return templateData;
