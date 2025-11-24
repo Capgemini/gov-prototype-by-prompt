@@ -14,6 +14,7 @@ export interface ITemplateData {
     explanation?: string;
     form_type: string;
     questions: ITemplateField[];
+    show_progress_indicators?: boolean;
     suggestions?: string[];
     title: string;
     what_happens_next: string;
@@ -163,6 +164,10 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: String,
         },
         questions: [templateFieldSchema],
+        show_progress_indicators: {
+            default: true,
+            type: Boolean,
+        },
         suggestions: {
             default: undefined,
             required: false,

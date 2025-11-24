@@ -171,6 +171,7 @@ export function generateQuestionPage(
         questionNumber: questionIndex + 1,
         questionTitle: data.questions[questionIndex].question_text,
         showDemoWarning: showDemoWarning,
+        showProgressIndicators: data.show_progress_indicators ?? true,
         title: data.title,
         totalQuestions: data.questions.length,
     };

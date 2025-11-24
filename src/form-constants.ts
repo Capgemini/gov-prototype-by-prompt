@@ -252,6 +252,7 @@ export function getQuestionFooter(): string {
  * @param {number} opts.questionNumber The question number in the form
  * @param {string} opts.questionTitle The current question title
  * @param {boolean} opts.showDemoWarning Whether to warn the user that this is a demo of a service
+ * @param {boolean} opts.showProgressIndicators Whether to show progress indicators to the user
  * @param {string} opts.title The title of the form
  * @param {number} opts.totalQuestions The total number of questions in the form
  * @returns {string} The header HTML text for the template
@@ -264,6 +265,7 @@ export function getQuestionHeader({
     questionNumber,
     questionTitle,
     showDemoWarning,
+    showProgressIndicators,
     title,
     totalQuestions,
 }: QuestionHeaderOptions): string {
@@ -289,7 +291,13 @@ export function getQuestionHeader({
         `  <div class="govuk-grid-row">`,
         `    <div class="govuk-grid-column-two-thirds">`,
         `      <form action="${formAction}" method="post" novalidate>`,
-        `          <span class="govuk-caption-l">Question ${String(questionNumber)} of ${String(totalQuestions)}</span>\n`,
+        ...(showProgressIndicators
+            ? [
+                  `      <span class="govuk-caption-l">Question ${String(
+                      questionNumber
+                  )} of ${String(totalQuestions)}</span>\n`,
+              ]
+            : []),
         ...(detailedExplanation
             ? [
                   `      <h1 class="govuk-heading-l">${detailedExplanation.question_title}</h1>`,

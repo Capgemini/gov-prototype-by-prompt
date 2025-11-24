@@ -19,7 +19,8 @@ export interface QuestionHeaderOptions {
     formAction: string;
     questionNumber: number;
     questionTitle: string;
-    showDemoWarning?: boolean;
+    showDemoWarning: boolean;
+    showProgressIndicators: boolean;
     title: string;
     totalQuestions: number;
 }
