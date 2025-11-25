@@ -28,7 +28,7 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
   eslint:
     needs: setup
@@ -48,7 +48,7 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run ESLint
         run: npm run lint -- --max-warnings=0
@@ -71,7 +71,7 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run npm audit with moderate threshold
         run: npm audit --audit-level=moderate
@@ -94,7 +94,7 @@ jobs:
           node-version-file: .nvmrc
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run tests with coverage
         run: npm run test -- --coverage --silent --maxWorkers=1
