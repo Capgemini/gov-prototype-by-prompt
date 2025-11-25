@@ -36,7 +36,7 @@ Each question contains the following fields:
 - **question_text**: The question text
 - **hint_text**: Hint text to help the user answer the question (optional)
 - **required**: Whether or not it is required, and if so, the error message that is shown if the user does not provide an answer
-- **detailed_explanation**: A detailed explanation if the question needs more complex or instructions (optional). This consists of:
+- **detailed_explanation**: A detailed explanation if the question needs more context or instructions (optional). This consists of:
   - **question_title**: A question title
   - **explanation_text**: A detailed explanation text that is shown above the question, which can contain Markdown formatting as described above.
 - **answer_type**: The type of answer the user can provide (see below)
