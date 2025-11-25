@@ -140,14 +140,17 @@ describe('getQuestionFooter', () => {
 });
 
 describe('getQuestionHeader', () => {
-    const baseOptions = {
+    const baseOptions: QuestionHeaderOptions = {
         backLinkHref: '/back',
         designSystem: 'GOV.UK' as PrototypeDesignSystemsType,
         detailedExplanation: undefined,
         formAction: '/submit',
+        questionNumber: 1,
         questionTitle: 'What is your name?',
         showDemoWarning: false,
+        showProgressIndicators: false,
         title: 'Test Form',
+        totalQuestions: 5,
     };
     it.each([true, false])(
         'returns correct header for showDemoWarning=%s',
@@ -155,7 +158,7 @@ describe('getQuestionHeader', () => {
             const result = getQuestionHeader({
                 ...baseOptions,
                 showDemoWarning,
-            } as QuestionHeaderOptions);
+            });
             expect(result).toContain(
                 `pageTitle = "${baseOptions.questionTitle} – ${baseOptions.title}"`
             );
@@ -172,7 +175,7 @@ describe('getQuestionHeader', () => {
             const result = getQuestionHeader({
                 ...baseOptions,
                 designSystem,
-            } as QuestionHeaderOptions);
+            });
             if (designSystem === 'HMRC') {
                 expect(result).toContain('hmrcBanner');
             } else {
@@ -187,7 +190,7 @@ describe('getQuestionHeader', () => {
             const result = getQuestionHeader({
                 ...baseOptions,
                 showProgressIndicators,
-            } as QuestionHeaderOptions);
+            });
             expect(
                 result.includes('<span class="govuk-caption-l">Question')
             ).toBe(showProgressIndicators);
@@ -202,7 +205,7 @@ describe('getQuestionHeader', () => {
         const result = getQuestionHeader({
             ...baseOptions,
             detailedExplanation,
-        } as QuestionHeaderOptions);
+        });
         expect(result).toContain(detailedExplanation.question_title);
         expect(result).toContain(detailedExplanation.explanation_text);
     });
