@@ -2289,6 +2289,40 @@ describe('handleCreatePrototype', () => {
             );
         });
 
+        it.each([
+            [
+                'text',
+                'Create a form to ask for a name',
+                'Create a form to ask for a name',
+            ],
+            ['json', JSON.stringify(prototypeData1), undefined],
+        ])(
+            'should set prompt correctly where promptType is %s',
+            async (
+                promptType: string,
+                userPrompt: string,
+                savedPrompt: string | undefined
+            ) => {
+                const request = httpMocks.createRequest({
+                    body: {
+                        prompt: userPrompt,
+                        promptType: promptType,
+                        prototypeId: prototypeData3.id,
+                    },
+                    method: 'POST',
+                    user: user1,
+                });
+                const response = httpMocks.createResponse();
+
+                await handleCreatePrototype(request, response);
+
+                const storeCall = (
+                    storePrototypeMock.mock.calls[0] as IPrototypeData[]
+                )[0];
+                expect(storeCall.prompt).toEqual(savedPrompt);
+            }
+        );
+
         it('should preserve shared user IDs from old prototype', async () => {
             const request = httpMocks.createRequest({
                 body: {
