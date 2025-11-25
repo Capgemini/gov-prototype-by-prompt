@@ -930,15 +930,6 @@ export async function handleUpdatePrototype(
     // Create new prototype
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
-        chatHistory: [
-            ...(oldPrototypeData.chatHistory ?? []),
-            {
-                assistantMessage:
-                    templateData.explanation ?? 'Updated prototype JSON',
-                timestamp: timestamp,
-                userMessage: prompt,
-            },
-        ],
         creatorUserId: user.id,
         designSystem: designSystem,
         firstPrompt: oldPrototypeData.firstPrompt,
@@ -947,6 +938,7 @@ export async function handleUpdatePrototype(
         livePrototypePublic: false,
         livePrototypePublicPassword: '',
         previousId: oldPrototypeId,
+        prompt: prompt,
         sharedWithUserIds: [...new Set(oldPrototypeData.sharedWithUserIds)],
         timestamp: timestamp,
         workspaceId: workspaceId,
@@ -986,7 +978,7 @@ export async function handleCreatePrototype(
 ) {
     if (handleValidationErrors(req, res)) return;
     let responseText: string;
-    let prompt = req.body.prompt;
+    const prompt = req.body.prompt;
     const promptType = req.body.promptType === 'json' ? 'json' : 'text';
     const user = (req as unknown as Request & { user: IUser }).user;
 
@@ -1000,17 +992,10 @@ export async function handleCreatePrototype(
     let oldPrototypeData: IPrototypeData | undefined;
     if (promptType === 'json') {
         responseText = prompt;
-        // Get the prototype prompt using the prototypeId if provided
+
+        // Get the old prototype using the prototypeId if provided, to copy the shared users
         oldPrototypeData =
             (await getPrototypeById(req.body.prototypeId ?? '')) ?? undefined;
-        if (
-            oldPrototypeData?.firstPrompt &&
-            (await canUserAccessPrototype(user.id, oldPrototypeData.id))
-        ) {
-            prompt = oldPrototypeData.firstPrompt;
-        } else {
-            prompt = 'Form generated from JSON input';
-        }
 
         // Otherwise, prompt the OpenAI API
     } else {
@@ -1050,14 +1035,6 @@ export async function handleCreatePrototype(
                 promptType === 'text'
                     ? 'Created prototype'
                     : 'Updated prototype JSON',
-            chatHistory: [
-                {
-                    assistantMessage:
-                        templateData.explanation ?? 'Updated prototype JSON',
-                    timestamp: timestamp,
-                    userMessage: prompt,
-                },
-            ],
             creatorUserId: user.id,
             designSystem: designSystem,
             firstPrompt: prompt,
@@ -1066,6 +1043,7 @@ export async function handleCreatePrototype(
             livePrototypePublic: false,
             livePrototypePublicPassword: '',
             previousId: req.body.prototypeId,
+            prompt: promptType === 'text' ? prompt : undefined,
             sharedWithUserIds: oldPrototypeData
                 ? [...new Set(oldPrototypeData.sharedWithUserIds)]
                 : [],

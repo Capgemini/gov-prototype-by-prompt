@@ -1751,15 +1751,6 @@ describe('handleUpdatePrototype', () => {
             )[0];
             expect(storeCall).toEqual({
                 changesMade: prototypeData2.json.changes_made,
-                chatHistory: [
-                    ...(prototypeData1.chatHistory ?? []),
-                    {
-                        assistantMessage: prototypeData2.json.explanation,
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                        timestamp: expect.any(String),
-                        userMessage: prompt,
-                    },
-                ],
                 creatorUserId: user1.id,
                 designSystem: 'HMRC',
                 firstPrompt: prototypeData1.firstPrompt,
@@ -1768,6 +1759,7 @@ describe('handleUpdatePrototype', () => {
                 livePrototypePublic: false,
                 livePrototypePublicPassword: '',
                 previousId: prototypeData1.id,
+                prompt: prompt,
                 sharedWithUserIds: [...prototypeData1.sharedWithUserIds],
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 timestamp: expect.any(String),
@@ -1803,48 +1795,6 @@ describe('handleUpdatePrototype', () => {
             expect(storeCall.sharedWithUserIds).toEqual([user2.id, user1.id]);
             expect(response.statusCode).toBe(201);
         });
-
-        it('should preserve chat history and add new entry', async () => {
-            const existingChatHistory = [
-                {
-                    assistantMessage: 'Previous response',
-                    timestamp: '2023-01-01T00:00:00.000Z',
-                    userMessage: 'Previous prompt',
-                },
-            ];
-            const prototypeWithHistory = {
-                ...prototypeData1,
-                chatHistory: existingChatHistory,
-            };
-            getPrototypeByIdMock.mockResolvedValueOnce(prototypeWithHistory);
-
-            const prompt = 'New update request';
-            const request = httpMocks.createRequest({
-                body: {
-                    prompt,
-                    prototypeId: prototypeData1.id,
-                },
-                method: 'POST',
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
-
-            await handleUpdatePrototype(request, response);
-
-            const storeCall = (
-                storePrototypeMock.mock.calls[0] as IPrototypeData[]
-            )[0];
-            expect(storeCall.chatHistory).toHaveLength(2);
-            expect(storeCall.chatHistory?.[0]).toEqual(existingChatHistory[0]);
-            expect(storeCall.chatHistory?.[1]).toEqual({
-                assistantMessage: prototypeData2.json.explanation,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                timestamp: expect.any(String),
-                userMessage: prompt,
-            });
-            expect(response.statusCode).toBe(201);
-        });
-
         it('should handle missing changes_made in template data', async () => {
             const templateDataWithoutChanges = {
                 ...prototypeData2.json,
@@ -2325,8 +2275,6 @@ describe('handleCreatePrototype', () => {
             expect(storeCall).toEqual(
                 expect.objectContaining({
                     changesMade: 'Created prototype',
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                    chatHistory: expect.any(Array),
                     creatorUserId: user1.id,
                     designSystem: 'GOV.UK',
                     firstPrompt: prompt,
@@ -2359,31 +2307,6 @@ describe('handleCreatePrototype', () => {
                 storePrototypeMock.mock.calls[0] as IPrototypeData[]
             )[0];
             expect(storeCall.sharedWithUserIds).toEqual([user2.id]);
-        });
-
-        it('should create chat history with user prompt and AI response', async () => {
-            const request = httpMocks.createRequest({
-                body: {
-                    prompt: JSON.stringify(prototypeData2.json),
-                    promptType: 'json',
-                    prototypeId: prototypeData1.id,
-                },
-                method: 'POST',
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
-
-            await handleCreatePrototype(request, response);
-
-            const storeCall = (
-                storePrototypeMock.mock.calls[0] as IPrototypeData[]
-            )[0];
-            expect(storeCall.chatHistory?.[0]).toEqual({
-                assistantMessage: prototypeData2.json.explanation,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                timestamp: expect.any(String),
-                userMessage: prototypeData2.firstPrompt,
-            });
         });
     });
 
