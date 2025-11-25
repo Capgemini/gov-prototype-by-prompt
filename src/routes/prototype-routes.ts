@@ -65,6 +65,12 @@ import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
 // Create an Express router
 const prototypeRouter = express.Router();
 
+// Expose the schema
+export function renderSchema(req: Request, res: Response) {
+    res.json(formSchema);
+}
+prototypeRouter.get('/schema', verifyUser, renderSchema);
+
 /**
  * Render the homepage.
  */

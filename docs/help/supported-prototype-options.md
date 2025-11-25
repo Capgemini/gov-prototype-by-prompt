@@ -1,5 +1,9 @@
 # Supported prototype options
 
+A [JSON schema](/schema) used to generate prototypes consists of a form with a list of questions.
+
+Note that JSON fields cannot contain double quotes `"`; these are replaced with `“`. Backslash characters `\` must be written as `\\`, otherwise they are not displayed.
+
 ## Form fields
 
 Each form consists of the following fields:

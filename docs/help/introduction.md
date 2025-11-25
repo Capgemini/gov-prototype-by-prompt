@@ -13,7 +13,3 @@ You can test prototypes live, share them with others, and download them to run t
 1. The user describes the form they want using the free text input in the interface.
 2. The LLM takes this and a JSON schema, and uses this to generate a JSON representation of the form that follows the schema.
 3. The tool uses the schema to build the prototype using Nunjucks components. This prototype is then shown live for the user, or zipped up for the user to download.
-
-## Known limitations
-
-- The JSON fields cannot contain double quotes `"`; these are replaced with `“`.
