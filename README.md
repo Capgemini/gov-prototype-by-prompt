@@ -61,7 +61,7 @@ Before you can run the application, you need to set up a MongoDB database.
 2. Install the latest version of Node.js v20 with `nvm install 20` and switch to it with `nvm use 20`.
 3. Check Node JS is ready with the right version using `node --version`.
 4. Copy the example environment file with `cp .env.example .env` and fill out your environment variables (including the MongoDB connection string from above; [see below](#environment-variables) for details).
-5. Run `npm install` to install the dependencies.
+5. Run `npm install --ignore-scripts` to install the dependencies safely.
 6. Run the application with `npm run start` and visit <http://localhost:3001>.
 
 ### Environment variables
