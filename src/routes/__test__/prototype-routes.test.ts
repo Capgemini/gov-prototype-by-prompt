@@ -165,6 +165,28 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 
+describe('renderSchema', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let renderSchema: (req: any, res: any) => void;
+    beforeEach(async () => {
+        ({ renderSchema } = await import('../prototype-routes'));
+    });
+
+    it('should return 200 OK with the schema', () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            url: '/schema',
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        renderSchema(request, response);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.getHeader('Content-Type')).toBe('application/json');
+    });
+});
+
 describe('renderHomePage', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let renderHomePage: (req: any, res: any) => void;

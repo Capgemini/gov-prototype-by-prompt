@@ -408,7 +408,20 @@
             theme: 'vs-light',
             automaticLayout: true,
             wordWrap: 'on',
-            minimap: { enabled: false },
+            minimap: { enabled: false }
+        });
+
+        fetch('{{ jsonSchemaUrl }}')
+        .then(response => response.json())
+        .then(schema => {
+          monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+            validate: true,
+            schemas: [{
+              uri: '{{ jsonSchemaUrl }}',
+              fileMatch: ['*'],
+              schema: schema
+            }]
+          });
         });
     });
 
