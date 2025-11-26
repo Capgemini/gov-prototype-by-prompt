@@ -156,8 +156,8 @@ function generateZipOfAssets(
 
     // Add form.js
     files.push({
-        input: fs.readFileSync('./public/form.js'),
-        name: 'assets/form.js',
+        input: fs.readFileSync('./public/js/form.js'),
+        name: 'assets/js/form.js',
     });
 
     // Add the GOV.UK CSS and JS assets
