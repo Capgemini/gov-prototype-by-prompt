@@ -4,12 +4,6 @@ import path from 'node:path';
 import { getContentType, getHmrcAssetsVersion } from '../utils';
 
 export function setupStaticAssets(app: express.Express, dirname: string) {
-    // Serve the Ace code editor
-    app.use(
-        '/assets/ace-editor-src-min',
-        express.static(path.join(dirname, 'node_modules/ace-builds/src-min'))
-    );
-
     // Serve the Monaco code editor
     app.use(
         '/assets/monaco',

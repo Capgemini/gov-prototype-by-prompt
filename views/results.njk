@@ -41,7 +41,6 @@
         <form id="promptForm" class="govuk-form-group govuk-!-margin-0" novalidate>
           <input type="hidden" id="workspaceId" name="workspaceId" value="{{ workspace.id }}">
           <input type="hidden" id="promptType" name="promptType" value="{{ "json" if showJsonPrompt else "text" }}">
-          <input type="hidden" id="jsonPrompt" name="prompt" value="{{ json }}" {{ "disabled" if not showJsonPrompt else "" }}>
           <h1 class="govuk-label-wrapper">
             <label class="govuk-label govuk-label--m" for="textPrompt">
               Update the prototype
@@ -379,28 +378,12 @@
 {% block bodyEnd %}
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   {{ super() }}
-  <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="{{ assetPath }}/monaco/vs/loader.js" type="text/javascript" charset="utf-8"></script>
   <script>
-  const jsonCodeInput = document.getElementById("jsonPrompt");
-    {# // Initialize the Ace editor for JSON input
-    var editor = ace.edit("editor");
-    editor.session.setMode("ace/mode/json");
-    editor.session.setUseWrapMode(true);
 
-    // Update the hidden input field with the JSON code when the editor changes
-    
-    editor.session.on('change', function(delta) {
-      // Replace escaped quotes with smart quotes and make sure backslashes are escaped
-      jsonCodeInput.value = editor.getValue().replace(/\\"/g, '“').replace(/\\/g, '\\\\');
-    });
-
-    editor.setValue(`{{ jsonText | safe }}`, -1); #}
-
-
-    require.config({ paths: { 'vs': '/assets/monaco/vs' } });
-
+    // Load the Monaco editor
     let editor;
+    require.config({ paths: { 'vs': '/assets/monaco/vs' } });
     require(['vs/editor/editor.main'], function () {
         editor = monaco.editor.create(document.getElementById('monacoEditor'), {
             value: `{{ jsonText | safe }}`,
@@ -678,6 +661,9 @@
         for (const pair of new FormData(promptForm)) {
             data.append(pair[0], pair[1]);
         }
+        if (promptTypeInput.value === 'json') {
+          data.set('prompt', editor.getValue());
+        }
         fetch(promptTypeInput.value === 'json' ? '/create' : '/update', {
           method: 'POST',
           body: data
@@ -769,7 +755,7 @@
         })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error(`${response.status} ${response.statusText}`);
           }
           // Reset the preview frame to the initial source
           previewFrame.src = initialSrc;
@@ -801,13 +787,11 @@
           promptTypeInput.value = 'json';
           textPromptInput.disabled = true; 
           textPromptInput.classList.add('display-none'); 
-          jsonCodeInput.disabled = false; 
           monacoEditor.classList.remove('display-none'); 
           editor.layout(); // Refresh the editor layout
           switchPromptTypeButton.textContent = "Switch to text";
         } else {
           promptTypeInput.value = 'text';
-          jsonCodeInput.disabled = true; 
           monacoEditor.classList.add('display-none'); 
           textPromptInput.disabled = false; 
           textPromptInput.classList.remove('display-none'); 

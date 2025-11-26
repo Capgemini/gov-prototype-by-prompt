@@ -8,15 +8,15 @@ import { setupStaticAssets } from '../static-assets';
 describe('setupStaticAssets', () => {
     const dirname = path.resolve(__dirname, '../../../');
 
-    const aceEditorPath = path.join(dirname, 'node_modules/ace-builds/src-min');
+    const monacoEditorPath = path.join(dirname, 'node_modules/monaco-editor/min');
     const govukDir = path.join(
         dirname,
         'node_modules/govuk-frontend/dist/govuk'
     );
     const hmrcDir = path.join(dirname, 'node_modules/hmrc-frontend/hmrc');
 
-    it('Ace Editor directory exists', () => {
-        expect(fs.existsSync(aceEditorPath)).toBe(true);
+    it('Monaco Editor directory exists', () => {
+        expect(fs.existsSync(monacoEditorPath)).toBe(true);
     });
 
     it('GOV.UK CSS and JS assets exist', () => {
@@ -51,7 +51,7 @@ describe('setupStaticAssets', () => {
     });
 
     it.each([
-        'ace-editor-src-min/ace.js',
+        'monaco/vs/loader.js',
         'govuk-frontend.min.css',
         'govuk-frontend.min.js',
         'manifest.json',
