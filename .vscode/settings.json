@@ -9,5 +9,12 @@
     "[markdown]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
     },
-    "git.branchProtection": ["main"]
+    "git.branchProtection": [
+        "main"
+    ],
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.indentSize": 2,
+        "editor.detectIndentation": false
+    }
 }
