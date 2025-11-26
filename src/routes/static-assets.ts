@@ -10,6 +10,12 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
         express.static(path.join(dirname, 'node_modules/ace-builds/src-min'))
     );
 
+    // Serve the Monaco code editor
+    app.use(
+        '/assets/monaco',
+        express.static(path.join(dirname, 'node_modules/monaco-editor/min'))
+    );
+
     // Serve GOV.UK CSS and JS assets
     const govukAssets = [
         'govuk-frontend.min.css',

@@ -1,4 +1,4 @@
 /* Do not use GDS Transport font in the application */
-*:not(#editor *):not(#editor) {
+*:not(#monacoEditor *):not(#monacoEditor) {
     font-family: Arial, sans-serif !important;
 }

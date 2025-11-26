@@ -47,7 +47,7 @@
               Update the prototype
             </label>
           </h1>
-          <div id="editor" style="height: 350px" class="{{"" if showJsonPrompt else "display-none"}}"></div>
+          <div id="monacoEditor" style="height: 350px" class="{{"" if showJsonPrompt else "display-none"}}"></div>
           {{ govukTextarea({
             name: "prompt",
             id: "textPrompt",
@@ -380,20 +380,37 @@
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   {{ super() }}
   <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/monaco/vs/loader.js" type="text/javascript" charset="utf-8"></script>
   <script>
-    // Initialize the Ace editor for JSON input
+  const jsonCodeInput = document.getElementById("jsonPrompt");
+    {# // Initialize the Ace editor for JSON input
     var editor = ace.edit("editor");
     editor.session.setMode("ace/mode/json");
     editor.session.setUseWrapMode(true);
 
     // Update the hidden input field with the JSON code when the editor changes
-    const jsonCodeInput = document.getElementById("jsonPrompt");
+    
     editor.session.on('change', function(delta) {
       // Replace escaped quotes with smart quotes and make sure backslashes are escaped
       jsonCodeInput.value = editor.getValue().replace(/\\"/g, '“').replace(/\\/g, '\\\\');
     });
 
-    editor.setValue(`{{ jsonText | safe }}`, -1);
+    editor.setValue(`{{ jsonText | safe }}`, -1); #}
+
+
+    require.config({ paths: { 'vs': '/assets/monaco/vs' } });
+
+    let editor;
+    require(['vs/editor/editor.main'], function () {
+        editor = monaco.editor.create(document.getElementById('monacoEditor'), {
+            value: `{{ jsonText | safe }}`,
+            language: 'json',
+            theme: 'vs-light',
+            automaticLayout: true,
+            wordWrap: 'on',
+            minimap: { enabled: false },
+        });
+    });
 
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
@@ -626,12 +643,12 @@
         if (promptTypeInput.value === 'text' && textPromptInput.value.trim() === '' && firstDesignSystem === designSystemSelect.value) {
           errorElement.style.display = '';
           textPromptInput.classList.add('govuk-textarea--error');
-          document.querySelector('.govuk-form-group:has(#editor)').classList.add('govuk-form-group--error');
+          document.querySelector('.govuk-form-group:has(#monacoEditor)').classList.add('govuk-form-group--error');
           return;
         } else {
           errorElement.style.display = 'none';
           textPromptInput.classList.remove('govuk-textarea--error');
-          document.querySelector('.govuk-form-group:has(#editor)').classList.remove('govuk-form-group--error');
+          document.querySelector('.govuk-form-group:has(#monacoEditor)').classList.remove('govuk-form-group--error');
         }
 
         // Show processing state
@@ -764,20 +781,21 @@
         // Clear any existing error messages on the text area
         errorElement.style.display = 'none';
         textPromptInput.classList.remove('govuk-textarea--error');
-        document.querySelector('.govuk-form-group:has(#editor)').classList.remove('govuk-form-group--error');
+        document.querySelector('.govuk-form-group:has(#monacoEditor)').classList.remove('govuk-form-group--error');
 
-        const jsonCodeEditor = document.getElementById('editor');
+        const monacoEditor = document.getElementById('monacoEditor');
         if (promptTypeInput.value === 'text') {
           promptTypeInput.value = 'json';
           textPromptInput.disabled = true; 
           textPromptInput.classList.add('display-none'); 
           jsonCodeInput.disabled = false; 
-          jsonCodeEditor.classList.remove('display-none'); 
+          monacoEditor.classList.remove('display-none'); 
+          editor.layout(); // Refresh the editor layout
           switchPromptTypeButton.textContent = "Switch to text";
         } else {
           promptTypeInput.value = 'text';
           jsonCodeInput.disabled = true; 
-          jsonCodeEditor.classList.add('display-none'); 
+          monacoEditor.classList.add('display-none'); 
           textPromptInput.disabled = false; 
           textPromptInput.classList.remove('display-none'); 
           switchPromptTypeButton.textContent = "Switch to JSON";
