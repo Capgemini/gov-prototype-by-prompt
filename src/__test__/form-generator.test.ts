@@ -799,6 +799,45 @@ describe('generateQuestionPage', () => {
         }
     );
 
+    // {
+    //         answer_type: 'branching_choice',
+    //         fieldName: 'govukCheckboxes',
+    //     },
+    describe('generates the correct question page for branching questions', () => {
+        it(`generates the correct question page for branching_choice (required=true)`, () => {
+            const options_branching = [
+                { text_value: 'Option 1', next_question_value: 2 },
+                { text_value: 'Option 2', next_question_value: 3 },
+                { text_value: 'Option 3', next_question_value: 4 },
+            ];
+            const data = {
+                questions: [
+                    {
+                        answer_type: 'branching_choice',
+                        options_branching,
+                        question_text: 'Q1',
+                        required: true,
+                    },
+                ],
+                title: 'Test Form',
+            } as TemplateData;
+
+            const result = generateQuestionPage(
+                data,
+                urlPrefix,
+                0,
+                designSystem,
+                showDemoWarning
+            );
+
+            expect(new RegExp('govukRadios', 'g').exec(result)?.length).toBe(2);
+            for (const option of options_branching) {
+                expect(result.split(option.text_value).length - 1).toBe(3);
+            }
+            expect(result.includes('data-required-error-text')).toBe(true);
+        });
+    });
+
     it.each([true, false])(
         `generates the correct question page for text area (required=%s)`,
         (required) => {
