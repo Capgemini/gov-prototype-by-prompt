@@ -12,6 +12,7 @@ import {
     isArray,
     isoDateFromDateInput,
 } from './filters';
+import prototypeJson from './your-prototype.json';
 
 // Create the Express application
 const app = express();
@@ -91,26 +92,91 @@ app.use(
 );
 
 /**
- * Render the prototype page for a specific prototype and page.
+ * Handle the user submitting an answer to a prototype question.
  */
-app.all(
-    '/:form/:page',
+app.post(
+    '/:form/:page/submit',
     (
         req: Request<
             { form: string; page: string },
             {},
-            { [key: string]: any }
+            Record<string, string>
         >,
         res: Response
     ) => {
-        // Handle data updates with POST requests
-        if (req.method === 'POST' && req.body) {
-            req.session.data = {
-                ...(req.session.data ?? {}),
-                ...req.body,
-            };
+        // Update the data for the form with the request body
+        req.session.data = {
+            ...req.session.data,
+            ...req.body,
+        };
+
+        const form = req.params.form;
+        const page = req.params.page;
+
+        // Validate the question page number
+        const questions = prototypeJson.questions;
+        const questionNumber = Number.parseInt(page.split('-')[1], 10);
+        if (
+            Number.isNaN(questionNumber) ||
+            questionNumber < 1 ||
+            questionNumber > questions.length
+        ) {
+            res.status(404).send('Question not found');
+            return;
         }
 
+        // Check if they came from the check answers page
+        const sendToCheckAnswers = (req.get('referrer') ?? '').includes(
+            'referrer=check-answers'
+        );
+
+        // Redirect to the next page
+        const question = questions[questionNumber - 1];
+        if (question.answer_type === 'branching_choice') {
+            // Get the user answer and the matching option, return to the current question if not found
+            const userAnswer =
+                req.session.data[`question-${String(questionNumber)}`];
+            const userAnswerOption = question.options_branching?.find(
+                (option: any) => option.text_value === userAnswer
+            );
+            if (userAnswer === undefined || userAnswerOption === undefined) {
+                res.redirect(`/${form}/question-${String(questionNumber)}`);
+                return;
+            }
+
+            // Redirect based on the next_question_value of the selected option
+            if (userAnswerOption.next_question_value === -1) {
+                res.redirect(`/${form}/check-answers`);
+            } else {
+                res.redirect(
+                    `/${form}/question-${String(
+                        userAnswerOption.next_question_value
+                    )}`
+                );
+            }
+        } else if (
+            sendToCheckAnswers ||
+            question.next_question_value === -1 ||
+            (question.next_question_value === undefined &&
+                questionNumber === questions.length)
+        ) {
+            // Send to check answers if they came from there, or if this is the last question
+            res.redirect(`/${form}/check-answers`);
+        } else {
+            // Send to the next question in sequence
+            res.redirect(
+                `/${form}/question-${String(question.next_question_value ?? questionNumber + 1)}`
+            );
+        }
+    }
+);
+
+/**
+ * Render the prototype page for a specific prototype and page.
+ */
+app.all(
+    '/:form/:page',
+    (req: Request<{ form: string; page: string }>, res: Response) => {
         // Clear the session data if at the completion page
         if (req.params.page === 'confirmation') {
             req.session.data = {};

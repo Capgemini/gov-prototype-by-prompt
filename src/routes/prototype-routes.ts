@@ -799,7 +799,7 @@ export function renderPrototypePage(
         )
     );
 }
-prototypeRouter.get(
+prototypeRouter.all(
     '/prototype/:id/:page',
     [param('*').trim().notEmpty(), verifyLivePrototype],
     renderPrototypePage
