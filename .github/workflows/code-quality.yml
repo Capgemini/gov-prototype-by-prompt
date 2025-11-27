@@ -27,7 +27,9 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Upgrade npm to v11
-        run: npm install -g npm@11
+        run: npm install -g "npm@>=11.6.1 <12"
+      - name: Log npm version
+        run: npm --version
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
@@ -49,7 +51,9 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Upgrade npm to v11
-        run: npm install -g npm@11
+        run: npm install -g "npm@>=11.6.1 <12"
+      - name: Log npm version
+        run: npm --version
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
@@ -74,7 +78,9 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Upgrade npm to v11
-        run: npm install -g npm@11
+        run: npm install -g "npm@>=11.6.1 <12"
+      - name: Log npm version
+        run: npm --version
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
@@ -99,7 +105,9 @@ jobs:
         with:
           node-version-file: .nvmrc
       - name: Upgrade npm to v11
-        run: npm install -g npm@11
+        run: npm install -g "npm@>=11.6.1 <12"
+      - name: Log npm version
+        run: npm --version
       - name: Install dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci --ignore-scripts
