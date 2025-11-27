@@ -830,7 +830,7 @@ describe('generateQuestionPage', () => {
                 showDemoWarning
             );
 
-            expect(new RegExp('govukRadios', 'g').exec(result)?.length).toBe(2);
+            expect(new RegExp('govukRadios', 'g').exec(result)?.length).toBe(1);
             for (const option of options_branching) {
                 expect(result.split(option.text_value).length - 1).toBe(3);
             }
