@@ -730,13 +730,13 @@ export function renderPrototypePage(
     ).prototypeData;
     const prototypeId = prototypeData.id;
 
-    // Validate the page number
-    const validPageNumbers = ['start', 'check-answers', 'confirmation'];
+    // Validate the page
+    const validPages = ['start', 'check-answers', 'confirmation'];
     for (let i = 0; i < prototypeData.json.questions.length; i++) {
-        validPageNumbers.push(`question-${String(i + 1)}`);
+        validPages.push(`question-${String(i + 1)}`);
     }
-    const pageNumber = req.params.page;
-    if (!validPageNumbers.includes(pageNumber)) {
+    const page = req.params.page;
+    if (!validPages.includes(page)) {
         res.status(404).render('page-not-found.njk', {
             insideIframe: req.header('sec-fetch-dest') === 'iframe',
         });
@@ -751,14 +751,14 @@ export function renderPrototypePage(
     const designSystem = prototypeData.designSystem;
     const showDemoWarning = true;
     let pageContent;
-    if (pageNumber === 'start') {
+    if (page === 'start') {
         pageContent = generateStartPage(
             prototypeData.json,
             urlPrefix,
             designSystem,
             showDemoWarning
         );
-    } else if (pageNumber === 'check-answers') {
+    } else if (page === 'check-answers') {
         pageContent = generateCheckAnswersPage(
             prototypeData.json,
             urlPrefix,
@@ -766,7 +766,7 @@ export function renderPrototypePage(
             showDemoWarning,
             seenQuestions
         );
-    } else if (pageNumber === 'confirmation') {
+    } else if (page === 'confirmation') {
         // Reset live data on confirmation
         if (req.session.liveData?.[prototypeId]) {
             req.session.liveData[prototypeId] = {};
@@ -777,7 +777,7 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else {
-        const questionIndex = Number.parseInt(pageNumber.split('-')[1], 10) - 1;
+        const questionIndex = Number.parseInt(page.split('-')[1], 10) - 1;
         pageContent = generateQuestionPage(
             prototypeData.json,
             urlPrefix,

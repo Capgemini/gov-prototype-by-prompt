@@ -95,13 +95,9 @@ app.use(
  * Handle the user submitting an answer to a prototype question.
  */
 app.post(
-    '/:form/:page/submit',
+    '/your-prototype/:page/submit',
     (
-        req: Request<
-            { form: string; page: string },
-            {},
-            Record<string, string>
-        >,
+        req: Request<{ page: string }, {}, Record<string, string>>,
         res: Response
     ) => {
         // Update the data for the form with the request body
@@ -110,10 +106,8 @@ app.post(
             ...req.body,
         };
 
-        const form = req.params.form;
-        const page = req.params.page;
-
         // Validate the question page number
+        const page = req.params.page;
         const questions = prototypeJson.questions;
         const questionNumber = Number.parseInt(page.split('-')[1], 10);
         if (
@@ -140,16 +134,18 @@ app.post(
                 (option: any) => option.text_value === userAnswer
             );
             if (userAnswer === undefined || userAnswerOption === undefined) {
-                res.redirect(`/${form}/question-${String(questionNumber)}`);
+                res.redirect(
+                    `/your-prototype/question-${String(questionNumber)}`
+                );
                 return;
             }
 
             // Redirect based on the next_question_value of the selected option
             if (userAnswerOption.next_question_value === -1) {
-                res.redirect(`/${form}/check-answers`);
+                res.redirect(`/your-prototype/check-answers`);
             } else {
                 res.redirect(
-                    `/${form}/question-${String(
+                    `/your-prototype/question-${String(
                         userAnswerOption.next_question_value
                     )}`
                 );
@@ -161,11 +157,11 @@ app.post(
                 questionNumber === questions.length)
         ) {
             // Send to check answers if they came from there, or if this is the last question
-            res.redirect(`/${form}/check-answers`);
+            res.redirect(`/your-prototype/check-answers`);
         } else {
             // Send to the next question in sequence
             res.redirect(
-                `/${form}/question-${String(question.next_question_value ?? questionNumber + 1)}`
+                `/your-prototype/question-${String(question.next_question_value ?? questionNumber + 1)}`
             );
         }
     }
@@ -175,17 +171,26 @@ app.post(
  * Render the prototype page for a specific prototype and page.
  */
 app.all(
-    '/:form/:page',
-    (req: Request<{ form: string; page: string }>, res: Response) => {
+    '/your-prototype/:page',
+    (req: Request<{ page: string }>, res: Response) => {
         // Clear the session data if at the completion page
         if (req.params.page === 'confirmation') {
             req.session.data = {};
         }
 
-        // Render the requested page
-        const form = req.params.form;
+        // Validate the page
+        const validPages = ['start', 'check-answers', 'confirmation'];
+        for (let i = 0; i < prototypeJson.questions.length; i++) {
+            validPages.push(`question-${String(i + 1)}`);
+        }
         const page = req.params.page;
-        res.render(`${form}/${page}`, {
+        if (!validPages.includes(page)) {
+            res.status(404).send('Page not found');
+            return;
+        }
+
+        // Render the requested page
+        res.render(`your-prototype/${page}`, {
             data: req.session.data,
         });
     }
