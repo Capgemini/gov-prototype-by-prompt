@@ -743,10 +743,10 @@ export function renderPrototypePage(
         return;
     }
 
-    req.session.liveData ??= {};
-    req.session.liveData[prototypeId] ??= {};
     // Generate the page content based on the page number
-    const seenQuestions = Object.keys(req.session.liveData[prototypeId]);
+    const seenQuestions = Object.keys(
+        req.session.liveData?.[prototypeId] ?? {}
+    );
     const urlPrefix = `prototype/${prototypeId}`;
     const designSystem = prototypeData.designSystem;
     const showDemoWarning = true;
