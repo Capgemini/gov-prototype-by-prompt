@@ -806,9 +806,9 @@ describe('generateQuestionPage', () => {
     describe('generates the correct question page for branching questions', () => {
         it(`generates the correct question page for branching_choice (required=true)`, () => {
             const options_branching = [
-                { text_value: 'Option 1', next_question_value: 2 },
-                { text_value: 'Option 2', next_question_value: 3 },
-                { text_value: 'Option 3', next_question_value: 4 },
+                { next_question_value: 2, text_value: 'Option 1' },
+                { next_question_value: 3, text_value: 'Option 2' },
+                { next_question_value: 4, text_value: 'Option 3' },
             ];
             const data = {
                 questions: [
