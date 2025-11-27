@@ -38,7 +38,8 @@
         "url": "git+https://github.com/Capgemini/gov-prototype-by-prompt.git"
     },
     "engines": {
-        "node": ">=20.0.0 <21.0.0"
+        "node": ">=20.0.0 <21.0.0",
+        "npm": ">=10.0.0 <11.0.0"
     },
     "scripts": {
         "start": "npx --yes tsx --require ./src/instrumentation.ts server.ts",
