@@ -9,6 +9,10 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
         '/assets/ace-editor-src-min',
         express.static(path.join(dirname, 'node_modules/ace-builds/src-min'))
     );
+    app.use(
+        '/assets/ace-linters',
+        express.static(path.join(dirname, 'node_modules/ace-linters/build'))
+    );
 
     // Serve GOV.UK CSS and JS assets
     const govukAssets = [

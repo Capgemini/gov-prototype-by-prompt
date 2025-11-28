@@ -42,7 +42,6 @@ import {
     CreateFormRequestBody,
     DefaultPrototypeDesignSystem,
     IPrototypeData,
-    JsonSchema,
     PrototypeDesignSystems,
     PrototypeDesignSystemsType,
     ResultsTemplatePayload,
@@ -67,11 +66,7 @@ const prototypeRouter = express.Router();
 
 // Expose the schema
 export function renderSchema(req: Request, res: Response) {
-    res.json(
-        getFormSchemaForJsonInputValidation(
-            structuredClone(formSchema) as unknown as JsonSchema
-        )
-    );
+    res.json(getFormSchemaForJsonInputValidation(formSchema));
 }
 prototypeRouter.get('/schema', verifyUser, renderSchema);
 
@@ -904,6 +899,7 @@ export async function renderResultsPage(
         rawData = prototypeData; // fallback if toObject() is missing
     }
     const maskedJson = { ...rawData.json };
+    delete maskedJson.changes_made;
     delete maskedJson.explanation;
     delete maskedJson.suggestions;
 
@@ -920,6 +916,9 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
+        jsonSchema: JSON.stringify(
+            getFormSchemaForJsonInputValidation(formSchema)
+        ).replace(/\\"/g, '\\\\"'),
         jsonText: JSON.stringify(maskedJson, null, 2)
             .replace(/\\"/g, '\\\\"')
             .replace(/`/g, `\\\``),
@@ -1005,9 +1004,7 @@ export async function handleUpdatePrototype(
     const templateData = validateTemplateDataText(
         responseText,
         prompt.startsWith('Update the design system to ')
-            ? getFormSchemaForJsonInputValidation(
-                  structuredClone(formSchema) as unknown as JsonSchema
-              )
+            ? getFormSchemaForJsonInputValidation(formSchema)
             : formSchema
     );
 
@@ -1109,9 +1106,7 @@ export async function handleCreatePrototype(
         const templateData = validateTemplateDataText(
             responseText,
             promptType === 'json'
-                ? getFormSchemaForJsonInputValidation(
-                      structuredClone(formSchema) as unknown as JsonSchema
-                  )
+                ? getFormSchemaForJsonInputValidation(formSchema)
                 : formSchema
         );
 

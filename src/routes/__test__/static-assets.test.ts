@@ -9,6 +9,7 @@ describe('setupStaticAssets', () => {
     const dirname = path.resolve(__dirname, '../../../');
 
     const aceEditorPath = path.join(dirname, 'node_modules/ace-builds/src-min');
+    const aceLintersPath = path.join(dirname, 'node_modules/ace-linters/build');
     const govukDir = path.join(
         dirname,
         'node_modules/govuk-frontend/dist/govuk'
@@ -17,6 +18,10 @@ describe('setupStaticAssets', () => {
 
     it('Ace Editor directory exists', () => {
         expect(fs.existsSync(aceEditorPath)).toBe(true);
+    });
+
+    it('Ace Linters directory exists', () => {
+        expect(fs.existsSync(aceLintersPath)).toBe(true);
     });
 
     it('GOV.UK CSS and JS assets exist', () => {
@@ -52,6 +57,8 @@ describe('setupStaticAssets', () => {
 
     it.each([
         'ace-editor-src-min/ace.js',
+        'ace-editor-src-min/ext-language_tools.js',
+        'ace-linters/ace-linters.js',
         'govuk-frontend.min.css',
         'govuk-frontend.min.js',
         'manifest.json',

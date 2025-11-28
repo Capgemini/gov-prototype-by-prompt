@@ -76,6 +76,21 @@ describe('getEnvironmentVariables', () => {
 });
 
 describe('getFormSchemaForJsonInputValidation', () => {
+    it('clones the schema to avoid modifying the original', () => {
+        const schema = {
+            properties: {
+                age: { type: 'number' },
+                name: { type: ['string', 'null'] },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(result).not.toBe(schema);
+        expect(schema.required).toContain('name');
+        expect(result.required).not.toContain('name');
+    });
+
     it('removes null from property types and updates required array', () => {
         const schema = {
             properties: {
@@ -135,6 +150,37 @@ describe('getFormSchemaForJsonInputValidation', () => {
             (result.properties as { name: { type: string } }).name.type
         ).toBe('string');
         expect(result.required).toEqual(['name', 'age']);
+    });
+
+    it('removes AI-generated properties', () => {
+        const schema = {
+            properties: {
+                age: { type: 'number' },
+                changes_made: { type: 'string' },
+                explanation: { type: 'string' },
+                name: { type: 'string' },
+                suggestions: {
+                    items: { type: 'string' },
+                    type: 'array',
+                },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(
+            (result.properties as { name: { type: string } }).name.type
+        ).toBe('string');
+        expect(result.required).toEqual(['name', 'age']);
+        expect(
+            (result.properties as { changes_made?: unknown }).changes_made
+        ).toBeUndefined();
+        expect(
+            (result.properties as { explanation?: unknown }).explanation
+        ).toBeUndefined();
+        expect(
+            (result.properties as { suggestions?: unknown }).suggestions
+        ).toBeUndefined();
     });
 });
 
@@ -553,6 +599,33 @@ describe('prepareJsonValidationErrorMessage', () => {
         );
         expect(result).toContain('<strong>name</strong>: is required');
         expect(result).toContain('<strong>age</strong>: must be a number');
+    });
+
+    it('transforms ValidatorResultError property correctly', () => {
+        const validationErrors = [
+            Object.assign(new ValidationError('', ''), {
+                message: 'is required',
+                property: 'instance.questions[0]',
+            }),
+            Object.assign(new ValidationError('', ''), {
+                message: 'must be a number',
+                property: 'instance.questions[99].options[6]',
+            }),
+            Object.assign(new ValidationError('', ''), {
+                message: 'must be valid',
+                property: 'questions[45]',
+            }),
+        ];
+        const error = new ValidatorResultError('Validation failed');
+        error.errors = validationErrors as unknown as ValidationError;
+        const result = prepareJsonValidationErrorMessage(error);
+        expect(result).toContain('<strong>questions[1]</strong>: is required');
+        expect(result).toContain(
+            '<strong>questions[100].options[7]</strong>: must be a number'
+        );
+        expect(result).toContain(
+            '<strong>questions[46]</strong>: must be valid'
+        );
     });
 
     it('returns unexpected error message for generic Error', () => {
