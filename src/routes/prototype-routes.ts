@@ -813,6 +813,7 @@ export async function renderResultsPage(
         rawData = prototypeData; // fallback if toObject() is missing
     }
     const maskedJson = { ...rawData.json };
+    delete maskedJson.changes_made;
     delete maskedJson.explanation;
     delete maskedJson.suggestions;
 

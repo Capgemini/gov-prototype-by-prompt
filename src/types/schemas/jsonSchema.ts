@@ -4,6 +4,6 @@ export interface JsonSchema {
         string,
         { items?: JsonSchema; type: string | string[] }
     >;
-    required: string[];
+    required?: string[];
     type: string | string[];
 }

@@ -135,6 +135,37 @@ describe('getFormSchemaForJsonInputValidation', () => {
         ).toBe('string');
         expect(result.required).toEqual(['name', 'age']);
     });
+
+    it('removes AI-generated properties', () => {
+        const schema = {
+            properties: {
+                age: { type: 'number' },
+                changes_made: { type: 'string' },
+                explanation: { type: 'string' },
+                name: { type: 'string' },
+                suggestions: {
+                    items: { type: 'string' },
+                    type: 'array',
+                },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(
+            (result.properties as { name: { type: string } }).name.type
+        ).toBe('string');
+        expect(result.required).toEqual(['name', 'age']);
+        expect(
+            (result.properties as { changes_made?: unknown }).changes_made
+        ).toBeUndefined();
+        expect(
+            (result.properties as { explanation?: unknown }).explanation
+        ).toBeUndefined();
+        expect(
+            (result.properties as { suggestions?: unknown }).suggestions
+        ).toBeUndefined();
+    });
 });
 
 describe('validateTemplateDataText', () => {

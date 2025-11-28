@@ -145,7 +145,8 @@ export function getEnvironmentVariables(): EnvironmentVariables {
 
 /**
  * Prepare the JSON schema for validation by removing 'null' types
- * and updating the required fields accordingly.
+ * and updating the required fields recursively.
+ * Also remove properties that the AI uses but the user does not input.
  * This is only used to validate the JSON input from the user, not from the LLM.
  * @param {JsonSchema} formSchema The JSON schema to prepare for validation.
  * @returns {JsonSchema} The modified JSON schema with 'null' types removed and required fields updated.
@@ -153,27 +154,13 @@ export function getEnvironmentVariables(): EnvironmentVariables {
 export function getFormSchemaForJsonInputValidation(
     formSchema: JsonSchema
 ): JsonSchema {
-    for (const key in formSchema.properties) {
-        // If the property type is an array and includes 'null',
-        // remove 'null' from the type array and update the required fields.
-        const property = formSchema.properties[key];
-        if (Array.isArray(property.type) && property.type.includes('null')) {
-            property.type = property.type.filter(
-                (type: string) => type !== 'null'
-            );
-            formSchema.required = formSchema.required.filter(
-                (requiredField: string) => requiredField !== key
-            );
-        }
+    // Recursively update the schema to remove 'null' types and update required fields
+    formSchema = updateOptionalJsonSchemaFields(formSchema);
 
-        // If the property has a type of 'object',
-        // recursively call this function to prepare nested schemas.
-        if (property.items?.type === 'object') {
-            property.items = getFormSchemaForJsonInputValidation(
-                property.items
-            );
-        }
-    }
+    // Remove AI-specific properties that are not part of user input
+    delete formSchema.properties?.changes_made;
+    delete formSchema.properties?.explanation;
+    delete formSchema.properties?.suggestions;
 
     return formSchema;
 }
@@ -241,6 +228,39 @@ export function prepareJsonValidationErrorMessage(error: Error): string {
         errorMessage = `The JSON did not validate against the schema.<br><ul><li>${validationMessages}</li></ul>`;
     }
     return errorMessage;
+}
+
+/**
+ * Prepare the JSON schema for validation by removing 'null' types
+ * and updating the required fields recursively.
+ * @param {JsonSchema} formSchema The JSON schema to prepare for validation.
+ * @returns {JsonSchema} The modified JSON schema with 'null' types removed and required fields updated.
+ */
+export function updateOptionalJsonSchemaFields(
+    formSchema: JsonSchema
+): JsonSchema {
+    for (const key in formSchema.properties) {
+        // If the property type is an array and includes 'null',
+        // remove 'null' from the type array and update the required fields.
+        const property = formSchema.properties[key];
+        if (Array.isArray(property.type) && property.type.includes('null')) {
+            property.type = property.type.filter(
+                (type: string) => type !== 'null'
+            );
+            if (Array.isArray(formSchema.required)) {
+                formSchema.required = formSchema.required.filter(
+                    (requiredField: string) => requiredField !== key
+                );
+            }
+        }
+
+        // If the property has a type of 'object',
+        // recursively call this function to prepare nested schemas.
+        if (property.items?.type === 'object') {
+            property.items = updateOptionalJsonSchemaFields(property.items);
+        }
+    }
+    return formSchema;
 }
 
 /**
