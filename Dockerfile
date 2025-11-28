@@ -7,18 +7,21 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --ignore-scripts --omit=dev
+# Update npm to the latest version and install dependencies
+RUN npm install -g "npm@>=11.6.1 <12" \
+    && npm --version \
+    && npm ci --ignore-scripts --omit=dev
 
 # Copy source code
 COPY . .
 
 # Create non-root user for security
-RUN addgroup -g 1001 -S nodejs \
-    && adduser -D -G nodejs -u 1001 nodejs
-
 # Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -D -G nodejs -u 1001 nodejs \
+    && chown -R nodejs:nodejs /app
+
+# Use this new user
 USER nodejs
 
 # Expose port
