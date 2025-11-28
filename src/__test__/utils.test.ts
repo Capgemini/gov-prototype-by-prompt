@@ -76,6 +76,21 @@ describe('getEnvironmentVariables', () => {
 });
 
 describe('getFormSchemaForJsonInputValidation', () => {
+    it('clones the schema to avoid modifying the original', () => {
+        const schema = {
+            properties: {
+                age: { type: 'number' },
+                name: { type: ['string', 'null'] },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(result).not.toBe(schema);
+        expect(schema.required).toContain('name');
+        expect(result.required).not.toContain('name');
+    });
+
     it('removes null from property types and updates required array', () => {
         const schema = {
             properties: {

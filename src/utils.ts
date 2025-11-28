@@ -148,12 +148,16 @@ export function getEnvironmentVariables(): EnvironmentVariables {
  * and updating the required fields recursively.
  * Also remove properties that the AI uses but the user does not input.
  * This is only used to validate the JSON input from the user, not from the LLM.
+ * The schema is cloned to avoid modifying the original.
  * @param {JsonSchema} formSchema The JSON schema to prepare for validation.
  * @returns {JsonSchema} The modified JSON schema with 'null' types removed and required fields updated.
  */
 export function getFormSchemaForJsonInputValidation(
     formSchema: JsonSchema
 ): JsonSchema {
+    // Create a clone of the schema to avoid modifying the original
+    formSchema = structuredClone(formSchema);
+
     // Recursively update the schema to remove 'null' types and update required fields
     formSchema = updateOptionalJsonSchemaFields(formSchema);
 
