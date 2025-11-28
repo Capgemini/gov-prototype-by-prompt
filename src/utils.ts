@@ -223,7 +223,17 @@ export function prepareJsonValidationErrorMessage(error: Error): string {
     } else if (error instanceof ValidatorResultError) {
         const validationErrors = error.errors as unknown as ValidationError[];
         const validationMessages = validationErrors
-            .map((e) => `<strong>${e.property}</strong>: ${e.message}`)
+            .map((e) => {
+                // Increment all numbers in square brackets by 1
+                let property = e.property.startsWith('instance.')
+                    ? e.property.slice('instance.'.length)
+                    : e.property;
+                property = property.replace(
+                    /\[(\d+)\]/g,
+                    (_, n) => `[${Number(n) + 1}]`
+                );
+                return `<strong>${property}</strong>: ${e.message}`;
+            })
             .join('</li><li>');
         errorMessage = `The JSON did not validate against the schema.<br><ul><li>${validationMessages}</li></ul>`;
     }
