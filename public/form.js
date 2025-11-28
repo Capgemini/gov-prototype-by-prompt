@@ -554,18 +554,4 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         }
     });
-
-    // Change the submit URL if the referrer is from check-answers
-    const referrer = new URLSearchParams(window.location.search).get(
-        'referrer'
-    );
-    if (referrer === 'check-answers') {
-        const form = document.querySelector('form');
-        if (form) {
-            form.action = form.action.replace(
-                /\/question-\d+/,
-                '/check-answers'
-            );
-        }
-    }
 });

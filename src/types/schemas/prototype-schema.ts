@@ -1,5 +1,10 @@
 import { model, ObjectId, Schema } from 'mongoose';
 
+export interface IBranchingOptions {
+    next_question_value: number;
+    text_value: string;
+}
+
 export interface IChatMessage {
     assistantMessage: string;
     timestamp: string;
@@ -24,7 +29,9 @@ export interface ITemplateField {
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     hint_text?: string;
+    next_question_value?: number;
     options?: string[];
+    options_branching?: IBranchingOptions[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
@@ -82,6 +89,16 @@ const chatMessageSchema = new Schema<IChatMessage>(
     }
 );
 
+const branchingOptionsSchema = new Schema<IBranchingOptions>(
+    {
+        next_question_value: Number,
+        text_value: String,
+    },
+    {
+        _id: false,
+    }
+);
+
 const templateFieldSchema = new Schema<ITemplateField>(
     {
         answer_type: {
@@ -91,10 +108,16 @@ const templateFieldSchema = new Schema<ITemplateField>(
         date_of_birth_maximum_age: Number,
         date_of_birth_minimum_age: Number,
         hint_text: String,
+        next_question_value: Number,
         options: {
             default: undefined,
             required: false,
             type: [String],
+        },
+        options_branching: {
+            default: undefined,
+            required: false,
+            type: [branchingOptionsSchema],
         },
         question_text: {
             required: true,
