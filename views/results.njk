@@ -124,7 +124,7 @@
               <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }} 
               
               {% if question.answer_type == 'branching_choice' and question.options_branching %}
-                <ul class="govuk-list govuk-list--bullet">
+                <ul>
                   {% for option in question.options_branching %}
                     <li>
                       {{ option.text_value }}
