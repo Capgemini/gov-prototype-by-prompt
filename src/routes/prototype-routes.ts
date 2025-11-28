@@ -67,7 +67,11 @@ const prototypeRouter = express.Router();
 
 // Expose the schema
 export function renderSchema(req: Request, res: Response) {
-    res.json(formSchema);
+    res.json(
+        getFormSchemaForJsonInputValidation(
+            structuredClone(formSchema) as unknown as JsonSchema
+        )
+    );
 }
 prototypeRouter.get('/schema', verifyUser, renderSchema);
 
