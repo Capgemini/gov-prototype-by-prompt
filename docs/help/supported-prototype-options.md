@@ -40,11 +40,16 @@ Each question contains the following fields:
 - **question_text**: The question text
 - **hint_text**: Hint text to help the user answer the question (optional)
 - **required**: Whether or not it is required, and if so, the error message that is shown if the user does not provide an answer
+- **required_error_text**: The error message that is shown if the user does not provide an answer to a required question
 - **detailed_explanation**: A detailed explanation if the question needs more context or instructions (optional). This consists of:
   - **question_title**: A question title
   - **explanation_text**: A detailed explanation text that is shown above the question, which can contain Markdown formatting as described above.
+- **next_question_value**: The number of the next question to jump to (starting from 1), or -1 to end the form
 - **answer_type**: The type of answer the user can provide (see below)
 - **options**: For a single-choice or multiple-choice question, a list of options
+- **options_branching**: For a branching choice question, a list of options with branching information. Each option contains:
+  - **text_value**: The option text
+  - **next_question_value**: The number of the next question to jump to (starting from 1), or -1 to end the form
 - **date_of_birth_minimum_age**: For a date of birth question, minimum age in years (optional)
 - **date_of_birth_maximum_age**: For a date of birth question, maximum age in years (optional)
 
@@ -54,6 +59,7 @@ The form can contain the following answer types:
 
 - **address**: A postal address
 - **bank_details**: A person's bank details
+- **branching_choice**: A single choice from a list of options that branches to different questions based on the selected option
 - **country**: A country
 - **date**: A calendar date, entered as a day, month, and year
 - **date_of_birth**: A person's date of birth, entered as a day, month, and year
