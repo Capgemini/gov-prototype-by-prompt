@@ -829,6 +829,11 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
+        jsonSchema: JSON.stringify(
+            getFormSchemaForJsonInputValidation(
+                structuredClone(formSchema) as unknown as JsonSchema
+            )
+        ).replace(/\\"/g, '\\\\"'),
         jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
         livePrototypeUrl: `/prototype/${prototypeData.id}/start`,

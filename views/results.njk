@@ -380,11 +380,37 @@
   {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
   {{ super() }}
   <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/ace-editor-src-min/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/ace-linters/ace-linters.js" type="text/javascript" charset="utf-8"></script>
   <script>
+    // Enable autocompletion
+    ace.require("ace/ext/language_tools");
+
     // Initialize the Ace editor for JSON input
-    var editor = ace.edit("editor");
-    editor.session.setMode("ace/mode/json");
-    editor.session.setUseWrapMode(true);
+    ace.config.set("basePath", "{{ assetPath }}/ace-editor-src-min");
+    var editor = ace.edit("editor", {
+        mode: "ace/mode/json",
+        wrap: true,
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true
+    });
+
+    // Create a language provider
+    var provider = LanguageProvider.fromCdn(window.location.origin + "{{ assetPath }}/ace-linters/");
+
+    // Register the editor with the language provider and set the schema
+    provider.registerEditor(editor);
+    provider.setGlobalOptions("json", {
+    schemas: [
+        {
+            uri: "schema.json",
+            schema: `{{ jsonSchema | safe }}`,
+        }
+      ]
+    });
+    provider.setSessionOptions(editor.session, {
+        schemaUri: "schema.json"
+    });
 
     // Update the hidden input field with the JSON code when the editor changes
     const jsonCodeInput = document.getElementById("jsonPrompt");

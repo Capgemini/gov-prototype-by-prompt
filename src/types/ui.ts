@@ -17,6 +17,7 @@ export interface ResultsTemplatePayload {
     isLivePrototypePublic: boolean;
     isOwner: boolean;
     json: ITemplateData;
+    jsonSchema: string;
     jsonText: string;
     livePrototypePublicPassword: string;
     livePrototypeUrl: string;
