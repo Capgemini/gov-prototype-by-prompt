@@ -58,8 +58,7 @@
         },
         "show_progress_indicators": {
             "type": "boolean",
-            "description": "Whether to show progress indicators to the user as they complete the form, for example 'Question 1 of 3'. They may also be known as the question numbers. This should default to true unless the user specifically requests not to show progress indicators.",
-            "default": true
+            "description": "Whether to show progress indicators to the user as they complete the form, for example 'Question 1 of 3'. They may also be known as the question numbers. This should default to true unless the form contains a branching_choice question, or the user specifically requests not to show progress indicators."
         },
         "questions": {
             "type": "array",
