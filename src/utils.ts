@@ -234,7 +234,7 @@ export function prepareJsonValidationErrorMessage(error: Error): string {
                     : e.property;
                 property = property.replace(
                     /\[(\d+)\]/g,
-                    (_, n) => `[${Number(n) + 1}]`
+                    (_, n) => `[${String(Number(n) + 1)}]`
                 );
                 return `<strong>${property}</strong>: ${e.message}`;
             })
