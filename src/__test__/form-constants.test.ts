@@ -137,34 +137,40 @@ describe('getQuestionFooter', () => {
 });
 
 describe('getQuestionHeader', () => {
-    const baseOptions = {
+    const baseOptions: QuestionHeaderOptions = {
+        designSystem: 'GOV.UK' as PrototypeDesignSystemsType,
+        detailedExplanation: undefined,
         formAction: '/submit',
+        questionNumber: 1,
         questionTitle: 'What is your name?',
+        showDemoWarning: false,
+        showProgressIndicators: false,
         title: 'Test Form',
+        totalQuestions: 5,
     };
-    it.each([
-        [true, 'GOV.UK'],
-        [false, 'GOV.UK'],
-        [true, 'HMRC'],
-        [false, 'HMRC'],
-    ] as [boolean, PrototypeDesignSystemsType][])(
-        'returns correct header for showDemoWarning=%s and designSystem=%s',
-        (showDemoWarning, designSystem) => {
+    it.each([true, false])(
+        'returns correct header for showDemoWarning=%s',
+        (showDemoWarning) => {
             const result = getQuestionHeader({
                 ...baseOptions,
-                designSystem,
                 showDemoWarning,
-            } as QuestionHeaderOptions);
+            });
             expect(result).toContain(
                 `pageTitle = "${baseOptions.questionTitle} – ${baseOptions.title}"`
             );
             expect(result).toContain(`serviceTitle = "${baseOptions.title}"`);
             expect(result).toContain(`form action="${baseOptions.formAction}"`);
-            if (showDemoWarning) {
-                expect(result).toContain('Demo warning');
-            } else {
-                expect(result).not.toContain('Demo warning');
-            }
+            expect(result.includes('Demo warning')).toBe(showDemoWarning);
+        }
+    );
+
+    it.each(['GOV.UK', 'HMRC'] as PrototypeDesignSystemsType[])(
+        'returns correct header for designSystem=%s',
+        (designSystem) => {
+            const result = getQuestionHeader({
+                ...baseOptions,
+                designSystem,
+            });
             if (designSystem === 'HMRC') {
                 expect(result).toContain('hmrcBanner');
             } else {
@@ -172,6 +178,32 @@ describe('getQuestionHeader', () => {
             }
         }
     );
+
+    it.each([true, false])(
+        'returns correct header for showProgressIndicators=%s',
+        (showProgressIndicators) => {
+            const result = getQuestionHeader({
+                ...baseOptions,
+                showProgressIndicators,
+            });
+            expect(
+                result.includes('<span class="govuk-caption-l">Question')
+            ).toBe(showProgressIndicators);
+        }
+    );
+
+    it('returns correct header when detailedExplanation is provided', () => {
+        const detailedExplanation = {
+            explanation_text: 'This is a detailed explanation.',
+            question_title: 'Your name',
+        };
+        const result = getQuestionHeader({
+            ...baseOptions,
+            detailedExplanation,
+        });
+        expect(result).toContain(detailedExplanation.question_title);
+        expect(result).toContain(detailedExplanation.explanation_text);
+    });
 });
 
 describe('getStartPage', () => {

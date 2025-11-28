@@ -13,15 +13,22 @@ export interface ITemplateData {
     explanation?: string;
     form_type: string;
     questions: ITemplateField[];
+    show_progress_indicators?: boolean;
     suggestions?: string[];
     title: string;
     what_happens_next: string;
+}
+
+export interface ITemplateDetailedExplanation {
+    explanation_text: string;
+    question_title: string;
 }
 
 export interface ITemplateField {
     answer_type: string;
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
+    detailed_explanation?: ITemplateDetailedExplanation;
     hint_text?: string;
     next_question_value?: number;
     options?: string[];
@@ -73,6 +80,23 @@ const branchingOptionsSchema = new Schema<IBranchingOptions>(
     }
 );
 
+const templateDetailedExplanationSchema =
+    new Schema<ITemplateDetailedExplanation>(
+        {
+            explanation_text: {
+                required: true,
+                type: String,
+            },
+            question_title: {
+                required: true,
+                type: String,
+            },
+        },
+        {
+            _id: false,
+        }
+    );
+
 const templateFieldSchema = new Schema<ITemplateField>(
     {
         answer_type: {
@@ -81,6 +105,11 @@ const templateFieldSchema = new Schema<ITemplateField>(
         },
         date_of_birth_maximum_age: Number,
         date_of_birth_minimum_age: Number,
+        detailed_explanation: {
+            default: undefined,
+            required: false,
+            type: templateDetailedExplanationSchema,
+        },
         hint_text: String,
         next_question_value: Number,
         options: {
@@ -132,6 +161,10 @@ const templateDataSchema = new Schema<ITemplateData>(
             type: String,
         },
         questions: [templateFieldSchema],
+        show_progress_indicators: {
+            default: true,
+            type: Boolean,
+        },
         suggestions: {
             default: undefined,
             required: false,

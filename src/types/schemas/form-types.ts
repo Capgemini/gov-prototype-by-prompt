@@ -1,6 +1,7 @@
 // Types for form generation and processing
 import {
     ITemplateData,
+    ITemplateDetailedExplanation,
     ITemplateField,
     PrototypeDesignSystemsType,
 } from './prototype-schema';
@@ -9,15 +10,18 @@ export interface FieldGeneratorOptions {
     fieldItem: ITemplateField;
     questionNumber: number;
     questionsAsHeadings: boolean;
-    totalQuestions?: number;
 }
 
 export interface QuestionHeaderOptions {
     designSystem: PrototypeDesignSystemsType;
+    detailedExplanation?: ITemplateDetailedExplanation;
     formAction: string;
+    questionNumber: number;
     questionTitle: string;
-    showDemoWarning?: boolean;
+    showDemoWarning: boolean;
+    showProgressIndicators: boolean;
     title: string;
+    totalQuestions: number;
 }
 
 export type TemplateData = ITemplateData;

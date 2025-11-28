@@ -170,16 +170,20 @@ export function generateQuestionPage(
 
     const questionHeaderOptions: QuestionHeaderOptions = {
         designSystem: designSystem,
+        detailedExplanation: data.questions[questionIndex].detailed_explanation,
         formAction: formAction,
+        questionNumber: questionIndex + 1,
         questionTitle: data.questions[questionIndex].question_text,
         showDemoWarning: showDemoWarning,
+        showProgressIndicators: data.show_progress_indicators ?? true,
         title: data.title,
+        totalQuestions: data.questions.length,
     };
     const fieldGeneratorOptions: FieldGeneratorOptions = {
         fieldItem: data.questions[questionIndex],
         questionNumber: questionIndex + 1,
-        questionsAsHeadings: true,
-        totalQuestions: data.questions.length,
+        questionsAsHeadings:
+            !data.questions[questionIndex].detailed_explanation,
     };
 
     return formatHtml(
@@ -232,15 +236,13 @@ function formatValue(value: unknown): string {
  * @param {FieldGeneratorOptions} opts Options for generating the field
  * @param {TemplateField} opts.fieldItem The field item from the JSON template
  * @param {number} opts.questionNumber The question number in the form
- * @param {boolean} opts.questionsAsHeadings Whether to treat question titles as headings
- * @param {number} [opts.totalQuestions] The total number of questions in the form (optional)
+ * @param {boolean} opts.questionsAsHeadings Whether to treat question titles as headings (size l) or labels (size m)
  * @returns {string} The Nunjucks macro string for the field
  */
 function generateField({
     fieldItem,
     questionNumber,
     questionsAsHeadings,
-    totalQuestions,
 }: FieldGeneratorOptions): string {
     const questionTextSize = questionsAsHeadings ? 'l' : 'm';
     const questionNumberString = String(questionNumber);
@@ -468,9 +470,11 @@ function generateField({
         case 'nationality':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items:
                     fieldItem.answer_type === 'country'
                         ? getItems(countryData.countries, 'Choose country')
@@ -586,9 +590,11 @@ function generateField({
                         ? fieldItem.answer_type
                         : undefined,
                 classes: '',
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
                     isPageHeading: questionsAsHeadings,
@@ -720,9 +726,11 @@ function generateField({
         case 'file_upload':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 javascript: true,
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
@@ -755,9 +763,11 @@ function generateField({
                         text: fieldItem.question_text,
                     },
                 },
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items: items,
                 name: `question-${questionNumberString}`,
             };
@@ -927,9 +937,11 @@ function generateField({
                         text: fieldItem.question_text,
                     },
                 },
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 items: items,
                 name: `question-${questionNumberString}`,
             };
@@ -943,9 +955,11 @@ function generateField({
         case 'text_area':
             macroOptions = {
                 attributes: {},
-                hint: {
-                    text: fieldItem.hint_text,
-                },
+                ...(!!fieldItem.hint_text && {
+                    hint: {
+                        text: fieldItem.hint_text,
+                    },
+                }),
                 label: {
                     classes: `govuk-label--${questionTextSize}`,
                     isPageHeading: questionsAsHeadings,
@@ -965,9 +979,7 @@ function generateField({
             return ``;
     }
 
-    return totalQuestions
-        ? `<span class="govuk-caption-l">Question ${questionNumberString} of ${String(totalQuestions)}</span>\n${result}`
-        : result;
+    return result;
 }
 
 /**

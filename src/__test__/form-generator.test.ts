@@ -365,7 +365,13 @@ describe('generateQuestionPage', () => {
         const data = {
             questions: [
                 { question_text: 'Q1' },
-                { question_text: 'Q2' },
+                {
+                    detailed_explanation: {
+                        explanation_text: 'Q2 Explanation',
+                        question_title: 'Q2 Title',
+                    },
+                    question_text: 'Q2',
+                },
                 { question_text: 'Q3' },
             ],
             title: 'Test Form',
@@ -385,24 +391,39 @@ describe('generateQuestionPage', () => {
         // Assert
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
+            detailedExplanation: undefined,
             formAction: `/${urlPrefix}/question-1/submit`,
+            questionNumber: 1,
             questionTitle: 'Q1',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
+            detailedExplanation: {
+                explanation_text: 'Q2 Explanation',
+                question_title: 'Q2 Title',
+            },
             formAction: `/${urlPrefix}/question-2/submit`,
+            questionNumber: 2,
             questionTitle: 'Q2',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
             designSystem,
+            detailedExplanation: undefined,
             formAction: `/${urlPrefix}/question-3/submit`,
+            questionNumber: 3,
             questionTitle: 'Q3',
             showDemoWarning,
+            showProgressIndicators: true,
             title: data.title,
+            totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledTimes(3);
     });
@@ -435,7 +456,7 @@ describe('generateQuestionPage', () => {
         if (inputHint) {
             expect(result).toContain(`text: '${outputHint}'`);
         } else {
-            expect(result).toContain('hint: {\n\n},');
+            expect(result).not.toContain('hint');
         }
     });
 

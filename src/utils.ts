@@ -359,6 +359,19 @@ export function validateTemplateDataText(
         ) {
             delete question.options;
         }
+        if (
+            question.detailed_explanation ||
+            [
+                'address',
+                'bank_details',
+                'date',
+                'date_of_birth',
+                'emergency_contact_details',
+                'passport_information',
+            ].includes(question.answer_type)
+        ) {
+            delete question.hint_text;
+        }
         if (question.answer_type !== 'branching_choice') {
             delete question.options_branching;
         }

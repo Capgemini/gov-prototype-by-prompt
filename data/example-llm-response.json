@@ -1,60 +1,58 @@
 {
-    "title": "Apply for a driving licence",
-    "description": "Use this form to apply for a driving licence in the UK. Fill in all required fields and provide accurate information. You must be a UK resident and over 17 years old.",
-    "duration": 10,
-    "explanation": "I assumed that the user requires a driving licence application form for UK residents. I included fields for name, email, date of birth with a minimum age restriction of 17 years, preferred contact methods, and options for vehicle type (automatic or manual). I also added a text area for health problems to be explained. The form includes clear requirements for residency and age.",
-    "before_you_start": "You must be a UK resident and over 17 years old to apply for a driving licence.",
-    "what_happens_next": "We will review your application and contact you if we need more information.",
+    "before_you_start": "You must be a UK resident and at least 17 years old to apply for a driving licence.",
+    "changes_made": "Made the contact methods question mandatory",
+    "description": "Fill out this form to apply for a driving licence in the UK. Ensure you provide accurate information.",
+    "duration": 8,
     "form_type": "application",
-    "suggestions": [],
     "questions": [
         {
-            "question_text": "What is your name?",
-            "hint_text": "Enter your full name as it appears on official documents",
             "answer_type": "name",
+            "hint_text": "Enter your full name as it appears on official documents",
+            "question_text": "What is your name?",
             "required": true,
-            "required_error_text": "Enter your name",
-            "options": []
+            "required_error_text": "Enter your name"
         },
         {
-            "question_text": "What is your email address?",
-            "hint_text": "We will use this email to contact you",
             "answer_type": "email",
+            "hint_text": "We will use this to contact you regarding your application",
+            "question_text": "What is your email address?",
             "required": true,
-            "required_error_text": "Enter your email address",
-            "options": []
+            "required_error_text": "Enter your email address"
         },
         {
-            "question_text": "What is your date of birth?",
-            "hint_text": "You must be over 17 years old",
             "answer_type": "date_of_birth",
+            "date_of_birth_minimum_age": 17,
+            "question_text": "What is your date of birth?",
             "required": true,
-            "required_error_text": "Enter your date of birth",
-            "options": [],
-            "date_of_birth_minimum_age": 17
+            "required_error_text": "Enter your date of birth"
         },
         {
-            "question_text": "What are your preferred contact methods? (multiple choice)",
-            "hint_text": "Select one or more methods you prefer for us to contact you",
             "answer_type": "multiple_choice",
+            "hint_text": "Select your preferred method of contact",
+            "options": ["Email", "Phone", "Post"],
+            "question_text": "How would you like to be contacted?",
             "required": true,
-            "required_error_text": "Select at least one contact method",
-            "options": ["Email", "Phone"]
+            "required_error_text": "Select your preferred method of contact"
         },
         {
-            "question_text": "Do you prefer automatic or manual transmission?",
-            "hint_text": "Select your preference for driving",
             "answer_type": "single_choice",
+            "detailed_explanation": {
+                "explanation_text": "Choosing 'Automatic' means you can drive vehicles that require automatic transmission. Choosing 'Manual' means you can drive vehicles that require manual transmission. You can [upgrade your licence from automatic to manual](https://www.gov.uk/automatic-driving-licence-to-manual) later.",
+                "question_title": "Vehicle transmission type"
+            },
+            "options": ["Automatic", "Manual"],
+            "question_text": "Do you prefer driving an automatic or manual vehicle?",
             "required": true,
-            "required_error_text": "Select either automatic or manual",
-            "options": ["Automatic", "Manual"]
+            "required_error_text": "Select your driving preference"
         },
         {
-            "question_text": "Do you have any health problems? (optional)",
-            "hint_text": "Explain any health conditions that might affect your driving",
             "answer_type": "text_area",
-            "required": false,
-            "options": []
+            "hint_text": "Describe any relevant health issues in brief",
+            "question_text": "Do you have any health problems that may affect your driving? (optional)",
+            "required": false
         }
-    ]
+    ],
+    "show_progress_indicators": true,
+    "title": "Apply for a driving licence",
+    "what_happens_next": "Your application will be reviewed, and you will be contacted via your preferred contact method with further information."
 }
