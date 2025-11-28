@@ -601,6 +601,33 @@ describe('prepareJsonValidationErrorMessage', () => {
         expect(result).toContain('<strong>age</strong>: must be a number');
     });
 
+    it('transforms ValidatorResultError property correctly', () => {
+        const validationErrors = [
+            Object.assign(new ValidationError('', ''), {
+                message: 'is required',
+                property: 'instance.questions[0]',
+            }),
+            Object.assign(new ValidationError('', ''), {
+                message: 'must be a number',
+                property: 'instance.questions[99].options[6]',
+            }),
+            Object.assign(new ValidationError('', ''), {
+                message: 'must be valid',
+                property: 'questions[45]',
+            }),
+        ];
+        const error = new ValidatorResultError('Validation failed');
+        error.errors = validationErrors as unknown as ValidationError;
+        const result = prepareJsonValidationErrorMessage(error);
+        expect(result).toContain('<strong>questions[1]</strong>: is required');
+        expect(result).toContain(
+            '<strong>questions[100].options[7]</strong>: must be a number'
+        );
+        expect(result).toContain(
+            '<strong>questions[46]</strong>: must be valid'
+        );
+    });
+
     it('returns unexpected error message for generic Error', () => {
         const error = new Error('Something went wrong');
         const result = prepareJsonValidationErrorMessage(error);
