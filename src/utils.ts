@@ -344,8 +344,11 @@ export function validateTemplateDataText(
         if (value !== null) return value;
     }) as TemplateData;
 
-    // Remove extra properties if not applicable
-    for (const question of templateData.questions) {
+    // Collate further validation errors
+    const validationErrors: ValidationError[] = [];
+
+    for (const [index, question] of templateData.questions.entries()) {
+        // Remove extra properties if not applicable
         if (question.answer_type !== 'date_of_birth') {
             delete question.date_of_birth_minimum_age;
             delete question.date_of_birth_maximum_age;
@@ -356,6 +359,74 @@ export function validateTemplateDataText(
         ) {
             delete question.options;
         }
+        if (question.answer_type !== 'branching_choice') {
+            delete question.options_branching;
+        }
+
+        // Make sure questions with options have at least one option
+        if (
+            ((question.answer_type === 'multiple_choice' ||
+                question.answer_type === 'single_choice') &&
+                (!question.options || question.options.length === 0)) ||
+            (question.answer_type === 'branching_choice' &&
+                (!question.options_branching ||
+                    question.options_branching.length === 0))
+        ) {
+            validationErrors.push({
+                argument: undefined,
+                instance: question,
+                message: `must have at least one option`,
+                name: 'required',
+                path: ['questions', index],
+                property: `instance.questions[${String(index)}]`,
+                schema: {},
+                stack: `instance.questions[${String(index)}] must have at least one option`,
+            });
+        }
+
+        // Get the valid values for next_question_value
+        const validNextQuestionValues = new Set<number>([
+            -1,
+            ...Array.from(
+                { length: templateData.questions.length - index - 1 },
+                (_, i) => index + 2 + i
+            ),
+        ]);
+
+        // Throw an error if the next_question_value is invalid
+        if (
+            (question.next_question_value !== undefined &&
+                !validNextQuestionValues.has(question.next_question_value)) ||
+            (question.answer_type === 'branching_choice' &&
+                question.options_branching?.some(
+                    (option) =>
+                        !validNextQuestionValues.has(option.next_question_value)
+                ))
+        ) {
+            validationErrors.push({
+                argument: undefined,
+                instance: question,
+                message: `must be one of ${Array.from(
+                    validNextQuestionValues
+                ).join(', ')}`,
+                name: 'invalid',
+                path: ['questions', index],
+                property: `instance.questions[${String(index)}].next_question_value`,
+                schema: {},
+                stack: `instance.questions[${String(index)}].next_question_value must be one of ${Array.from(
+                    validNextQuestionValues
+                ).join(', ')}`,
+            });
+        }
+    }
+
+    // If there are validation errors, throw them
+    if (validationErrors.length > 0) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        throw new ValidatorResultError({
+            errors: validationErrors,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any);
     }
 
     return templateData;

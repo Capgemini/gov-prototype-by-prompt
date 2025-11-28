@@ -3,6 +3,7 @@ import { ValidationError, ValidatorResultError } from 'jsonschema';
 import httpMocks from 'node-mocks-http';
 import { ZodError } from 'zod';
 
+import { ITemplateField } from '../types';
 import {
     formatHtml,
     generatePagination,
@@ -290,6 +291,270 @@ describe('validateTemplateDataText', () => {
         expect(result.questions[1].date_of_birth_minimum_age).toBe(18);
         expect(result.questions[1].date_of_birth_maximum_age).toBe(65);
     });
+
+    it('removes options properties if not applicable', () => {
+        const schema = {
+            properties: {
+                questions: {
+                    items: {
+                        properties: {
+                            answer_type: { type: 'string' },
+                            options: {
+                                items: {
+                                    type: 'string',
+                                },
+                                type: ['array', 'null'],
+                            },
+                            options_branching: {
+                                items: {
+                                    type: 'object',
+                                },
+                                type: ['array', 'null'],
+                            },
+                        },
+                        required: ['answer_type'],
+                        type: 'object',
+                    },
+                    type: 'array',
+                },
+            },
+            type: 'object',
+        };
+        const json = JSON.stringify({
+            questions: [
+                {
+                    answer_type: 'text',
+                    options: ['Option 1', 'Option 2'],
+                    options_branching: [
+                        { next_question_value: 2, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'branching_choice',
+                    options: ['Option 1', 'Option 2'],
+                    options_branching: [
+                        { next_question_value: 3, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'single_choice',
+                    options: ['Option 1', 'Option 2'],
+                    options_branching: [
+                        { next_question_value: 4, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'multiple_choice',
+                    options: ['Option 1', 'Option 2'],
+                    options_branching: [
+                        { next_question_value: -1, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+            ],
+        });
+        const result = validateTemplateDataText(json, schema);
+        expect(result.questions[0].options).toBeUndefined();
+        expect(result.questions[0].options_branching).toBeUndefined();
+        expect(result.questions[1].options).toBeUndefined();
+        expect(result.questions[1].options_branching).toBeDefined();
+        expect(result.questions[2].options).toBeDefined();
+        expect(result.questions[2].options_branching).toBeUndefined();
+        expect(result.questions[3].options).toBeDefined();
+        expect(result.questions[3].options_branching).toBeUndefined();
+    });
+
+    it.each([
+        [
+            [
+                {
+                    answer_type: 'text',
+                },
+                {
+                    answer_type: 'branching_choice',
+                    options_branching: [
+                        { next_question_value: 3, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'single_choice',
+                    options: ['Option 1', 'Option 2'],
+                },
+                {
+                    answer_type: 'multiple_choice',
+                    options: ['Option 1', 'Option 2'],
+                },
+            ],
+            false,
+        ],
+        [
+            [
+                {
+                    answer_type: 'branching_choice',
+                    options_branching: [],
+                },
+            ],
+            true,
+        ],
+        [
+            [
+                {
+                    answer_type: 'single_choice',
+                    options_branching: [],
+                },
+            ],
+            true,
+        ],
+        [
+            [
+                {
+                    answer_type: 'multiple_choice',
+                },
+            ],
+            true,
+        ],
+    ])(
+        'throws an error if choice questions do not have options',
+        (questions: Partial<ITemplateField>[], throws: boolean) => {
+            const schema = {
+                properties: {
+                    questions: {
+                        items: {
+                            properties: {
+                                answer_type: { type: 'string' },
+                                next_question_value: {
+                                    type: ['number', 'null'],
+                                },
+                                options_branching: {
+                                    items: {
+                                        type: 'object',
+                                    },
+                                    type: ['array', 'null'],
+                                },
+                            },
+                            required: ['answer_type'],
+                            type: 'object',
+                        },
+                        type: 'array',
+                    },
+                },
+                type: 'object',
+            };
+            const json = JSON.stringify({
+                questions: questions,
+            });
+            if (throws) {
+                expect(() => validateTemplateDataText(json, schema)).toThrow();
+            } else {
+                expect(() =>
+                    validateTemplateDataText(json, schema)
+                ).not.toThrow();
+            }
+        }
+    );
+
+    it.each([
+        [
+            [
+                {
+                    answer_type: 'text',
+                    next_question_value: 2,
+                },
+                {
+                    answer_type: 'text',
+                    next_question_value: -1,
+                },
+            ],
+            false,
+        ],
+        [
+            [
+                {
+                    answer_type: 'branching_choice',
+                    options_branching: [
+                        { next_question_value: 2, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 1' },
+                    ],
+                },
+                {
+                    answer_type: 'text',
+                    next_question_value: -1,
+                },
+            ],
+            false,
+        ],
+        [
+            [
+                {
+                    answer_type: 'text',
+                    next_question_value: 99,
+                },
+                {
+                    answer_type: 'text',
+                    next_question_value: 1,
+                },
+            ],
+            true,
+        ],
+        [
+            [
+                {
+                    answer_type: 'text',
+                    next_question_value: 2,
+                },
+                {
+                    answer_type: 'branching_choice',
+                    options_branching: [
+                        { next_question_value: 1, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 1' },
+                    ],
+                },
+            ],
+            true,
+        ],
+    ])(
+        'throws an error if next_question_value is not valid',
+        (questions: Partial<ITemplateField>[], throws: boolean) => {
+            const schema = {
+                properties: {
+                    questions: {
+                        items: {
+                            properties: {
+                                answer_type: { type: 'string' },
+                                next_question_value: {
+                                    type: ['number', 'null'],
+                                },
+                                options_branching: {
+                                    items: {
+                                        type: 'object',
+                                    },
+                                    type: ['array', 'null'],
+                                },
+                            },
+                            required: ['answer_type'],
+                            type: 'object',
+                        },
+                        type: 'array',
+                    },
+                },
+                type: 'object',
+            };
+            const json = JSON.stringify({
+                questions: questions,
+            });
+            if (throws) {
+                expect(() => validateTemplateDataText(json, schema)).toThrow();
+            } else {
+                expect(() =>
+                    validateTemplateDataText(json, schema)
+                ).not.toThrow();
+            }
+        }
+    );
 });
 
 describe('prepareJsonValidationErrorMessage', () => {

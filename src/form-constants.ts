@@ -39,14 +39,12 @@ export function getCheckAnswersFooter(urlPrefix: string): string {
 /**
  * Generate the header text for the check answers page.
  * @param {string} title The title of the form
- * @param {string} backLinkHref The URL for the back link
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The header HTML text for the check answers page
  */
 export function getCheckAnswersHeader(
     title: string,
-    backLinkHref: string,
     designSystem: PrototypeDesignSystemsType,
     showDemoWarning: boolean
 ): string {
@@ -60,10 +58,6 @@ export function getCheckAnswersHeader(
         ...(designSystem === 'HMRC'
             ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
             : []),
-        `  {{ govukBackLink({`,
-        `    text: "Back",`,
-        `    href: "${backLinkHref}"`,
-        `  }) }}`,
         `{% endblock %}`,
         ``,
         `{% block content %}`,
@@ -148,7 +142,6 @@ export function getMultiPageBase(
         `{% set assetPath = '${assetPath}' %}`,
         ``,
         `{% from "govuk/components/button/macro.njk" import govukButton %}`,
-        `{% from "govuk/components/back-link/macro.njk" import govukBackLink %}`,
         `{% from "govuk/components/header/macro.njk" import govukHeader %}`,
         `{% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}`,
         `{% from "govuk/components/panel/macro.njk" import govukPanel %}`,
@@ -247,14 +240,12 @@ export function getQuestionFooter(): string {
  * @param {QuestionHeaderOptions} opts Options for the header
  * @param {string} opts.title The title of the form
  * @param {string} opts.questionTitle The current question title
- * @param {string} opts.backLinkHref The URL for the back link
  * @param {string} opts.formAction The form action URL for the multi-page form
  * @param {PrototypeDesignSystemsType} opts.designSystem The design system to use for the prototype
  * @param {boolean} opts.showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The header HTML text for the template
  */
 export function getQuestionHeader({
-    backLinkHref,
     designSystem,
     formAction,
     questionTitle,
@@ -271,12 +262,6 @@ export function getQuestionHeader({
         ...(designSystem === 'HMRC'
             ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
             : []),
-        `  <section aria-label="Back link">`,
-        `    {{ govukBackLink({`,
-        `      href: "${backLinkHref}",`,
-        `      text: "Back"`,
-        `    }) }}`,
-        `  </section>`,
         `{% endblock %}`,
         ``,
         `{% block content %}`,
