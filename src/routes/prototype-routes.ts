@@ -631,6 +631,98 @@ prototypeRouter.post(
 );
 
 /**
+ * Handle the user submitting an answer to a prototype question.
+ */
+export function handlePrototypeSubmitQuestion(
+    req: Request<{ id: string; page: string }, {}, Record<string, string>>,
+    res: Response
+) {
+    if (handleValidationErrors(req, res)) return;
+    // Get the prototype
+    const prototypeData = (
+        req as unknown as Request & { prototypeData: IPrototypeData }
+    ).prototypeData;
+    const prototypeId = prototypeData.id;
+
+    // Check if liveData is present in the session
+    req.session.liveData ??= {};
+
+    // Update the liveData for the prototypeId with the request body
+    req.session.liveData[prototypeId] = {
+        ...req.session.liveData[prototypeId],
+        ...req.body,
+    };
+
+    // Validate the question page number
+    const questions = prototypeData.json.questions;
+    const pageNumber = req.params.page;
+    const questionNumber = Number.parseInt(pageNumber.split('-')[1], 10);
+    if (
+        Number.isNaN(questionNumber) ||
+        questionNumber < 1 ||
+        questionNumber > questions.length
+    ) {
+        res.status(404).render('page-not-found.njk', {
+            insideIframe: req.header('sec-fetch-dest') === 'iframe',
+        });
+        return;
+    }
+
+    // Check if they came from the check answers page
+    const sendToCheckAnswers = (req.get('referrer') ?? '').includes(
+        'referrer=check-answers'
+    );
+
+    // Redirect to the next page
+    const question = questions[questionNumber - 1];
+    if (question.answer_type === 'branching_choice') {
+        // Get the user answer and the matching option, return to the current question if not found
+        const userAnswer =
+            req.session.liveData[prototypeId][
+                `question-${String(questionNumber)}`
+            ];
+        const userAnswerOption = question.options_branching?.find(
+            (option) => option.text_value === userAnswer
+        );
+        if (userAnswer === undefined || userAnswerOption === undefined) {
+            res.redirect(
+                `/prototype/${prototypeId}/question-${String(questionNumber)}`
+            );
+            return;
+        }
+
+        // Redirect based on the next_question_value of the selected option
+        if (userAnswerOption.next_question_value === -1) {
+            res.redirect(`/prototype/${prototypeId}/check-answers`);
+        } else {
+            res.redirect(
+                `/prototype/${prototypeId}/question-${String(
+                    userAnswerOption.next_question_value
+                )}`
+            );
+        }
+    } else if (
+        sendToCheckAnswers ||
+        question.next_question_value === -1 ||
+        (question.next_question_value === undefined &&
+            questionNumber === questions.length)
+    ) {
+        // Send to check answers if they came from there, or if this is the last question
+        res.redirect(`/prototype/${prototypeId}/check-answers`);
+    } else {
+        // Send to the next question in sequence
+        res.redirect(
+            `/prototype/${prototypeId}/question-${String(question.next_question_value ?? questionNumber + 1)}`
+        );
+    }
+}
+prototypeRouter.post(
+    '/prototype/:id/:page/submit',
+    [param('*').trim().notEmpty(), verifyLivePrototype],
+    handlePrototypeSubmitQuestion
+);
+
+/**
  * Render the prototype page for a specific prototype and page.
  */
 export function renderPrototypePage(
@@ -644,24 +736,13 @@ export function renderPrototypePage(
     ).prototypeData;
     const prototypeId = prototypeData.id;
 
-    // Handle live data updates with POST requests
-    if (req.method === 'POST') {
-        // Check if liveData is present in the session
-        req.session.liveData ??= {};
-        // Update the liveData for the prototypeId with the request body
-        req.session.liveData[prototypeId] = {
-            ...req.session.liveData[prototypeId],
-            ...req.body,
-        };
-    }
-
-    // Validate the page number
-    const validPageNumbers = ['start', 'check-answers', 'confirmation'];
+    // Validate the page
+    const validPages = ['start', 'check-answers', 'confirmation'];
     for (let i = 0; i < prototypeData.json.questions.length; i++) {
-        validPageNumbers.push(`question-${String(i + 1)}`);
+        validPages.push(`question-${String(i + 1)}`);
     }
-    const pageNumber = req.params.page;
-    if (!validPageNumbers.includes(pageNumber)) {
+    const page = req.params.page;
+    if (!validPages.includes(page)) {
         res.status(404).render('page-not-found.njk', {
             insideIframe: req.header('sec-fetch-dest') === 'iframe',
         });
@@ -673,21 +754,21 @@ export function renderPrototypePage(
     const designSystem = prototypeData.designSystem;
     const showDemoWarning = true;
     let pageContent;
-    if (pageNumber === 'start') {
+    if (page === 'start') {
         pageContent = generateStartPage(
             prototypeData.json,
             urlPrefix,
             designSystem,
             showDemoWarning
         );
-    } else if (pageNumber === 'check-answers') {
+    } else if (page === 'check-answers') {
         pageContent = generateCheckAnswersPage(
             prototypeData.json,
             urlPrefix,
             designSystem,
             showDemoWarning
         );
-    } else if (pageNumber === 'confirmation') {
+    } else if (page === 'confirmation') {
         // Reset live data on confirmation
         if (req.session.liveData?.[prototypeId]) {
             req.session.liveData[prototypeId] = {};
@@ -698,7 +779,7 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else {
-        const questionIndex = Number.parseInt(pageNumber.split('-')[1], 10) - 1;
+        const questionIndex = Number.parseInt(page.split('-')[1], 10) - 1;
         pageContent = generateQuestionPage(
             prototypeData.json,
             urlPrefix,
@@ -938,15 +1019,6 @@ export async function handleUpdatePrototype(
     // Create new prototype
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
-        chatHistory: [
-            ...(oldPrototypeData.chatHistory ?? []),
-            {
-                assistantMessage:
-                    templateData.explanation ?? 'Updated prototype JSON',
-                timestamp: timestamp,
-                userMessage: prompt,
-            },
-        ],
         creatorUserId: user.id,
         designSystem: designSystem,
         firstPrompt: oldPrototypeData.firstPrompt,
@@ -955,6 +1027,7 @@ export async function handleUpdatePrototype(
         livePrototypePublic: false,
         livePrototypePublicPassword: '',
         previousId: oldPrototypeId,
+        prompt: prompt,
         sharedWithUserIds: [...new Set(oldPrototypeData.sharedWithUserIds)],
         timestamp: timestamp,
         workspaceId: workspaceId,
@@ -994,7 +1067,7 @@ export async function handleCreatePrototype(
 ) {
     if (handleValidationErrors(req, res)) return;
     let responseText: string;
-    let prompt = req.body.prompt;
+    const prompt = req.body.prompt;
     const promptType = req.body.promptType === 'json' ? 'json' : 'text';
     const user = (req as unknown as Request & { user: IUser }).user;
 
@@ -1008,17 +1081,10 @@ export async function handleCreatePrototype(
     let oldPrototypeData: IPrototypeData | undefined;
     if (promptType === 'json') {
         responseText = prompt;
-        // Get the prototype prompt using the prototypeId if provided
+
+        // Get the old prototype using the prototypeId if provided, to copy the shared users
         oldPrototypeData =
             (await getPrototypeById(req.body.prototypeId ?? '')) ?? undefined;
-        if (
-            oldPrototypeData?.firstPrompt &&
-            (await canUserAccessPrototype(user.id, oldPrototypeData.id))
-        ) {
-            prompt = oldPrototypeData.firstPrompt;
-        } else {
-            prompt = 'Form generated from JSON input';
-        }
 
         // Otherwise, prompt the OpenAI API
     } else {
@@ -1058,14 +1124,6 @@ export async function handleCreatePrototype(
                 promptType === 'text'
                     ? 'Created prototype'
                     : 'Updated prototype JSON',
-            chatHistory: [
-                {
-                    assistantMessage:
-                        templateData.explanation ?? 'Updated prototype JSON',
-                    timestamp: timestamp,
-                    userMessage: prompt,
-                },
-            ],
             creatorUserId: user.id,
             designSystem: designSystem,
             firstPrompt: prompt,
@@ -1074,6 +1132,7 @@ export async function handleCreatePrototype(
             livePrototypePublic: false,
             livePrototypePublicPassword: '',
             previousId: req.body.prototypeId,
+            prompt: promptType === 'text' ? prompt : undefined,
             sharedWithUserIds: oldPrototypeData
                 ? [...new Set(oldPrototypeData.sharedWithUserIds)]
                 : [],

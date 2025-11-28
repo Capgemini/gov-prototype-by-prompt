@@ -75,7 +75,9 @@
                     "answer_type",
                     "options",
                     "date_of_birth_minimum_age",
-                    "date_of_birth_maximum_age"
+                    "date_of_birth_maximum_age",
+                    "next_question_value",
+                    "options_branching"
                 ],
                 "additionalProperties": false,
                 "properties": {
@@ -111,9 +113,13 @@
                         "type": ["string", "null"],
                         "description": "The error message to display if the user does not provide an answer to a required question. The message must be in plain English and get to the point. An example of an error message is 'Enter how many hours you work a week'. Leave as null if the question is not required."
                     },
+                    "next_question_value": {
+                        "type": ["integer", "null"],
+                        "description": "The number of the next question (starting from 1) in the standard sequence of the form. This is typically the next question number. Use -1 if the user should finish the form with no further questions. This field is ignored for branching_choice answer types."
+                    },
                     "answer_type": {
                         "type": "string",
-                        "description": "The type of answer required, based on what the question is asking. Possible values: 'address' (A postal address), 'bank_details' (A person's bank details), 'country' (Select a country), 'date' (A calendar date, entered as a day, month, and year), 'date_of_birth' (A person's date of birth, entered as a day, month, and year), 'email' (An email address), 'emergency_contact_details' (Name and contact details for someone to contact in an emergency), 'file_upload' (A single file upload, such as a document or image), 'gbp_currency_amount' (A monetary amount in GBP), 'multiple_choice' (Multiple choices from a list of options), 'name' (A person's name), 'national_insurance_number' (A UK National Insurance number), 'nationality' (Select a nationality), 'passport_information' (A person's passport details), 'phone_number' (A UK phone number), 'single_choice' (A single choice from a list of options), 'tax_code' (A UK tax code), 'text' (A short free-text answer), 'text_area' (A longer free-text answer, multiple sentences), 'vat_registration_number' (A UK VAT registration number).",
+                        "description": "The type of answer required, based on what the question is asking. Possible values: 'address' (A postal address), 'bank_details' (A person's bank details), 'country' (Select a country), 'date' (A calendar date, entered as a day, month, and year), 'date_of_birth' (A person's date of birth, entered as a day, month, and year), 'email' (An email address), 'emergency_contact_details' (Name and contact details for someone to contact in an emergency), 'file_upload' (A single file upload, such as a document or image), 'gbp_currency_amount' (A monetary amount in GBP), 'multiple_choice' (Multiple choices from a list of options), 'name' (A person's name), 'national_insurance_number' (A UK National Insurance number), 'nationality' (Select a nationality), 'passport_information' (A person's passport details), 'phone_number' (A UK phone number), 'single_choice' (A single choice from a list of options), 'tax_code' (A UK tax code), 'text' (A short free-text answer), 'text_area' (A longer free-text answer, multiple sentences), 'vat_registration_number' (A UK VAT registration number), 'branching_choice' (A single choice from a list of options that may have one or more follow up questions),",
                         "enum": [
                             "address",
                             "bank_details",
@@ -131,6 +137,7 @@
                             "passport_information",
                             "phone_number",
                             "single_choice",
+                            "branching_choice",
                             "tax_code",
                             "text",
                             "text_area",
@@ -144,6 +151,25 @@
                             "type": "string",
                             "minItems": 2,
                             "description": "Option text displayed to the user and submitted with the form."
+                        }
+                    },
+                    "options_branching": {
+                        "type": ["array", "null"],
+                        "description": "Only if the answer_type is branching_choice, list the unique options here along with the associated question index each option would branch to. Otherwise, leave as null.",
+                        "items": {
+                            "type": "object",
+                            "required": ["text_value", "next_question_value"],
+                            "additionalProperties": false,
+                            "properties": {
+                                "text_value": {
+                                    "type": "string",
+                                    "description": "Option text displayed to the user and submitted with the form."
+                                },
+                                "next_question_value": {
+                                    "type": "integer",
+                                    "description": "The number of the next question to jump to (starting from 1) if this option requires additional information or if the form continues after this option. Use -1 if the user should finish the form with no further questions."
+                                }
+                            }
                         }
                     },
                     "date_of_birth_minimum_age": {

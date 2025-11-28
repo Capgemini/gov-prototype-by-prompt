@@ -12,6 +12,7 @@ import {
     CheckAnswersMacroOptions,
     FieldGeneratorOptions,
     FieldMacroOptions,
+    IBranchingOptions,
     PrototypeDesignSystemsType,
     QuestionHeaderOptions,
     TemplateData,
@@ -43,7 +44,8 @@ export function generateCheckAnswersPage(
     data: TemplateData,
     urlPrefix: string,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
+    showDemoWarning: boolean,
+    seenQuestions?: string[]
 ): string {
     const formFields: TemplateField[] = data.questions;
     const macroOptions: CheckAnswersMacroOptions = { rows: [] };
@@ -87,30 +89,36 @@ export function generateCheckAnswersPage(
         } else {
             data = `data['question-${indexPlusOne}'] if data['question-${indexPlusOne}'] else 'Not provided'`;
         }
-        macroOptions.rows.push({
-            actions: {
-                items: [
-                    {
-                        href: `/${urlPrefix}/question-${indexPlusOne}?referrer=check-answers`,
-                        text: 'Change',
-                        visuallyHiddenText: formFields[i].question_text,
-                    },
-                ],
-            },
-            classes: data.includes('\\n') ? 'force-multiline-row' : '',
-            key: {
-                text: formFields[i].question_text,
-            },
-            value: {
-                classes: data.includes('\\n') ? 'force-multiline-value' : '',
-                text: data,
-            },
-        });
+        if (
+            !seenQuestions ||
+            seenQuestions.includes(`question-${indexPlusOne}`)
+        ) {
+            macroOptions.rows.push({
+                actions: {
+                    items: [
+                        {
+                            href: `/${urlPrefix}/question-${indexPlusOne}${formFields[i].answer_type === 'branching_choice' ? '' : '?referrer=check-answers'}`,
+                            text: 'Change',
+                            visuallyHiddenText: formFields[i].question_text,
+                        },
+                    ],
+                },
+                classes: data.includes('\\n') ? 'force-multiline-row' : '',
+                key: {
+                    text: formFields[i].question_text,
+                },
+                value: {
+                    classes: data.includes('\\n')
+                        ? 'force-multiline-value'
+                        : '',
+                    text: data,
+                },
+            });
+        }
     }
     return formatHtml(
         `${getCheckAnswersHeader(
             data.title,
-            `/${urlPrefix}/question-${String(data.questions.length)}`,
             designSystem,
             showDemoWarning
         )}\n{{ govukSummaryList(${objectToJSFormat(macroOptions)}) }}\n${getCheckAnswersFooter(urlPrefix)}`
@@ -157,17 +165,13 @@ export function generateQuestionPage(
         throw new Error(`Invalid question index: ${String(questionIndex)}`);
     }
 
+    // Set the form action to the submit endpoint for the current question
+    const formAction = `/${urlPrefix}/question-${String(questionIndex + 1)}/submit`;
+
     const questionHeaderOptions: QuestionHeaderOptions = {
-        backLinkHref:
-            questionIndex === 0
-                ? `/${urlPrefix}/start`
-                : `/${urlPrefix}/question-${String(questionIndex)}`,
         designSystem: designSystem,
         detailedExplanation: data.questions[questionIndex].detailed_explanation,
-        formAction:
-            questionIndex === data.questions.length - 1
-                ? `/${urlPrefix}/check-answers`
-                : `/${urlPrefix}/question-${String(questionIndex + 2)}`,
+        formAction: formAction,
         questionNumber: questionIndex + 1,
         questionTitle: data.questions[questionIndex].question_text,
         showDemoWarning: showDemoWarning,
@@ -429,6 +433,38 @@ function generateField({
                 value: `data['question-${questionNumberString}-rollNumber']`,
             };
             result += `\n{{ govukInput(${objectToJSFormat(macroOptions)}) }}`;
+            break;
+        case 'branching_choice':
+            items = fieldItem.options_branching?.map(
+                (option: IBranchingOptions) => {
+                    return {
+                        checked: `data['question-${questionNumberString}'] == '${option.text_value.replace(/'/g, "\\'")}'`,
+                        text: option.text_value,
+                        value: option.text_value,
+                    };
+                }
+            );
+            macroOptions = {
+                attributes: {},
+                fieldset: {
+                    legend: {
+                        classes: `govuk-fieldset__legend--${questionTextSize}`,
+                        isPageHeading: questionsAsHeadings,
+                        text: fieldItem.question_text,
+                    },
+                },
+                hint: {
+                    text: fieldItem.hint_text,
+                },
+                items: items,
+                name: `question-${questionNumberString}`,
+            };
+            if (fieldItem.required) {
+                macroOptions.attributes['data-required-error-text'] =
+                    fieldItem.required_error_text ??
+                    `Answer this question to continue`;
+            }
+            result = `{{ govukRadios(${objectToJSFormat(macroOptions)}) }}`;
             break;
         case 'country':
         case 'nationality':

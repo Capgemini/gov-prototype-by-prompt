@@ -1,9 +1,8 @@
 import { model, ObjectId, Schema } from 'mongoose';
 
-export interface IChatMessage {
-    assistantMessage: string;
-    timestamp: string;
-    userMessage: string;
+export interface IBranchingOptions {
+    next_question_value: number;
+    text_value: string;
 }
 
 export interface ITemplateData {
@@ -31,7 +30,9 @@ export interface ITemplateField {
     date_of_birth_minimum_age?: number;
     detailed_explanation?: ITemplateDetailedExplanation;
     hint_text?: string;
+    next_question_value?: number;
     options?: string[];
+    options_branching?: IBranchingOptions[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
@@ -46,7 +47,6 @@ export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
 export interface IPrototypeData {
     _id: ObjectId;
     changesMade: string;
-    chatHistory?: IChatMessage[];
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
@@ -56,6 +56,7 @@ export interface IPrototypeData {
     livePrototypePublic: boolean;
     livePrototypePublicPassword: string;
     previousId?: string;
+    prompt?: string;
     sharedWithUserIds: string[];
     timestamp: string;
     workspaceId: string;
@@ -69,20 +70,10 @@ export interface PrototypeQuery {
     previousId?: { $exists: false };
 }
 
-const chatMessageSchema = new Schema<IChatMessage>(
+const branchingOptionsSchema = new Schema<IBranchingOptions>(
     {
-        assistantMessage: {
-            required: true,
-            type: String,
-        },
-        timestamp: {
-            required: true,
-            type: String,
-        },
-        userMessage: {
-            required: true,
-            type: String,
-        },
+        next_question_value: Number,
+        text_value: String,
     },
     {
         _id: false,
@@ -120,10 +111,16 @@ const templateFieldSchema = new Schema<ITemplateField>(
             type: templateDetailedExplanationSchema,
         },
         hint_text: String,
+        next_question_value: Number,
         options: {
             default: undefined,
             required: false,
             type: [String],
+        },
+        options_branching: {
+            default: undefined,
+            required: false,
+            type: [branchingOptionsSchema],
         },
         question_text: {
             required: true,
@@ -193,10 +190,6 @@ const prototypeSchema = new Schema<IPrototypeData>(
             default: '',
             type: String,
         },
-        chatHistory: {
-            default: undefined,
-            type: [chatMessageSchema],
-        },
         creatorUserId: {
             required: true,
             type: String,
@@ -229,6 +222,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
             type: String,
         },
         previousId: String,
+        prompt: {
+            default: undefined,
+            type: String,
+        },
         sharedWithUserIds: [String],
         timestamp: {
             required: true,
