@@ -65,6 +65,16 @@ import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
 // Create an Express router
 const prototypeRouter = express.Router();
 
+// Expose the schema
+export function renderSchema(req: Request, res: Response) {
+    res.json(
+        getFormSchemaForJsonInputValidation(
+            structuredClone(formSchema) as unknown as JsonSchema
+        )
+    );
+}
+prototypeRouter.get('/schema', verifyUser, renderSchema);
+
 /**
  * Render the homepage.
  */
@@ -910,7 +920,9 @@ export async function renderResultsPage(
         isLivePrototypePublic: prototypeData.livePrototypePublic,
         isOwner: isOwner,
         json: prototypeData.json,
-        jsonText: JSON.stringify(maskedJson, null, 2).replace(/\\"/g, '\\\\"'),
+        jsonText: JSON.stringify(maskedJson, null, 2)
+            .replace(/\\"/g, '\\\\"')
+            .replace(/`/g, `\\\``),
         livePrototypePublicPassword: prototypeData.livePrototypePublicPassword,
         livePrototypeUrl: `/prototype/${prototypeData.id}/start`,
         previousPrototypesRows: previousPrototypesRows,

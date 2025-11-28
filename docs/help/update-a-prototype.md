@@ -7,6 +7,8 @@ You can update a prototype by:
 
 Updating a prototype creates a new version with a new URL. Previous versions are stored in the "History" tab.
 
+Visit the [supported prototype options page](/help/supported-prototype-options) for details of the available form and question fields.
+
 ## Sharing
 
 The previous workspace is reused unless you choose a different one. If you are not a member of the workspace, your personal workspace is used instead.

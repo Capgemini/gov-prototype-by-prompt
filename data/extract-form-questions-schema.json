@@ -10,6 +10,7 @@
         "before_you_start",
         "what_happens_next",
         "form_type",
+        "show_progress_indicators",
         "questions"
     ],
     "properties": {
@@ -37,7 +38,7 @@
         },
         "description": {
             "type": "string",
-            "description": "A description of the form in plain text, with no formatting except for line breaks. This is displayed below the title and provides additional context or instructions for filling out the form."
+            "description": "A description of the form displayed below the title to provide additional context or instructions for filling out the form. This must be in Markdown with no headings."
         },
         "duration": {
             "type": "integer",
@@ -45,15 +46,19 @@
         },
         "before_you_start": {
             "type": "string",
-            "description": "A description of what the user should know or do before starting the form. This should be in plain text and provide clear instructions or information about eligibility or prerequisites. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
+            "description": "A description of what the user should know or do before starting the form. It should provide clear instructions or information about eligibility or prerequisites. This must be in Markdown with no headings. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
         },
         "what_happens_next": {
             "type": "string",
-            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This should be in clear plain text. An example is 'We've sent your submission to Hackney Electoral Register Office. They will contact you either to confirm your registration, or to ask for more information.'"
+            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This must be in Markdown with no headings. An example is 'We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information.'"
         },
         "form_type": {
             "type": "string",
             "description": "The type of form being generated. This is used to determine the context and purpose of the form. An example is 'registration' or 'application'. The word must make sense when prefixed before the word 'complete' once the user has completed the form."
+        },
+        "show_progress_indicators": {
+            "type": "boolean",
+            "description": "Whether to show progress indicators to the user as they complete the form, for example 'Question 1 of 3'. They may also be known as the question numbers. This should default to true unless the form contains a branching_choice question, or the user specifically requests not to show progress indicators."
         },
         "questions": {
             "type": "array",
@@ -63,6 +68,7 @@
                 "required": [
                     "question_text",
                     "hint_text",
+                    "detailed_explanation",
                     "required",
                     "required_error_text",
                     "answer_type",
@@ -80,7 +86,23 @@
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional."
+                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional, and must be null if a detailed_explanation is provided."
+                    },
+                    "detailed_explanation": {
+                        "type": ["object", "null"],
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. If provided, it must be an object with a required title and explanation. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. This field is optional. The hint text must be null if this is provided.",
+                        "properties": {
+                            "question_title": {
+                                "type": "string",
+                                "description": "A title for the detailed explanation, in sentence case as a statement. An example is 'Interview needs' or 'Vehicle transmission'."
+                            },
+                            "explanation_text": {
+                                "type": "string",
+                                "description": "A detailed explanation in Markdown. May include multiple sentences or paragraphs."
+                            }
+                        },
+                        "required": ["question_title", "explanation_text"],
+                        "additionalProperties": false
                     },
                     "required": {
                         "type": "boolean",
