@@ -29,7 +29,6 @@ describe('getCheckAnswersFooter', () => {
 
 describe('getCheckAnswersHeader', () => {
     const title = 'Test Form';
-    const backLinkHref = '/back';
 
     it.each([
         [true, 'GOV.UK'],
@@ -41,13 +40,11 @@ describe('getCheckAnswersHeader', () => {
         (showDemoWarning, designSystem) => {
             const result = getCheckAnswersHeader(
                 title,
-                backLinkHref,
                 designSystem,
                 showDemoWarning
             );
             expect(result).toContain(`Check your answers – ${title}`);
             expect(result).toContain(`serviceTitle = "${title}"`);
-            expect(result).toContain(`href: "${backLinkHref}"`);
             if (showDemoWarning) {
                 expect(result).toContain('Demo warning');
             } else {
@@ -141,7 +138,6 @@ describe('getQuestionFooter', () => {
 
 describe('getQuestionHeader', () => {
     const baseOptions = {
-        backLinkHref: '/back',
         formAction: '/submit',
         questionTitle: 'What is your name?',
         title: 'Test Form',
@@ -163,7 +159,6 @@ describe('getQuestionHeader', () => {
                 `pageTitle = "${baseOptions.questionTitle} – ${baseOptions.title}"`
             );
             expect(result).toContain(`serviceTitle = "${baseOptions.title}"`);
-            expect(result).toContain(`href: "${baseOptions.backLinkHref}"`);
             expect(result).toContain(`form action="${baseOptions.formAction}"`);
             if (showDemoWarning) {
                 expect(result).toContain('Demo warning');

@@ -121,7 +121,23 @@
         <ol>
           {% for question in json["questions"] %}
             <li>
-              <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }}
+              <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }} 
+              
+              {% if question.answer_type == 'branching_choice' and question.options_branching %}
+                <ul>
+                  {% for option in question.options_branching %}
+                    <li>
+                      {{ option.text_value }}
+                      {% if option.next_question_value and option.next_question_value > 0 %}
+                        &rarr; Question {{ option.next_question_value }}
+                      {% else %}
+                        &rarr; End Of Form
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
               {% if question.options %}
                 <ul>
                   {% for option in question.options %}
@@ -661,7 +677,7 @@
           }
         }).catch(err => {
           errorSummary.classList.remove('display-none');
-          errorDescription.textContent = err.message;
+          errorDescription.innerHTML =`${err.message}`
           startButton.disabled = false;
           startButton.textContent = 'Update prototype';
           switchPromptTypeButton.disabled = false;

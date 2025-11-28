@@ -107,7 +107,10 @@ setupStaticAssets(app, __dirname);
 declare module 'express-session' {
     interface SessionData {
         currentUserId?: string;
-        liveData?: Record<string, Record<string, string>>;
+        liveData?: Record<
+            string,
+            Record<string, string | undefined> | undefined
+        >;
         livePrototypePasswords?: Record<string, string>;
     }
 }

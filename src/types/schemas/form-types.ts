@@ -13,7 +13,6 @@ export interface FieldGeneratorOptions {
 }
 
 export interface QuestionHeaderOptions {
-    backLinkHref: string;
     designSystem: PrototypeDesignSystemsType;
     formAction: string;
     questionTitle: string;
