@@ -1,6 +1,6 @@
 {
     "name": "gov-prototype-by-prompt",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "description": "Rapidly create, test, and refine GOV.UK Design System form prototypes from a simple description using GenAI.",
     "keywords": [
         "express",
@@ -30,9 +30,9 @@
         "Rahmat Junaid",
         "Rosie Kelly",
         "Ryan Smith",
+        "Sam West",
         "Steven Tran",
-        "Toba Odumosu",
-        "Sam West"
+        "Toba Odumosu"
     ],
     "repository": {
         "type": "git",
