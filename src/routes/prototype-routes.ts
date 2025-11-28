@@ -744,9 +744,6 @@ export function renderPrototypePage(
     }
 
     // Generate the page content based on the page number
-    const seenQuestions = Object.keys(
-        req.session.liveData?.[prototypeId] ?? {}
-    );
     const urlPrefix = `prototype/${prototypeId}`;
     const designSystem = prototypeData.designSystem;
     const showDemoWarning = true;
@@ -763,8 +760,7 @@ export function renderPrototypePage(
             prototypeData.json,
             urlPrefix,
             designSystem,
-            showDemoWarning,
-            seenQuestions
+            showDemoWarning
         );
     } else if (page === 'confirmation') {
         // Reset live data on confirmation
