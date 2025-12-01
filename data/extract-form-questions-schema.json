@@ -16,25 +16,38 @@
     "properties": {
         "explanation": {
             "type": ["string", "null"],
-            "description": "A concise, specific explanation of why you, as the LLM, generated the form in this way. Clearly state any assumptions, inferred requirements, or data you generated that was not present in the user prompt. Do not repeat information already provided elsewhere in the form. If updating an existing form, only explain the changes made. Write in the first person for yourself, the second person for the prompt creator, and the third person for the form user. For example, 'I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.' or 'I have added a multiple choice question to allow the user to select their preferred contact methods.'"
+            "description": "A concise, specific explanation of why you, as the LLM, generated the form in this way. Clearly state any assumptions, inferred requirements, or data you generated that was not present in the user prompt. Do not repeat information already provided elsewhere in the form. If updating an existing form, only explain the changes made. Write in the first person for yourself, the second person for the prompt creator, and the third person for the form user.",
+            "examples": [
+                "I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.",
+                "I have added a multiple choice question to allow the user to select their preferred contact methods."
+            ]
         },
         "changes_made": {
             "type": "string",
-            "description": "A single, concise summary (max 80 characters, no full stop) of the specific change(s) you, as the LLM, made to the form. For example, 'Removed email address question' or 'Added a question about preferred contact method'"
+            "description": "A single, concise summary (max 80 characters, no full stop) of the specific change(s) you, as the LLM, made to the form.",
+            "examples": [
+                "Removed email address question",
+                "Added a question about preferred contact method"
+            ]
         },
         "suggestions": {
             "type": ["array", "null"],
-            "description": "A list of three unique, specific, and actionable suggestions for improving the form. Each suggestion must be a direct instruction to add, update, or remove a question. Phrase each as a clear command. For example, 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'",
+            "description": "A list of three unique, specific, and actionable suggestions for improving the form. Each suggestion must be a direct instruction to add, update, or remove a question. Phrase each as a clear command.",
             "items": {
                 "type": "string",
                 "minItems": 3,
                 "maxItems": 3,
-                "description": "A single suggestion for improving the form. This must be very concise, direct, and specific."
+                "description": "A single suggestion for improving the form. This must be very concise, direct, and specific.",
+                "examples": [
+                    "Add a question about the user's preferred contact method",
+                    "Ensure the user is at least 18 years old in question 5."
+                ]
             }
         },
         "title": {
             "type": "string",
-            "description": "A concise, plain-text title describing the purpose of the form. Use sentence case and do not include a full stop. For example, 'Register to vote' or 'Apply for a driving licence'."
+            "description": "A concise, plain-text title describing the purpose of the form. Use sentence case and do not include a full stop.",
+            "examples": ["Register to vote", "Apply for a driving licence"]
         },
         "description": {
             "type": "string",
@@ -46,15 +59,22 @@
         },
         "before_you_start": {
             "type": "string",
-            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. Do not use headings. For example, 'You must be a British citizen and have a valid National Insurance number to use this service.'"
+            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. Do not use headings.",
+            "examples": [
+                "You must be a British citizen and have a valid National Insurance number to use this service."
+            ]
         },
         "what_happens_next": {
             "type": "string",
-            "description": "A Markdown-formatted description of what happens after the user submits the form. Clearly explain the next steps. Do not use headings. For example, 'We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information.'"
+            "description": "A Markdown-formatted description of what happens after the user submits the form. Clearly explain the next steps. Do not use headings.",
+            "examples": [
+                "We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information."
+            ]
         },
         "form_type": {
             "type": "string",
-            "description": "A single word describing the type of form. This word should make sense when used in the phrase '[form_type] complete' after the user finishes the form. For example, 'registration' or 'application'."
+            "description": "A single word describing the type of form. This word should make sense when used in the phrase '[form_type] complete' after the user finishes the form.",
+            "examples": ["registration", "application"]
         },
         "show_progress_indicators": {
             "type": "boolean",
@@ -82,19 +102,31 @@
                 "properties": {
                     "question_text": {
                         "type": "string",
-                        "description": "A full-sentence question title ending with a question mark. If the question is optional, append '(optional)'. For example, 'What is your name?' or 'What is your date of birth?'"
+                        "description": "A full-sentence question title ending with a question mark. If the question is optional, append '(optional)'.",
+                        "examples": [
+                            "What is your name?",
+                            "What is your date of birth?"
+                        ]
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "A short, single-sentence hint (no full stops) to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided. For example, 'Tick the box or boxes that apply'."
+                        "description": "A short, single-sentence hint (no full stops) to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided.",
+                        "examples": [
+                            "Select all that apply",
+                            "You can find this on your payslip"
+                        ]
                     },
                     "detailed_explanation": {
                         "type": ["object", "null"],
-                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. The hint text must be null if this is provided.",
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. The title must be a string in sentence case as a statement. The explanation must be a string in Markdown and may include multiple sentences or paragraphs. The hint text must be null if this is provided.",
                         "properties": {
                             "question_title": {
                                 "type": "string",
-                                "description": "A sentence-case statement as a title for the whole question. An example is 'Interview needs' or 'Vehicle transmission'."
+                                "description": "A sentence-case statement as a title for the whole question.",
+                                "examples": [
+                                    "Interview needs",
+                                    "Vehicle transmission"
+                                ]
                             },
                             "explanation_text": {
                                 "type": "string",
@@ -110,7 +142,11 @@
                     },
                     "required_error_text": {
                         "type": ["string", "null"],
-                        "description": "A plain English error message shown if a required question is left unanswered. Be direct and concise. Leave as null if the question is not required. For example, 'Enter how many hours you work a week'."
+                        "description": "A plain English error message shown if a required question is left unanswered. Be direct and concise. Leave as null if the question is not required.",
+                        "examples": [
+                            "Enter your date of birth",
+                            "Enter how many hours you work a week"
+                        ]
                     },
                     "next_question_value": {
                         "type": ["integer", "null"],
