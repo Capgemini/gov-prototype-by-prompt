@@ -114,7 +114,7 @@
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "A short, single-sentence hint (no full stops) to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided.",
+                        "description": "A short, single-sentence hint with no full stop to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided.",
                         "examples": [
                             "Select all that apply",
                             "You can find this on your payslip"
@@ -146,10 +146,11 @@
                     },
                     "required_error_text": {
                         "type": ["string", "null"],
-                        "description": "A plain English error message shown if a required question is left unanswered. Be direct and concise. Leave as null if the question is not required.",
+                        "description": "A concise and plain English error message shown if a required question is left unanswered as an instruction for the user. Do not start with 'please' or 'you must'. Leave as null if the question is not required.",
                         "examples": [
                             "Enter your date of birth",
-                            "Enter how many hours you work a week"
+                            "Enter how many hours you work a week",
+                            "Select at least one option"
                         ]
                     },
                     "next_question_value": {
