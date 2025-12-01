@@ -259,7 +259,7 @@
           event.target.closest('tr').remove();
         }
         // If there's only one user left, disable the remove buttons
-        const sharedWithUserButtons = document.querySelectorAll(".shared-with-users-table button")
+        const sharedWithUserButtons = document.querySelectorAll(".shared-with-users-table button");
         if (sharedWithUserButtons.length <= 2) {
             sharedWithUserButtons.forEach(button => {
               button.disabled = true;

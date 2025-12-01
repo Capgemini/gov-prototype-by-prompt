@@ -504,7 +504,7 @@
       startButton.textContent = 'Processing...';
       switchPromptTypeButton.disabled = true;
       suggestionButtons.forEach(button => {
-        button.disabled = true; // Enable suggestion buttons
+        button.disabled = true; // Disable suggestion buttons
       });
 
 
@@ -526,7 +526,7 @@
         }
       }).catch(err => {
         errorSummary.classList.remove('display-none');
-        errorDescription.innerHTML = `${err.message}`
+        errorDescription.innerHTML = `${err.message}`;
         startButton.disabled = false;
         startButton.textContent = 'Update prototype';
         switchPromptTypeButton.disabled = false;
