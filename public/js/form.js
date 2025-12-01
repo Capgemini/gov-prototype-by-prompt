@@ -116,9 +116,9 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
         dayInput.value.trim() === '' ||
         monthInput.value.trim() === '' ||
         yearInput.value.trim() === '' ||
-        Number.isNaN(dayInput.value) ||
-        Number.isNaN(monthInput.value) ||
-        Number.isNaN(yearInput.value) ||
+        Number.isNaN(Number(dayInput.value)) ||
+        Number.isNaN(Number(monthInput.value)) ||
+        Number.isNaN(Number(yearInput.value)) ||
         Number.parseInt(dayInput.value) < 1 ||
         Number.parseInt(dayInput.value) > 31 ||
         Number.parseInt(monthInput.value) < 1 ||
