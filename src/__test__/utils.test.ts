@@ -105,13 +105,40 @@ describe('getFormSchemaForJsonInputValidation', () => {
         expect(result.required).toEqual(['age']);
     });
 
+    it('moves examples into descriptions', () => {
+        const schema = {
+            properties: {
+                age: {
+                    description: 'The age of the person.',
+                    examples: ['25', '30'],
+                    type: 'number',
+                },
+                name: { examples: ['Alice', 'Bob'], type: 'string' },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(result.properties?.age.description).toEqual(
+            "The age of the person. For example, '25' or '30'."
+        );
+        expect(result.properties?.age.examples).toBeUndefined();
+        expect(result.properties?.name.description).toEqual(
+            "For example, 'Alice' or 'Bob'."
+        );
+        expect(result.properties?.name.examples).toBeUndefined();
+    });
+
     it('handles nested object schemas', () => {
         const schema = {
             properties: {
                 firstProperty: {
                     items: {
                         properties: {
-                            value: { type: ['string', 'null'] },
+                            value: {
+                                examples: ['example1'],
+                                type: ['string', 'null'],
+                            },
                         },
                         required: ['value'],
                         type: 'object',
@@ -131,6 +158,13 @@ describe('getFormSchemaForJsonInputValidation', () => {
         expect(
             result.properties?.firstProperty.items?.properties?.value.type
         ).toEqual(['string']);
+        expect(
+            result.properties?.firstProperty.items?.properties?.value
+                .description
+        ).toEqual("For example, 'example1'.");
+        expect(
+            result.properties?.firstProperty.items?.properties?.value.examples
+        ).toBeUndefined();
         expect(result.properties?.firstProperty.items?.required).toEqual([]);
         expect(result.properties?.secondProperty.type).toEqual('number');
         expect(result.required).toEqual(['firstProperty', 'secondProperty']);

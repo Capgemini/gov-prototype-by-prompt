@@ -46,8 +46,12 @@
         },
         "title": {
             "type": "string",
-            "description": "A concise, plain-text title describing the purpose of the form. Use sentence case and do not include a full stop.",
-            "examples": ["Register to vote", "Apply for a driving licence"]
+            "description": "A concise, plain-text title describing the task that the form completes. Start with a verb. Use sentence case and do not include a full stop.",
+            "examples": [
+                "Register to vote",
+                "Get help with court fees",
+                "Apply for a driving licence"
+            ]
         },
         "description": {
             "type": "string",
@@ -102,7 +106,7 @@
                 "properties": {
                     "question_text": {
                         "type": "string",
-                        "description": "A full-sentence question title ending with a question mark. If the question is optional, append '(optional)'.",
+                        "description": "A full-sentence question title ending with a question mark. Do not use the word 'please'. If the question is optional, append '(optional)'.",
                         "examples": [
                             "What is your name?",
                             "What is your date of birth?"
@@ -154,7 +158,7 @@
                     },
                     "answer_type": {
                         "type": "string",
-                        "description": "The type of answer required, based on what the question is asking. Must be one of the allowed enum values.",
+                        "description": "The type of answer required, based on what the question is asking. Must be one of the allowed enum values. Use 'branching_choice' if the next question depends on the selected answer (e.g., 'Have you lost your licence?' with follow-up only if 'Yes').",
                         "enum": [
                             "address",
                             "bank_details",
