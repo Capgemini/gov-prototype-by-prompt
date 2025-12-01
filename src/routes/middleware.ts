@@ -1,5 +1,6 @@
 import opentelemetry from '@opentelemetry/api';
 import { NextFunction, Request, Response } from 'express';
+import { ValidatorResultError } from 'jsonschema';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -9,7 +10,10 @@ import {
 } from '../database/mongoose-store';
 import { IPrototypeData } from '../types/schemas/prototype-schema';
 import { IUser } from '../types/schemas/user-schema';
-import { getEnvironmentVariables } from '../utils';
+import {
+    getEnvironmentVariables,
+    prepareJsonValidationErrorMessage,
+} from '../utils';
 
 const logUserIdInAzureAppInsights =
     getEnvironmentVariables().LOG_USER_ID_IN_AZURE_APP_INSIGHTS;
@@ -261,7 +265,12 @@ export const errorHandler = (
             ? (err as { stack?: unknown }).stack
             : 'No stack trace available';
     console.error('Error occurred:', errorMessage, errorName);
+    let errorValidation: string | undefined;
+    if (err instanceof ValidatorResultError) {
+        errorValidation = prepareJsonValidationErrorMessage(err);
+    }
     console.error(errorStack);
+    if (errorValidation) console.error(errorValidation);
     const activeSpan = opentelemetry.trace.getActiveSpan();
     let errorId: string | undefined;
     if (activeSpan) {
@@ -270,6 +279,8 @@ export const errorHandler = (
         activeSpan.setAttribute('error.message', errorMessage);
         activeSpan.setAttribute('error.stack', String(errorStack));
         activeSpan.setAttribute('error.id', errorId);
+        if (errorValidation)
+            activeSpan.setAttribute('error.validation', errorValidation);
     }
 
     // Wrap the error message in JSON if the request is an API call
