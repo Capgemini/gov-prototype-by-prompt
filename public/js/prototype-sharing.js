@@ -77,7 +77,7 @@ const saveSharingSettings = async function () {
             data.livePrototypePublicPassword = '';
         }
     }
-    fetch('/prototype/{{ prototypeId }}/sharing', {
+    fetch(`/prototype/${prototypeId}/sharing`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {

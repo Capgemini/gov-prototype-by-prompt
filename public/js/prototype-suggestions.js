@@ -8,7 +8,7 @@ refreshSuggestionsLink.addEventListener('click', async function (event) {
     refreshSuggestionsLink.textContent = 'refreshing...';
 
     // Make a GET request to generate suggestions
-    fetch(`/prototype/{{ prototypeId }}/suggestions`, {
+    fetch(`/prototype/${prototypeId}/suggestions`, {
         method: 'GET',
     })
         .then(async (response) => {

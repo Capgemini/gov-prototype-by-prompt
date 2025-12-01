@@ -462,6 +462,7 @@
     const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
     const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
     const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+    const prototypeId = '{{ prototypeId }}';
 
     // Add a hidden error element to the text prompt input
     const errorElement = document.createElement('p');
@@ -561,7 +562,7 @@
     document.querySelectorAll('a.change-preview-page').forEach(function(link) {
       link.addEventListener('click', function(event) {
         event.preventDefault();
-        previewFrame.src = `/prototype/{{ prototypeId }}/${link.getAttribute('data-preview-page')}`;
+        previewFrame.src = `/prototype/{{ prototypeId }}/${link.dataset.previewPage}`;
       });
     });
 
