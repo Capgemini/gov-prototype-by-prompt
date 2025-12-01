@@ -435,18 +435,19 @@ function validateForm(event) {
 
         // If all date inputs are empty, do not validate further
         if (
-            dayInput.value.trim() === '' &&
-            monthInput.value.trim() === '' &&
-            yearInput.value.trim() === ''
+            !(
+                dayInput.value.trim() === '' &&
+                monthInput.value.trim() === '' &&
+                yearInput.value.trim() === ''
+            )
         ) {
-            return;
-        }
-
-        // Complete further date validation
-        if (
-            validateDateInput(dateInputGroup, dayInput, monthInput, yearInput)
-        ) {
-            hasErrors = true;
+            hasErrors =
+                validateDateInput(
+                    dateInputGroup,
+                    dayInput,
+                    monthInput,
+                    yearInput
+                ) || hasErrors;
         }
     }
 
