@@ -69,23 +69,20 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    const radios = document.querySelectorAll('input[name="itemsPerPage"]');
 
-      const radios = document.querySelectorAll('input[name="itemsPerPage"]');
+    // Handle the click event for the itemsPerPage radio input
+    radios.forEach(radio => {
+      radio.addEventListener('click', function(event) {
 
-      // Handle the click event for the itemsPerPage radio input
-      radios.forEach(radio => {
-        radio.addEventListener('click', function(event) {
-
-          // Get the value
-          const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked').value;
-          
-          // Redirect to the same page with the selected filter
-          const url = new URL(window.location.href);
-          url.searchParams.set('page', '1'); // Reset to the first page
-          url.searchParams.set('perPage', itemsPerPageRadioValue);
-          window.location.href = url.toString();
-        });
+        // Get the value
+        const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked').value;
+        
+        // Redirect to the same page with the selected filter
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', '1'); // Reset to the first page
+        url.searchParams.set('perPage', itemsPerPageRadioValue);
+        window.location.href = url.toString();
       });
     });
   </script>

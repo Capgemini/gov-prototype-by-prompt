@@ -96,69 +96,66 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    const promptForm = document.getElementById('promptForm');
+    const textPromptInput = document.getElementById('textPrompt');
+    const startButton = document.getElementById('startPrototypeButton');
+    const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+    const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
 
-      const promptForm = document.getElementById('promptForm');
-      const textPromptInput = document.getElementById('textPrompt');
-      const startButton = document.getElementById('startPrototypeButton');
-      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
-      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+      // Add a hidden error element to the text prompt input
+    const errorElement = document.createElement('p');
+    errorElement.id = 'textPromptInputErrorMessage';
+    errorElement.className = 'govuk-error-message';
+    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> Enter a description for the form you want to create`;
+    errorElement.style.display = 'none';
+    textPromptInput.parentNode.insertBefore(
+        errorElement,
+        textPromptInput
+    );
 
-       // Add a hidden error element to the text prompt input
-      const errorElement = document.createElement('p');
-      errorElement.id = 'textPromptInputErrorMessage';
-      errorElement.className = 'govuk-error-message';
-      errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> Enter a description for the form you want to create`;
-      errorElement.style.display = 'none';
-      textPromptInput.parentNode.insertBefore(
-          errorElement,
-          textPromptInput
-      );
+    // Handle async form submission
+    promptForm.addEventListener('submit', async function(event) {
 
-      // Handle async form submission
-      promptForm.addEventListener('submit', async function(event) {
+      // Prevent the default form submission
+      event.preventDefault();
 
-        // Prevent the default form submission
-        event.preventDefault();
+      // Check that the text prompt is not empty
+      if (textPromptInput.value.trim() === '') {
+        errorElement.style.display = '';
+        textPromptInput.classList.add('govuk-textarea--error');
+        document.querySelector('.govuk-form-group:has(#textPrompt)').classList.add('govuk-form-group--error');
+        return;
+      } else {
+        errorElement.style.display = 'none';
+        textPromptInput.classList.remove('govuk-textarea--error');
+        document.querySelector('.govuk-form-group:has(#textPrompt)').classList.remove('govuk-form-group--error');
+      }
 
-        // Check that the text prompt is not empty
-        if (textPromptInput.value.trim() === '') {
-          errorElement.style.display = '';
-          textPromptInput.classList.add('govuk-textarea--error');
-          document.querySelector('.govuk-form-group:has(#textPrompt)').classList.add('govuk-form-group--error');
-          return;
+      // Show processing state
+      startButton.disabled = true;
+      startButton.textContent = 'Processing...';
+      
+      // Request to create the prototype
+      const data = new URLSearchParams();
+      for (const pair of new FormData(promptForm)) {
+          data.append(pair[0], pair[1]);
+      }
+      fetch('/create', {
+        method: 'POST',
+        body: data
+      }).then(async response => {
+        const responseJson = await response.json();
+        // If response is OK, redirect to the prototype page, otherwise show error
+        if (response.ok) {
+          window.location.href = responseJson.url;
         } else {
-          errorElement.style.display = 'none';
-          textPromptInput.classList.remove('govuk-textarea--error');
-          document.querySelector('.govuk-form-group:has(#textPrompt)').classList.remove('govuk-form-group--error');
+          throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
         }
-
-        // Show processing state
-        startButton.disabled = true;
-        startButton.textContent = 'Processing...';
-        
-        // Request to create the prototype
-        const data = new URLSearchParams();
-        for (const pair of new FormData(promptForm)) {
-            data.append(pair[0], pair[1]);
-        }
-        fetch('/create', {
-          method: 'POST',
-          body: data
-        }).then(async response => {
-          const responseJson = await response.json();
-          // If response is OK, redirect to the prototype page, otherwise show error
-          if (response.ok) {
-            window.location.href = responseJson.url;
-          } else {
-            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
-          }
-        }).catch(err => {
-          errorSummary.classList.remove('display-none');
-          errorDescription.textContent = err.message;
-          startButton.disabled = false;
-          startButton.textContent = 'Create prototype';
-        });
+      }).catch(err => {
+        errorSummary.classList.remove('display-none');
+        errorDescription.textContent = err.message;
+        startButton.disabled = false;
+        startButton.textContent = 'Create prototype';
       });
     });
   </script>

@@ -515,43 +515,41 @@ function validateForm(event) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Validate the form on submit
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', validateForm);
-    }
+// Validate the form on submit
+const form = document.querySelector('form');
+if (form) {
+    form.addEventListener('submit', validateForm);
+}
 
-    // Create the error message element for all non-fieldset inputs
-    let labelElements = document.querySelectorAll(
-        '.govuk-label:not(.govuk-date-input__label, .govuk-checkboxes__label, .govuk-radios__label)'
+// Create the error message element for all non-fieldset inputs
+let labelElements = document.querySelectorAll(
+    '.govuk-label:not(.govuk-date-input__label, .govuk-checkboxes__label, .govuk-radios__label)'
+);
+labelElements.forEach((labelElement, index) => {
+    const errorElement = document.createElement('p');
+    errorElement.className = 'govuk-error-message';
+    errorElement.style.display = 'none';
+    labelElement.parentNode.insertBefore(
+        errorElement,
+        labelElement.nextSibling
     );
-    labelElements.forEach((labelElement, index) => {
+});
+
+// Create the error message element for all fieldset inputs (date, checkbox, radio)
+labelElements = document.querySelectorAll(
+    '.govuk-label.govuk-date-input__label, .govuk-label.govuk-checkboxes__label, .govuk-label.govuk-radios__label'
+);
+labelElements.forEach((labelElement, index) => {
+    const inputGroup = labelElement.closest(
+        '.govuk-date-input, .govuk-checkboxes, .govuk-radios'
+    );
+    if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
         const errorElement = document.createElement('p');
         errorElement.className = 'govuk-error-message';
         errorElement.style.display = 'none';
-        labelElement.parentNode.insertBefore(
+        inputGroup.parentNode.insertBefore(
             errorElement,
-            labelElement.nextSibling
+            inputGroup.previousSibling
         );
-    });
-
-    // Create the error message element for all fieldset inputs (date, checkbox, radio)
-    labelElements = document.querySelectorAll(
-        '.govuk-label.govuk-date-input__label, .govuk-label.govuk-checkboxes__label, .govuk-label.govuk-radios__label'
-    );
-    labelElements.forEach((labelElement, index) => {
-        const inputGroup = labelElement.closest(
-            '.govuk-date-input, .govuk-checkboxes, .govuk-radios'
-        );
-        if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
-            const errorElement = document.createElement('p');
-            errorElement.className = 'govuk-error-message';
-            errorElement.style.display = 'none';
-            inputGroup.parentNode.insertBefore(
-                errorElement,
-                inputGroup.previousSibling
-            );
-        }
-    });
+    }
 });
