@@ -424,12 +424,12 @@ export function validateTemplateDataText(
             validationErrors.push({
                 argument: undefined,
                 instance: question,
-                message: `must have at least one option`,
+                message: `must have at least one ${question.answer_type} option`,
                 name: 'required',
                 path: ['questions', index],
                 property: `instance.questions[${String(index)}]`,
                 schema: {},
-                stack: `instance.questions[${String(index)}] must have at least one option`,
+                stack: `instance.questions[${String(index)}] must have at least one ${question.answer_type} option`,
             });
         }
 
@@ -442,30 +442,58 @@ export function validateTemplateDataText(
             ),
         ]);
 
-        // Throw an error if the next_question_value is invalid
+        // Throw an error if the next_question_value for non-branching questions is invalid
         if (
-            (question.next_question_value !== undefined &&
-                !validNextQuestionValues.has(question.next_question_value)) ||
-            (question.answer_type === 'branching_choice' &&
-                question.options_branching?.some(
-                    (option) =>
-                        !validNextQuestionValues.has(option.next_question_value)
-                ))
+            question.next_question_value !== undefined &&
+            !validNextQuestionValues.has(question.next_question_value)
         ) {
             validationErrors.push({
                 argument: undefined,
                 instance: question,
                 message: `must be one of ${Array.from(
                     validNextQuestionValues
-                ).join(', ')}`,
+                ).join(', ')}, not ${String(question.next_question_value)}`,
                 name: 'invalid',
                 path: ['questions', index],
                 property: `instance.questions[${String(index)}].next_question_value`,
                 schema: {},
                 stack: `instance.questions[${String(index)}].next_question_value must be one of ${Array.from(
                     validNextQuestionValues
-                ).join(', ')}`,
+                ).join(', ')}, not ${String(question.next_question_value)}`,
             });
+        }
+
+        // Throw an error if the next_question_value for branching questions is invalid
+        if (question.answer_type === 'branching_choice') {
+            for (const [optionIndex, option] of (
+                question.options_branching ?? []
+            ).entries()) {
+                if (!validNextQuestionValues.has(option.next_question_value)) {
+                    validationErrors.push({
+                        argument: undefined,
+                        instance: option,
+                        message: `must be one of ${Array.from(
+                            validNextQuestionValues
+                        ).join(
+                            ', '
+                        )}, not ${String(option.next_question_value)}`,
+                        name: 'invalid',
+                        path: [
+                            'questions',
+                            index,
+                            'options_branching',
+                            optionIndex,
+                        ],
+                        property: `instance.questions[${String(index)}].options_branching[${String(optionIndex)}]`,
+                        schema: {},
+                        stack: `instance.questions[${String(index)}].options_branching[${String(optionIndex)}] must be one of ${Array.from(
+                            validNextQuestionValues
+                        ).join(
+                            ', '
+                        )}, not ${String(option.next_question_value)}`,
+                    });
+                }
+            }
         }
     }
 
