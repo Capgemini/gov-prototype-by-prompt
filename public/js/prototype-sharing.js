@@ -123,14 +123,14 @@ workspaceSelect.addEventListener('change', async function () {
 
 // Don't submit the form when the user presses enter
 userToAddInput.addEventListener('keydown', function (event) {
-    if (event.keyCode == 13) {
+    if (event.key === 'Enter') {
         event.preventDefault();
     }
 });
 
 // Handle adding a user to share with
 userToAddInput.addEventListener('keyup', async function (event) {
-    if (event.keyCode == 13 && userToAddInput.value.trim() !== '') {
+    if (event.key === 'Enter' && userToAddInput.value.trim() !== '') {
         event.preventDefault();
         errorSummary.classList.add('display-none');
 
