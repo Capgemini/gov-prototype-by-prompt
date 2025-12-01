@@ -1,58 +1,76 @@
 {
-    "before_you_start": "You must be a UK resident and at least 17 years old to apply for a driving licence.",
-    "changes_made": "Made the contact methods question mandatory",
-    "description": "Fill out this form to apply for a driving licence in the UK. Ensure you provide accurate information.",
-    "duration": 8,
-    "form_type": "application",
+    "before_you_start": "Have your company registration number and details of your employee benefits ready if applicable.",
+    "description": "This form helps you register as a PAYE employer with the necessary information about your business.",
+    "duration": 5,
+    "form_type": "registration",
     "questions": [
         {
-            "answer_type": "name",
-            "hint_text": "Enter your full name as it appears on official documents",
-            "question_text": "What is your name?",
+            "answer_type": "text",
+            "hint_text": "This is the official name of your business.",
+            "next_question_value": 2,
+            "question_text": "What is your employer name?",
             "required": true,
-            "required_error_text": "Enter your name"
+            "required_error_text": "You must provide an employer name."
         },
         {
-            "answer_type": "email",
-            "hint_text": "We will use this to contact you regarding your application",
-            "question_text": "What is your email address?",
+            "answer_type": "gbp_currency_amount",
+            "hint_text": "Enter a number. If none, enter 0.",
+            "next_question_value": 3,
+            "question_text": "How many employees do you have?",
             "required": true,
-            "required_error_text": "Enter your email address"
+            "required_error_text": "You must provide the number of employees."
         },
         {
-            "answer_type": "date_of_birth",
-            "date_of_birth_minimum_age": 17,
-            "question_text": "What is your date of birth?",
+            "answer_type": "branching_choice",
+            "hint_text": "If yes, enter the number. If no, select no.",
+            "options_branching": [
+                {
+                    "next_question_value": 4,
+                    "text_value": "Yes"
+                },
+                {
+                    "next_question_value": 5,
+                    "text_value": "No"
+                }
+            ],
+            "question_text": "Do you have a company registration number?",
             "required": true,
-            "required_error_text": "Enter your date of birth"
+            "required_error_text": "You must select an option."
         },
         {
-            "answer_type": "multiple_choice",
-            "hint_text": "Select your preferred method of contact",
-            "options": ["Email", "Phone", "Post"],
-            "question_text": "How would you like to be contacted?",
+            "answer_type": "text",
+            "hint_text": "This is the number issued by Companies House.",
+            "next_question_value": 5,
+            "question_text": "What is your company registration number?",
             "required": true,
-            "required_error_text": "Select your preferred method of contact"
+            "required_error_text": "You must provide your company registration number."
         },
         {
-            "answer_type": "single_choice",
-            "detailed_explanation": {
-                "explanation_text": "Choosing 'Automatic' means you can drive vehicles that require automatic transmission. Choosing 'Manual' means you can drive vehicles that require manual transmission. You can [upgrade your licence from automatic to manual](https://www.gov.uk/automatic-driving-licence-to-manual) later.",
-                "question_title": "Vehicle transmission type"
-            },
-            "options": ["Automatic", "Manual"],
-            "question_text": "Do you prefer driving an automatic or manual vehicle?",
+            "answer_type": "branching_choice",
+            "hint_text": "Select yes or no based on your company's offerings.",
+            "options_branching": [
+                {
+                    "next_question_value": 6,
+                    "text_value": "Yes"
+                },
+                {
+                    "next_question_value": -1,
+                    "text_value": "No"
+                }
+            ],
+            "question_text": "Do you provide taxable employee benefits?",
             "required": true,
-            "required_error_text": "Select your driving preference"
+            "required_error_text": "You must select an option."
         },
         {
             "answer_type": "text_area",
-            "hint_text": "Describe any relevant health issues in brief",
-            "question_text": "Do you have any health problems that may affect your driving? (optional)",
+            "hint_text": "List the benefits offered to your employees.",
+            "next_question_value": -1,
+            "question_text": "Describe the taxable employee benefits you provide.",
             "required": false
         }
     ],
     "show_progress_indicators": true,
-    "title": "Apply for a driving licence",
-    "what_happens_next": "Your application will be reviewed, and you will be contacted via your preferred contact method with further information."
+    "title": "Register a PAYE employer",
+    "what_happens_next": "Once you submit this form, we will process your registration. If any further information is needed, we will contact you directly."
 }
