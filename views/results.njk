@@ -526,7 +526,7 @@
         }
       }).catch(err => {
         errorSummary.classList.remove('display-none');
-        errorDescription.innerHTML =`${err.message}`
+        errorDescription.innerHTML = `${err.message}`
         startButton.disabled = false;
         startButton.textContent = 'Update prototype';
         switchPromptTypeButton.disabled = false;

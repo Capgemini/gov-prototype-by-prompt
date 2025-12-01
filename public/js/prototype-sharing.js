@@ -116,7 +116,7 @@ sharingForm.addEventListener('submit', async function (event) {
 });
 
 // Handle workspace selection change
-workspaceSelect.addEventListener('change', async function () {
+workspaceSelect.addEventListener('change', async function (event) {
     event.preventDefault();
     await saveSharingSettings();
 });
