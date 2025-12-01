@@ -20,7 +20,7 @@ refreshSuggestionsLink.addEventListener('click', async function (event) {
                 );
             }
             // Update the suggestion buttons with the new suggestions
-            suggestionButtons.forEach((button, index) => {
+            for (const [index, button] of suggestionButtons.entries()) {
                 if (
                     responseJson.suggestions &&
                     responseJson.suggestions.length > index
@@ -31,7 +31,7 @@ refreshSuggestionsLink.addEventListener('click', async function (event) {
                     button.textContent = '';
                     button.classList.add('display-none');
                 }
-            });
+            }
             // If no suggestions are available, show a message
             if (responseJson.suggestions.length === 0) {
                 document
@@ -59,11 +59,11 @@ refreshSuggestionsLink.addEventListener('click', async function (event) {
 });
 
 // Handle the suggestion button click event
-suggestionButtons.forEach((button) => {
+for (const button of suggestionButtons) {
     button.addEventListener('click', function () {
         textPromptInput.value = button.textContent.trim();
         if (promptTypeInput.value === 'json') {
             switchPromptTypeButton.click(); // Switch to text prompt if currently in JSON mode
         }
     });
-});
+}

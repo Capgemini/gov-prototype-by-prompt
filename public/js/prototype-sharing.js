@@ -11,6 +11,16 @@ const publicSharingPassword = document.getElementById('publicSharingPassword');
 const sharingButton = document.getElementById('updateSharingButton');
 const sharingLastUpdated = document.getElementById('sharingLastUpdated');
 
+// Disable or enable sharing inputs
+const disableSharingInputs = function (disabled) {
+    const sharedWithUserButtons = document.querySelectorAll(
+        '.shared-with-users-table button'
+    );
+    for (const element of [...publicSharingRadios, ...sharedWithUserButtons]) {
+        element.disabled = disabled;
+    }
+};
+
 // Handle saving sharing settings
 const saveSharingSettings = async function () {
     // Get user IDs from the table
@@ -50,12 +60,7 @@ const saveSharingSettings = async function () {
     sharingButton.disabled = true;
     sharingButton.textContent = 'Processing...';
     publicSharingPassword.disabled = true;
-    publicSharingRadios.forEach((radio) => {
-        radio.disabled = true;
-    });
-    sharedWithUserButtons.forEach((button) => {
-        button.disabled = true;
-    });
+    disableSharingInputs(true);
 
     // Request to create the prototype
     const data = {
@@ -88,12 +93,7 @@ const saveSharingSettings = async function () {
                 sharingButton.disabled = false;
                 sharingButton.textContent = 'Save public sharing';
                 publicSharingPassword.disabled = false;
-                publicSharingRadios.forEach((radio) => {
-                    radio.disabled = false;
-                });
-                sharedWithUserButtons.forEach((button) => {
-                    button.disabled = false;
-                });
+                disableSharingInputs(false);
             } else {
                 throw new Error(
                     responseJson.message ??
@@ -107,12 +107,7 @@ const saveSharingSettings = async function () {
             sharingButton.disabled = false;
             sharingButton.textContent = 'Save public sharing';
             publicSharingPassword.disabled = false;
-            publicSharingRadios.forEach((radio) => {
-                radio.disabled = false;
-            });
-            sharedWithUserButtons.forEach((button) => {
-                button.disabled = false;
-            });
+            disableSharingInputs(false);
         });
 };
 sharingForm.addEventListener('submit', async function (event) {
@@ -167,9 +162,9 @@ userToAddInput.addEventListener('keyup', async function (event) {
                 .cloneNode(true);
             newRow.querySelector('td').textContent =
                 `${datalistOption.dataset.userName} (${userToAddInput.value.trim()})`;
-            newRow.querySelectorAll('td').forEach((td) => {
+            for (const td of newRow.querySelectorAll('td')) {
                 td.classList.remove('display-none');
-            });
+            }
             newRow.querySelector('button').dataset.userId = userId;
             newRow
                 .querySelector('button')
@@ -205,6 +200,7 @@ const removeUserButtonOnClick = async function (event) {
     }
     await saveSharingSettings();
 };
-sharedWithUserButtons.forEach((button) => {
+
+for (const button of sharedWithUserButtons) {
     button.addEventListener('click', removeUserButtonOnClick);
-});
+}
