@@ -399,8 +399,17 @@ export function validateTemplateDataText(
         ) {
             delete question.hint_text;
         }
-        if (question.answer_type !== 'branching_choice') {
+        if (question.answer_type === 'branching_choice') {
+            delete question.next_question_value;
+        } else {
             delete question.options_branching;
+        }
+        if (question.required) {
+            question.required_error_text =
+                question.required_error_text ??
+                'Answer this question to continue';
+        } else {
+            delete question.required_error_text;
         }
 
         // Make sure questions with options have at least one option

@@ -416,6 +416,103 @@ describe('validateTemplateDataText', () => {
         expect(result.questions[3].options_branching).toBeUndefined();
     });
 
+    it('removes next_question_value property for branching_choice questions', () => {
+        const schema = {
+            properties: {
+                questions: {
+                    items: {
+                        properties: {
+                            answer_type: { type: 'string' },
+                            next_question_value: {
+                                type: ['number', 'null'],
+                            },
+                            options_branching: {
+                                items: {
+                                    type: 'object',
+                                },
+                                type: ['array', 'null'],
+                            },
+                        },
+                        required: ['answer_type'],
+                        type: 'object',
+                    },
+                    type: 'array',
+                },
+            },
+            type: 'object',
+        };
+        const json = JSON.stringify({
+            questions: [
+                {
+                    answer_type: 'text',
+                    next_question_value: 2,
+                },
+                {
+                    answer_type: 'branching_choice',
+                    next_question_value: 3,
+                    options_branching: [
+                        { next_question_value: 3, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'address',
+                    next_question_value: -1,
+                },
+            ],
+        });
+        const result = validateTemplateDataText(json, schema);
+        expect(result.questions[0].next_question_value).toBeDefined();
+        expect(result.questions[1].next_question_value).toBeUndefined();
+        expect(result.questions[2].next_question_value).toBeDefined();
+    });
+
+    it('handles only required questions having required_error_text', () => {
+        const schema = {
+            properties: {
+                questions: {
+                    items: {
+                        properties: {
+                            answer_type: { type: 'string' },
+                            required: { type: 'boolean' },
+                            required_error_text: { type: ['string', 'null'] },
+                        },
+                        required: ['answer_type', 'required'],
+                        type: 'object',
+                    },
+                    type: 'array',
+                },
+            },
+            type: 'object',
+        };
+        const json = JSON.stringify({
+            questions: [
+                {
+                    answer_type: 'address',
+                    required: true,
+                },
+                {
+                    answer_type: 'text',
+                    required: false,
+                    required_error_text: 'This should be removed',
+                },
+                {
+                    answer_type: 'text',
+                    required: true,
+                    required_error_text: 'Bespoke error text for question 3',
+                },
+            ],
+        });
+
+        const result = validateTemplateDataText(json, schema);
+
+        expect(result.questions[0].required_error_text).toBeDefined();
+        expect(result.questions[1].required_error_text).toBeUndefined();
+        expect(result.questions[2].required_error_text).toBe(
+            'Bespoke error text for question 3'
+        );
+    });
+
     it.each([
         [
             [
