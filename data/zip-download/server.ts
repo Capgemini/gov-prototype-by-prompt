@@ -72,7 +72,8 @@ app.use(limiter);
 // Extend express-session to include data property
 declare module 'express-session' {
     interface SessionData {
-        data: { [key: string]: string };
+        data: { [key: string]: string } | undefined;
+        history: string[] | undefined;
     }
 }
 
@@ -176,6 +177,7 @@ app.all(
         // Clear the session data if at the completion page
         if (req.params.page === 'confirmation') {
             req.session.data = {};
+            req.session.history = [];
         }
 
         // Validate the page
@@ -189,9 +191,34 @@ app.all(
             return;
         }
 
+        // Create the history if it doesn't exist
+        req.session.history ??= [];
+
+        // If the user clicked back then remove the last URL, otherwise add the current URL
+        // Don't add the confirmation page; we clear it here earlier
+        if (req.query.back) {
+            req.session.history.pop();
+            delete req.query.back;
+        } else if (page !== 'confirmation') {
+            req.session.history.push(req.url);
+        }
+
+        // Get the back link
+        let backLinkHref: string | undefined;
+        if (req.session.history.length >= 2) {
+            // Add a get param to the back link URL to indicate navigation source
+            const prevUrl = req.session.history.at(-2);
+            if (prevUrl) {
+                const url = new URL(prevUrl, `${req.protocol}://${req.host}`); // base needed for parsing
+                url.searchParams.set('back', 'true');
+                backLinkHref = url.pathname + url.search;
+            }
+        }
+
         // Render the requested page
         res.render(`your-prototype/${page}`, {
             data: req.session.data,
+            backLinkHref: backLinkHref,
         });
     }
 );
