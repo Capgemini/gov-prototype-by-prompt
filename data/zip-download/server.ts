@@ -200,7 +200,10 @@ app.all(
         if (req.query.back) {
             req.session.history.pop();
             delete req.query.back;
-        } else if (page !== 'confirmation') {
+        } else if (
+            page !== 'confirmation' &&
+            req.session.history.at(-1) !== req.url
+        ) {
             req.session.history.push(req.url);
         }
 

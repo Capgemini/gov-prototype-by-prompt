@@ -801,7 +801,10 @@ export function renderPrototypePage(
     if (req.query.back) {
         req.session.livePrototypeHistory[prototypeId].pop();
         delete req.query.back;
-    } else if (page !== 'confirmation') {
+    } else if (
+        page !== 'confirmation' &&
+        req.session.livePrototypeHistory[prototypeId].at(-1) !== req.url
+    ) {
         req.session.livePrototypeHistory[prototypeId].push(req.url);
     }
 
