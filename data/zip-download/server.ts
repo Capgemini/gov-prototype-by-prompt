@@ -225,6 +225,14 @@ app.all(
     }
 );
 
+// Redirect base URLs to the start page
+app.all('/', (req: Request, res: Response) =>
+    res.redirect('/your-prototype/start')
+);
+app.all('/your-prototype', (req: Request, res: Response) =>
+    res.redirect('/your-prototype/start')
+);
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
