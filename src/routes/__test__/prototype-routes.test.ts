@@ -1190,7 +1190,7 @@ describe('renderPrototypePage', () => {
             query: { back: 'true' },
             session: {
                 livePrototypeHistory: {
-                    [prototypeData1.id]: ['/url1', '/url2'],
+                    [prototypeData1.id]: ['/url1', '/url2', '/url3'],
                 },
             },
         });
@@ -1200,7 +1200,7 @@ describe('renderPrototypePage', () => {
 
         expect(
             request.session.livePrototypeHistory?.[prototypeData1.id]
-        ).toEqual(['/url1']);
+        ).toEqual(['/url1', '/url2']);
     });
 
     it('does not remove the last URL from the history if the user did not navigate back', () => {
