@@ -202,9 +202,9 @@ app.all(
             delete req.query.back;
         } else if (
             page !== 'confirmation' &&
-            req.session.history.at(-1) !== req.url
+            req.session.history.at(-1) !== req.path
         ) {
-            req.session.history.push(req.url);
+            req.session.history.push(req.path);
         }
 
         // Get the back link

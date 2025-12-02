@@ -802,9 +802,9 @@ export function renderPrototypePage(
         req.session.livePrototypeHistory[prototypeId].pop();
     } else if (
         page !== 'confirmation' &&
-        req.session.livePrototypeHistory[prototypeId].at(-1) !== req.url
+        req.session.livePrototypeHistory[prototypeId].at(-1) !== req.path
     ) {
-        req.session.livePrototypeHistory[prototypeId].push(req.url);
+        req.session.livePrototypeHistory[prototypeId].push(req.path);
     }
 
     // Get the back link

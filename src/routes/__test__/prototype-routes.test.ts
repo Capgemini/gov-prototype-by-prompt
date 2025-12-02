@@ -1186,6 +1186,7 @@ describe('renderPrototypePage', () => {
         const request = httpMocks.createRequest({
             ...defaultRequest,
             params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
             query: { back: 'true' },
             session: {
                 livePrototypeHistory: {
@@ -1202,16 +1203,37 @@ describe('renderPrototypePage', () => {
         ).toEqual(['/url1']);
     });
 
+    it('does not remove the last URL from the history if the user did not navigate back', () => {
+        const request = httpMocks.createRequest({
+            ...defaultRequest,
+            params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url3',
+            query: { back: 'true' },
+            session: {
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1', '/url2'],
+                },
+            },
+        });
+        const response = httpMocks.createResponse();
+
+        renderPrototypePage(request, response);
+
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toEqual(['/url1', '/url2', '/url3']);
+    });
+
     it('adds the URL to the history', () => {
         const request = httpMocks.createRequest({
             ...defaultRequest,
             params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
             session: {
                 livePrototypeHistory: {
                     [prototypeData1.id]: ['/url1'],
                 },
             },
-            url: '/url2',
         });
         const response = httpMocks.createResponse();
 
@@ -1226,12 +1248,12 @@ describe('renderPrototypePage', () => {
         const request = httpMocks.createRequest({
             ...defaultRequest,
             params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
             session: {
                 livePrototypeHistory: {
                     [prototypeData1.id]: ['/url1', '/url2'],
                 },
             },
-            url: '/url2',
         });
         const response = httpMocks.createResponse();
 
@@ -1242,26 +1264,34 @@ describe('renderPrototypePage', () => {
         ).toEqual(['/url1', '/url2']);
     });
 
-    it('sets the back link', () => {
-        const request = httpMocks.createRequest({
-            ...defaultRequest,
-            params: { id: prototypeData1.id, page: 'question-1' },
-            session: {
-                livePrototypeHistory: {
-                    [prototypeData1.id]: ['/url1', '/url2'],
+    it.each([
+        [['/url1', '/url2'], '/url2?back=true'],
+        [['/url1'], '/url1?back=true'],
+        [[], undefined],
+        [undefined, undefined],
+    ])(
+        'where the history is %s, sets the back link to %s',
+        (history, backLinkHref) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData1.id, page: 'question-1' },
+                path: '/url3',
+                session: {
+                    livePrototypeHistory: {
+                        [prototypeData1.id]: history,
+                    },
                 },
-            },
-            url: '/url3',
-        });
-        const response = httpMocks.createResponse();
+            });
+            const response = httpMocks.createResponse();
 
-        renderPrototypePage(request, response);
+            renderPrototypePage(request, response);
 
-        expect(nunjucksRenderStringMock).toHaveBeenCalledWith(
-            expect.anything(),
-            expect.objectContaining({ backLinkHref: '/url2?back=true' })
-        );
-    });
+            expect(nunjucksRenderStringMock).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ backLinkHref: backLinkHref })
+            );
+        }
+    );
 });
 
 describe('renderResultsPage', () => {
