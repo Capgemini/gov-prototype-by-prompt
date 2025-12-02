@@ -751,7 +751,9 @@ export function renderPrototypePage(
         return;
     }
 
-    // Create the history if it doesn't exist
+    // Create the live data and history if it doesn't exist
+    req.session.liveData ??= {};
+    req.session.liveData[prototypeId] ??= {};
     req.session.livePrototypeHistory ??= {};
     req.session.livePrototypeHistory[prototypeId] ??= [];
 
@@ -776,9 +778,7 @@ export function renderPrototypePage(
         );
     } else if (page === 'confirmation') {
         // Reset live data and history on confirmation
-        if (req.session.liveData?.[prototypeId]) {
-            req.session.liveData[prototypeId] = {};
-        }
+        req.session.liveData[prototypeId] = {};
         req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateConfirmationPage(
             prototypeData.json,
@@ -800,7 +800,6 @@ export function renderPrototypePage(
     // Don't add the confirmation page; we clear it here earlier
     if (req.query.back) {
         req.session.livePrototypeHistory[prototypeId].pop();
-        delete req.query.back;
     } else if (
         page !== 'confirmation' &&
         req.session.livePrototypeHistory[prototypeId].at(-1) !== req.url
@@ -828,7 +827,7 @@ export function renderPrototypePage(
             pageContent.replace('{% extends "form-base.njk" %}', baseTemplate),
             {
                 backLinkHref: backLinkHref,
-                data: req.session.liveData?.[prototypeId] ?? {},
+                data: req.session.liveData[prototypeId] ?? {},
             }
         )
     );
