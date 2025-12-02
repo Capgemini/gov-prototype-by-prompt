@@ -174,12 +174,12 @@ app.post(
 app.all(
     '/your-prototype/:page',
     (req: Request<{ page: string }>, res: Response) => {
-        // Clear the session data if at the start or completion page
-        if (['confirmation', 'start'].includes(req.params.page)) {
+        const page = req.params.page;
+
+        // Clear the session data if at the completion page
+        if (page === 'confirmation') {
             req.session.history = [];
-            if (req.params.page === 'confirmation') {
-                req.session.data = {};
-            }
+            req.session.data = {};
         }
 
         // Validate the page
@@ -187,7 +187,6 @@ app.all(
         for (let i = 0; i < prototypeJson.questions.length; i++) {
             validPages.push(`question-${String(i + 1)}`);
         }
-        const page = req.params.page;
         if (!validPages.includes(page)) {
             res.status(404).send('Page not found');
             return;

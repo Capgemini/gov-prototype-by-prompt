@@ -761,7 +761,6 @@ export function renderPrototypePage(
     const showDemoWarning = true;
     let pageContent;
     if (page === 'start') {
-        req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateStartPage(
             prototypeData.json,
             urlPrefix,
