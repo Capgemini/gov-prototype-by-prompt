@@ -197,9 +197,8 @@ app.all(
 
         // If the user clicked back then remove the last URL, otherwise add the current URL
         // Don't add the confirmation page; we clear it here earlier
-        if (req.query.back) {
+        if (req.query.back && req.path === req.session.history.at(-2)) {
             req.session.history.pop();
-            delete req.query.back;
         } else if (
             page !== 'confirmation' &&
             req.session.history.at(-1) !== req.path

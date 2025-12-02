@@ -798,7 +798,10 @@ export function renderPrototypePage(
 
     // If the user clicked back then remove the last URL, otherwise add the current URL
     // Don't add the confirmation page; we clear it here earlier
-    if (req.query.back) {
+    if (
+        req.query.back &&
+        req.path === req.session.livePrototypeHistory[prototypeId].at(-2)
+    ) {
         req.session.livePrototypeHistory[prototypeId].pop();
     } else if (
         page !== 'confirmation' &&
