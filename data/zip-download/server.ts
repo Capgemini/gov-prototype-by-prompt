@@ -4,6 +4,7 @@ import session from 'express-session';
 import path from 'node:path';
 import * as nunjucks from 'nunjucks';
 import { v4 as uuidv4 } from 'uuid';
+
 import {
     arrayOrStringIncludes,
     convertToGovukMarkdown,
@@ -72,7 +73,7 @@ app.use(limiter);
 // Extend express-session to include data property
 declare module 'express-session' {
     interface SessionData {
-        data: { [key: string]: string } | undefined;
+        data: Record<string, string> | undefined;
         history: string[] | undefined;
     }
 }
@@ -86,9 +87,9 @@ app.use(
         cookie: {
             secure: false,
         },
-        secret: uuidv4(),
         resave: false,
         saveUninitialized: true,
+        secret: uuidv4(),
     })
 );
 
@@ -220,24 +221,24 @@ app.all(
 
         // Render the requested page
         res.render(`your-prototype/${page}`, {
-            data: req.session.data,
             backLinkHref: backLinkHref,
+            data: req.session.data,
         });
     }
 );
 
 // Redirect base URLs to the start page
-app.all('/', (req: Request, res: Response) =>
-    res.redirect('/your-prototype/start')
-);
-app.all('/your-prototype', (req: Request, res: Response) =>
-    res.redirect('/your-prototype/start')
-);
+app.all('/', (req: Request, res: Response) => {
+    res.redirect('/your-prototype/start');
+});
+app.all('/your-prototype', (req: Request, res: Response) => {
+    res.redirect('/your-prototype/start');
+});
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${String(PORT)}`);
     console.log(
-        `Visit http://localhost:${PORT}/your-prototype/start to test the prototype.`
+        `Visit http://localhost:${String(PORT)}/your-prototype/start to test the prototype.`
     );
 });
