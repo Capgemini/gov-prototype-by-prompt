@@ -111,7 +111,8 @@ declare module 'express-session' {
             string,
             Record<string, string | undefined> | undefined
         >;
-        livePrototypePasswords?: Record<string, string>;
+        livePrototypeHistory?: Record<string, string[] | undefined>;
+        livePrototypePasswords?: Record<string, string | undefined>;
     }
 }
 

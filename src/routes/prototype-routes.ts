@@ -434,6 +434,9 @@ export function handleResetLivePrototype(
     if (req.session.liveData?.[prototypeId]) {
         req.session.liveData[prototypeId] = {};
     }
+    if (req.session.livePrototypeHistory?.[prototypeId]) {
+        req.session.livePrototypeHistory[prototypeId] = [];
+    }
     res.status(204).json({ message: 'Prototype data reset successfully' });
 }
 prototypeRouter.get(
@@ -772,6 +775,9 @@ export function renderPrototypePage(
         if (req.session.liveData?.[prototypeId]) {
             req.session.liveData[prototypeId] = {};
         }
+        if (req.session.livePrototypeHistory?.[prototypeId]) {
+            req.session.livePrototypeHistory[prototypeId] = [];
+        }
         pageContent = generateConfirmationPage(
             prototypeData.json,
             designSystem,
@@ -788,6 +794,31 @@ export function renderPrototypePage(
         );
     }
 
+    // Create the history if it doesn't exist
+    req.session.livePrototypeHistory ??= {};
+    req.session.livePrototypeHistory[prototypeId] ??= [];
+
+    // If the user clicked back then remove the last URL, otherwise add the current URL
+    // Don't add the confirmation page; we clear it here earlier
+    if (req.query.back) {
+        req.session.livePrototypeHistory[prototypeId].pop();
+        delete req.query.back;
+    } else if (page !== 'confirmation') {
+        req.session.livePrototypeHistory[prototypeId].push(req.url);
+    }
+
+    // Get the back link
+    let backLinkHref: string | undefined;
+    if (req.session.livePrototypeHistory[prototypeId].length >= 2) {
+        // Add a get param to the back link URL to indicate navigation source
+        const prevUrl = req.session.livePrototypeHistory[prototypeId].at(-2);
+        if (prevUrl) {
+            const url = new URL(prevUrl, `${req.protocol}://${req.host}`); // base needed for parsing
+            url.searchParams.set('back', 'true');
+            backLinkHref = url.pathname + url.search;
+        }
+    }
+
     // Incorporate the base template into the page content and render it
     const assetPath = '/assets';
     const baseTemplate = generateBasePage(assetPath, designSystem);
@@ -795,6 +826,7 @@ export function renderPrototypePage(
         nunjucks.renderString(
             pageContent.replace('{% extends "form-base.njk" %}', baseTemplate),
             {
+                backLinkHref: backLinkHref,
                 data: req.session.liveData?.[prototypeId] ?? {},
             }
         )
