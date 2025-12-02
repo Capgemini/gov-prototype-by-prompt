@@ -751,12 +751,17 @@ export function renderPrototypePage(
         return;
     }
 
+    // Create the history if it doesn't exist
+    req.session.livePrototypeHistory ??= {};
+    req.session.livePrototypeHistory[prototypeId] ??= [];
+
     // Generate the page content based on the page number
     const urlPrefix = `prototype/${prototypeId}`;
     const designSystem = prototypeData.designSystem;
     const showDemoWarning = true;
     let pageContent;
     if (page === 'start') {
+        req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateStartPage(
             prototypeData.json,
             urlPrefix,
@@ -771,13 +776,11 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else if (page === 'confirmation') {
-        // Reset live data on confirmation
+        // Reset live data and history on confirmation
         if (req.session.liveData?.[prototypeId]) {
             req.session.liveData[prototypeId] = {};
         }
-        if (req.session.livePrototypeHistory?.[prototypeId]) {
-            req.session.livePrototypeHistory[prototypeId] = [];
-        }
+        req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateConfirmationPage(
             prototypeData.json,
             designSystem,
@@ -793,10 +796,6 @@ export function renderPrototypePage(
             showDemoWarning
         );
     }
-
-    // Create the history if it doesn't exist
-    req.session.livePrototypeHistory ??= {};
-    req.session.livePrototypeHistory[prototypeId] ??= [];
 
     // If the user clicked back then remove the last URL, otherwise add the current URL
     // Don't add the confirmation page; we clear it here earlier

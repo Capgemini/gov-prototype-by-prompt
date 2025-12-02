@@ -174,10 +174,12 @@ app.post(
 app.all(
     '/your-prototype/:page',
     (req: Request<{ page: string }>, res: Response) => {
-        // Clear the session data if at the completion page
-        if (req.params.page === 'confirmation') {
-            req.session.data = {};
+        // Clear the session data if at the start or completion page
+        if (['confirmation', 'start'].includes(req.params.page)) {
             req.session.history = [];
+            if (req.params.page === 'confirmation') {
+                req.session.data = {};
+            }
         }
 
         // Validate the page
