@@ -59,6 +59,7 @@ const saveSharingSettings = async function () {
     ) {
         errorSummary.classList.remove('display-none');
         errorDescription.innerHTML = 'Enter a password.';
+        errorSummary.scrollIntoView();
         publicSharingPassword.classList.add('govuk-input--error');
         return;
     } else {
@@ -114,6 +115,7 @@ const saveSharingSettings = async function () {
         .catch((err) => {
             errorSummary.classList.remove('display-none');
             errorDescription.textContent = err.message;
+            errorSummary.scrollIntoView();
             sharingButton.disabled = false;
             sharingButton.textContent = 'Save public sharing';
             publicSharingPassword.disabled = false;
@@ -163,6 +165,7 @@ userToAddInput.addEventListener('keyup', async function (event) {
             if (existingIds.includes(userId)) {
                 errorSummary.classList.remove('display-none');
                 errorDescription.innerHTML = `User ${userToAddInput.value.trim()} already has access.`;
+                errorSummary.scrollIntoView();
                 return;
             }
 
