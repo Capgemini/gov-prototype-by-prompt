@@ -143,7 +143,7 @@
 
               {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
                 <ul>
-                  <li>&rarr; question {{ question.next_question_value }}</li>
+                  <li>&rarr; {{ 'finish' if question.next_question_value == -1 else 'question ' ~ question.next_question_value }}</li>
                 </ul>
               {% endif %}
 
