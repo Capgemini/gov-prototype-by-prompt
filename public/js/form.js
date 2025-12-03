@@ -6,21 +6,21 @@ function sanitiseHtml(text) {
 }
 
 function removeAllErrorClasses() {
-    document.querySelectorAll('.govuk-error-message').forEach(function (el) {
+    for (const el of document.querySelectorAll('.govuk-error-message')) {
         el.style.display = 'none';
-    });
-    document.querySelectorAll('.govuk-form-group').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-form-group')) {
         el.classList.remove('govuk-form-group--error');
-    });
-    document.querySelectorAll('.govuk-select').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-select')) {
         el.classList.remove('govuk-select--error');
-    });
-    document.querySelectorAll('.govuk-input').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-input')) {
         el.classList.remove('govuk-input--error');
-    });
-    document.querySelectorAll('.govuk-textarea').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-textarea')) {
         el.classList.remove('govuk-textarea--error');
-    });
+    }
 }
 
 function addInputErrorClasses(inputElement, errorMessage) {
@@ -64,9 +64,9 @@ function addDateInputErrorClasses(dateInputGroup, inputs, errorMessage) {
     if (!inputs || !errorMessage) return;
 
     // Add error classes to each input
-    inputs.forEach((input) => {
+    for (const input of inputs) {
         input.classList.add('govuk-input--error');
-    });
+    }
 
     // Add and display the error message
     let errorElement = dateInputGroup.parentNode.querySelector(
@@ -82,22 +82,22 @@ function addDateInputErrorClasses(dateInputGroup, inputs, errorMessage) {
 }
 
 function addAllErrorClasses(errorMessage) {
-    document.querySelectorAll('.govuk-error-message').forEach(function (el) {
+    for (const el of document.querySelectorAll('.govuk-error-message')) {
         el.style.display = '';
         el.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${sanitiseHtml(errorMessage)}`;
-    });
-    document.querySelectorAll('.govuk-form-group').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-form-group')) {
         el.classList.add('govuk-form-group--error');
-    });
-    document.querySelectorAll('.govuk-select').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-select')) {
         el.classList.add('govuk-select--error');
-    });
-    document.querySelectorAll('.govuk-input').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-input')) {
         el.classList.add('govuk-input--error');
-    });
-    document.querySelectorAll('.govuk-textarea').forEach(function (el) {
+    }
+    for (const el of document.querySelectorAll('.govuk-textarea')) {
         el.classList.add('govuk-textarea--error');
-    });
+    }
 }
 
 /**
@@ -116,30 +116,30 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
         dayInput.value.trim() === '' ||
         monthInput.value.trim() === '' ||
         yearInput.value.trim() === '' ||
-        isNaN(dayInput.value) ||
-        isNaN(monthInput.value) ||
-        isNaN(yearInput.value) ||
-        parseInt(dayInput.value) < 1 ||
-        parseInt(dayInput.value) > 31 ||
-        parseInt(monthInput.value) < 1 ||
-        parseInt(monthInput.value) > 12 ||
-        parseInt(yearInput.value) < 1 ||
-        parseInt(yearInput.value) > 9999
+        Number.isNaN(Number(dayInput.value)) ||
+        Number.isNaN(Number(monthInput.value)) ||
+        Number.isNaN(Number(yearInput.value)) ||
+        Number.parseInt(dayInput.value) < 1 ||
+        Number.parseInt(dayInput.value) > 31 ||
+        Number.parseInt(monthInput.value) < 1 ||
+        Number.parseInt(monthInput.value) > 12 ||
+        Number.parseInt(yearInput.value) < 1 ||
+        Number.parseInt(yearInput.value) > 9999
     ) {
         addDateInputErrorClasses(
             dateInputGroup,
             [dayInput, monthInput, yearInput],
-            dateInputGroup.getAttribute('data-invalid-error-text')
+            dateInputGroup.dataset.invalidErrorText
         );
         return true;
     }
 
     // Check that the date of birth is in the past
-    if (dateInputGroup.hasAttribute('data-date-of-birth-error-text')) {
+    if (Object.hasOwn(dateInputGroup.dataset, 'dateOfBirthErrorText')) {
         const inputDate = new Date(
-            parseInt(yearInput.value),
-            parseInt(monthInput.value) - 1,
-            parseInt(dayInput.value)
+            Number.parseInt(yearInput.value),
+            Number.parseInt(monthInput.value) - 1,
+            Number.parseInt(dayInput.value)
         );
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Set time to midnight for comparison
@@ -147,7 +147,7 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
             addDateInputErrorClasses(
                 dateInputGroup,
                 [dayInput, monthInput, yearInput],
-                dateInputGroup.getAttribute('data-date-of-birth-error-text')
+                dateInputGroup.dataset.dateOfBirthErrorText
             );
             return true;
         }
@@ -155,16 +155,16 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
 
     // Check that the date of birth is greater than or equal to the minimum age
     if (
-        dateInputGroup.hasAttribute('data-date-of-birth-minimum-age') &&
-        dateInputGroup.hasAttribute('data-date-of-birth-minimum-age-error-text')
+        Object.hasOwn(dateInputGroup.dataset, 'dateOfBirthMinimumAge') &&
+        Object.hasOwn(dateInputGroup.dataset, 'dateOfBirthMinimumAgeErrorText')
     ) {
-        const minimumAge = parseInt(
-            dateInputGroup.getAttribute('data-date-of-birth-minimum-age')
+        const minimumAge = Number.parseInt(
+            dateInputGroup.dataset.dateOfBirthMinimumAge
         );
         const inputDate = new Date(
-            parseInt(yearInput.value),
-            parseInt(monthInput.value) - 1,
-            parseInt(dayInput.value)
+            Number.parseInt(yearInput.value),
+            Number.parseInt(monthInput.value) - 1,
+            Number.parseInt(dayInput.value)
         );
         const latestDate = new Date();
         latestDate.setHours(0, 0, 0, 0); // Set time to midnight for comparison
@@ -174,9 +174,7 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
             addDateInputErrorClasses(
                 dateInputGroup,
                 [dayInput, monthInput, yearInput],
-                dateInputGroup.getAttribute(
-                    'data-date-of-birth-minimum-age-error-text'
-                )
+                dateInputGroup.dataset.dateOfBirthMinimumAgeErrorText
             );
             return true;
         }
@@ -184,16 +182,16 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
 
     // Check that the date of birth is smaller than or equal to the maximum age
     if (
-        dateInputGroup.hasAttribute('data-date-of-birth-maximum-age') &&
-        dateInputGroup.hasAttribute('data-date-of-birth-maximum-age-error-text')
+        Object.hasOwn(dateInputGroup.dataset, 'dateOfBirthMaximumAge') &&
+        Object.hasOwn(dateInputGroup.dataset, 'dateOfBirthMaximumAgeErrorText')
     ) {
-        const maximumAge = parseInt(
-            dateInputGroup.getAttribute('data-date-of-birth-maximum-age')
+        const maximumAge = Number.parseInt(
+            dateInputGroup.dataset.dateOfBirthMaximumAge
         );
         const inputDate = new Date(
-            parseInt(yearInput.value),
-            parseInt(monthInput.value) - 1,
-            parseInt(dayInput.value)
+            Number.parseInt(yearInput.value),
+            Number.parseInt(monthInput.value) - 1,
+            Number.parseInt(dayInput.value)
         );
         const earliestDate = new Date();
         earliestDate.setHours(0, 0, 0, 0);
@@ -203,9 +201,7 @@ function validateDateInput(dateInputGroup, dayInput, monthInput, yearInput) {
             addDateInputErrorClasses(
                 dateInputGroup,
                 [dayInput, monthInput, yearInput],
-                dateInputGroup.getAttribute(
-                    'data-date-of-birth-maximum-age-error-text'
-                )
+                dateInputGroup.dataset.dateOfBirthMaximumAgeErrorText
             );
             return true;
         }
@@ -234,13 +230,10 @@ function validateTextInput(textInput) {
 
     // Check if present if required
     if (
-        textInput.hasAttribute('data-required-error-text') &&
+        Object.hasOwn(textInput.dataset, 'requiredErrorText') &&
         textInput.value.trim() === ''
     ) {
-        addInputErrorClasses(
-            textInput,
-            textInput.getAttribute('data-required-error-text')
-        );
+        addInputErrorClasses(textInput, textInput.dataset.requiredErrorText);
         return true;
     } else if (textInput.value.trim() === '') {
         // If not required, do not validate further
@@ -249,12 +242,12 @@ function validateTextInput(textInput) {
 
     if (
         // Postcode
-        textInput.hasAttribute('data-proper-postcode-error-text') &&
+        Object.hasOwn(textInput.dataset, 'properPostcodeErrorText') &&
         !postcodeRegex.test(textInput.value.trim())
     ) {
         addInputErrorClasses(
             textInput,
-            textInput.getAttribute('data-proper-postcode-error-text')
+            textInput.dataset.properPostcodeErrorText
         );
         return true;
     } else if (
@@ -319,52 +312,43 @@ function validateTextInput(textInput) {
         return true;
     } else if (
         // Email
-        textInput.hasAttribute('data-email-error-text') &&
+        Object.hasOwn(textInput.dataset, 'emailErrorText') &&
         !emailRegex.test(textInput.value.trim())
     ) {
-        addInputErrorClasses(
-            textInput,
-            textInput.getAttribute('data-email-error-text')
-        );
+        addInputErrorClasses(textInput, textInput.dataset.emailErrorText);
         return true;
     } else if (
         // National Insurance Number
-        textInput.hasAttribute('data-national-insurance-number-error-text') &&
+        Object.hasOwn(textInput.dataset, 'nationalInsuranceNumberErrorText') &&
         !niRegex.test(textInput.value.replace(/\s/g, ''))
     ) {
         addInputErrorClasses(
             textInput,
-            textInput.getAttribute('data-national-insurance-number-error-text')
+            textInput.dataset.nationalInsuranceNumberErrorText
         );
         return true;
     } else if (
         // Phone Number
-        textInput.hasAttribute('data-phone-number-error-text') &&
+        Object.hasOwn(textInput.dataset, 'phoneNumberErrorText') &&
         !phoneRegex.test(textInput.value.trim().replace(/\s/g, ''))
     ) {
-        addInputErrorClasses(
-            textInput,
-            textInput.getAttribute('data-phone-number-error-text')
-        );
+        addInputErrorClasses(textInput, textInput.dataset.phoneNumberErrorText);
         return true;
     } else if (
         // Tax Code
-        textInput.hasAttribute('data-tax-code-error-text') &&
+        Object.hasOwn(textInput.dataset, 'taxCodeErrorText') &&
         !taxCodeRegex.test(textInput.value.trim())
     ) {
-        addInputErrorClasses(
-            textInput,
-            textInput.getAttribute('data-tax-code-error-text')
-        );
+        addInputErrorClasses(textInput, textInput.dataset.taxCodeErrorText);
         return true;
     } else if (
-        textInput.hasAttribute('data-vat-registration-number-error-text') &&
+        Object.hasOwn(textInput.dataset, 'vatRegistrationNumberErrorText') &&
         !vatRegistrationNumberRegex.test(textInput.value.replace(/\s/g, ''))
     ) {
         // VAT Registration Number
         addInputErrorClasses(
             textInput,
-            textInput.getAttribute('data-vat-registration-number-error-text')
+            textInput.dataset.vatRegistrationNumberErrorText
         );
         return true;
     }
@@ -382,16 +366,11 @@ function validateForm(event) {
     const selects = document.querySelectorAll(
         '.govuk-select[data-required-error-text]'
     );
-    if (selects.length > 0) {
-        selects.forEach((select) => {
-            if (select.value === 'choose' || select.value.trim() === '') {
-                addSelectErrorClasses(
-                    select,
-                    select.getAttribute('data-required-error-text')
-                );
-                hasErrors = true;
-            }
-        });
+    for (const select of selects) {
+        if (select.value === 'choose' || select.value.trim() === '') {
+            addSelectErrorClasses(select, select.dataset.requiredErrorText);
+            hasErrors = true;
+        }
     }
 
     // Validate radio buttons
@@ -402,9 +381,7 @@ function validateForm(event) {
         const radios = document.querySelectorAll('.govuk-radios__input');
         let radioChecked = Array.from(radios).some((r) => r.checked);
         if (!radioChecked) {
-            addAllErrorClasses(
-                radioGroup.getAttribute('data-required-error-text')
-            );
+            addAllErrorClasses(radioGroup.dataset.requiredErrorText);
             event.preventDefault();
             return;
         }
@@ -420,9 +397,7 @@ function validateForm(event) {
         );
         let checkboxChecked = Array.from(checkboxes).some((r) => r.checked);
         if (!checkboxChecked) {
-            addAllErrorClasses(
-                checkboxGroup.getAttribute('data-required-error-text')
-            );
+            addAllErrorClasses(checkboxGroup.dataset.requiredErrorText);
             event.preventDefault();
             return;
         }
@@ -430,66 +405,58 @@ function validateForm(event) {
 
     // Validate date inputs
     const dateInputGroups = document.querySelectorAll('.govuk-date-input');
-    if (dateInputGroups.length > 0) {
-        dateInputGroups.forEach((dateInputGroup) => {
-            if (dateInputGroup) {
-                // Get all the date input fields
-                const dayInput = dateInputGroup.querySelector(
-                    '.govuk-date-input__input--day'
-                );
-                const monthInput = dateInputGroup.querySelector(
-                    '.govuk-date-input__input--month'
-                );
-                const yearInput = dateInputGroup.querySelector(
-                    '.govuk-date-input__input--year'
-                );
+    for (const dateInputGroup of dateInputGroups) {
+        // Get all the date input fields
+        const dayInput = dateInputGroup.querySelector(
+            '.govuk-date-input__input--day'
+        );
+        const monthInput = dateInputGroup.querySelector(
+            '.govuk-date-input__input--month'
+        );
+        const yearInput = dateInputGroup.querySelector(
+            '.govuk-date-input__input--year'
+        );
 
-                // If they're required and any are empty, add error classes
-                if (
-                    dateInputGroup.hasAttribute('data-required-error-text') &&
-                    (!dayInput.value.trim() ||
-                        !monthInput.value.trim() ||
-                        !yearInput.value.trim())
-                ) {
-                    addDateInputErrorClasses(
-                        dateInputGroup,
-                        [dayInput, monthInput, yearInput],
-                        dateInputGroup.getAttribute('data-required-error-text')
-                    );
+        // If they're required and any are empty, add error classes
+        if (
+            Object.hasOwn(dateInputGroup.dataset, 'requiredErrorText') &&
+            (!dayInput.value.trim() ||
+                !monthInput.value.trim() ||
+                !yearInput.value.trim())
+        ) {
+            addDateInputErrorClasses(
+                dateInputGroup,
+                [dayInput, monthInput, yearInput],
+                dateInputGroup.dataset.requiredErrorText
+            );
 
-                    hasErrors = true;
-                }
+            hasErrors = true;
+        }
 
-                // If all date inputs are empty, do not validate further
-                if (
-                    dayInput.value.trim() === '' &&
-                    monthInput.value.trim() === '' &&
-                    yearInput.value.trim() === ''
-                ) {
-                    return;
-                }
-
-                // Complete further date validation
-                if (
-                    validateDateInput(
-                        dateInputGroup,
-                        dayInput,
-                        monthInput,
-                        yearInput
-                    )
-                ) {
-                    hasErrors = true;
-                }
-            }
-        });
+        // If all date inputs are empty, do not validate further
+        if (
+            !(
+                dayInput.value.trim() === '' &&
+                monthInput.value.trim() === '' &&
+                yearInput.value.trim() === ''
+            )
+        ) {
+            hasErrors =
+                validateDateInput(
+                    dateInputGroup,
+                    dayInput,
+                    monthInput,
+                    yearInput
+                ) || hasErrors;
+        }
     }
 
     // Validate text inputs
-    document.querySelectorAll('.govuk-input').forEach((textInput) => {
+    for (const textInput of document.querySelectorAll('.govuk-input')) {
         if (validateTextInput(textInput)) {
             hasErrors = true;
         }
-    });
+    }
 
     // For date, text, and select inputs
     if (hasErrors) {
@@ -501,7 +468,7 @@ function validateForm(event) {
         '.govuk-textarea[data-required-error-text]'
     );
     if (textarea && textarea.value.trim() === '') {
-        addAllErrorClasses(textarea.getAttribute('data-required-error-text'));
+        addAllErrorClasses(textarea.dataset.requiredErrorText);
         event.preventDefault();
     }
 
@@ -510,48 +477,46 @@ function validateForm(event) {
         '.govuk-file-upload[data-required-error-text]'
     );
     if (fileUpload && fileUpload.value.trim() === '') {
-        addAllErrorClasses(fileUpload.getAttribute('data-required-error-text'));
+        addAllErrorClasses(fileUpload.dataset.requiredErrorText);
         event.preventDefault();
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Validate the form on submit
-    const form = document.querySelector('form');
-    if (form) {
-        form.addEventListener('submit', validateForm);
-    }
+// Validate the form on submit
+const form = document.querySelector('form');
+if (form) {
+    form.addEventListener('submit', validateForm);
+}
 
-    // Create the error message element for all non-fieldset inputs
-    let labelElements = document.querySelectorAll(
-        '.govuk-label:not(.govuk-date-input__label, .govuk-checkboxes__label, .govuk-radios__label)'
+// Create the error message element for all non-fieldset inputs
+let labelElements = document.querySelectorAll(
+    '.govuk-label:not(.govuk-date-input__label, .govuk-checkboxes__label, .govuk-radios__label)'
+);
+for (const labelElement of labelElements) {
+    const errorElement = document.createElement('p');
+    errorElement.className = 'govuk-error-message';
+    errorElement.style.display = 'none';
+    labelElement.parentNode.insertBefore(
+        errorElement,
+        labelElement.nextSibling
     );
-    labelElements.forEach((labelElement, index) => {
+}
+
+// Create the error message element for all fieldset inputs (date, checkbox, radio)
+labelElements = document.querySelectorAll(
+    '.govuk-label.govuk-date-input__label, .govuk-label.govuk-checkboxes__label, .govuk-label.govuk-radios__label'
+);
+for (const labelElement of labelElements) {
+    const inputGroup = labelElement.closest(
+        '.govuk-date-input, .govuk-checkboxes, .govuk-radios'
+    );
+    if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
         const errorElement = document.createElement('p');
         errorElement.className = 'govuk-error-message';
         errorElement.style.display = 'none';
-        labelElement.parentNode.insertBefore(
+        inputGroup.parentNode.insertBefore(
             errorElement,
-            labelElement.nextSibling
+            inputGroup.previousSibling
         );
-    });
-
-    // Create the error message element for all fieldset inputs (date, checkbox, radio)
-    labelElements = document.querySelectorAll(
-        '.govuk-label.govuk-date-input__label, .govuk-label.govuk-checkboxes__label, .govuk-label.govuk-radios__label'
-    );
-    labelElements.forEach((labelElement, index) => {
-        const inputGroup = labelElement.closest(
-            '.govuk-date-input, .govuk-checkboxes, .govuk-radios'
-        );
-        if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
-            const errorElement = document.createElement('p');
-            errorElement.className = 'govuk-error-message';
-            errorElement.style.display = 'none';
-            inputGroup.parentNode.insertBefore(
-                errorElement,
-                inputGroup.previousSibling
-            );
-        }
-    });
-});
+    }
+}

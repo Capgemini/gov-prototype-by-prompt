@@ -69,92 +69,89 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    const referrer = `{{ referrer | safe if referrer else '' }}`;
+    const signinForm = document.getElementById('signinForm');
+    const formInputs = signinForm.querySelectorAll('input, select');
+    const signinButton = document.getElementById('signinButton');
+    const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+    const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
 
-      const referrer = `{{ referrer | safe if referrer else '' }}`;
-      const signinForm = document.getElementById('signinForm');
-      const formInputs = signinForm.querySelectorAll('input, select');
-      const signinButton = document.getElementById('signinButton');
-      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
-      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
-
-      // Add a hidden error element to the form inputs
-      for (const input of formInputs) {
-        const errorElement = document.createElement('p');
-        errorElement.id = `${input.id}ErrorMessage`;
-        errorElement.className = 'govuk-error-message';
-        errorElement.style.display = 'none';
-        if (input.classList.contains('govuk-password-input__input')) {
-          input.parentNode.parentNode.insertBefore(
-            errorElement,
-            input.parentNode
-          );
-        } else {
-          input.parentNode.insertBefore(
-            errorElement,
-            input
-          );
-        }
+    // Add a hidden error element to the form inputs
+    for (const input of formInputs) {
+      const errorElement = document.createElement('p');
+      errorElement.id = `${input.id}ErrorMessage`;
+      errorElement.className = 'govuk-error-message';
+      errorElement.style.display = 'none';
+      if (input.classList.contains('govuk-password-input__input')) {
+        input.parentNode.parentNode.insertBefore(
+          errorElement,
+          input.parentNode
+        );
+      } else {
+        input.parentNode.insertBefore(
+          errorElement,
+          input
+        );
       }
+    }
 
-      // Handle async form submission
-      signinForm.addEventListener('submit', async function(event) {
+    // Handle async form submission
+    signinForm.addEventListener('submit', async function(event) {
 
-        // Prevent the default form submission
-        event.preventDefault();
+      // Prevent the default form submission
+      event.preventDefault();
 
-        // Show processing state
-        signinButton.disabled = true;
-        signinButton.textContent = 'Processing...';
-        
-        // Request to sign in
-        const data = new URLSearchParams();
-        for (const pair of new FormData(signinForm)) {
-            data.append(pair[0], pair[1]);
-        }
-        fetch('/user/sign-in', {
-          method: 'POST',
-          body: data,
-          credentials: 'include'
-        }).then(async response => {
+      // Show processing state
+      signinButton.disabled = true;
+      signinButton.textContent = 'Processing...';
+      
+      // Request to sign in
+      const data = new URLSearchParams();
+      for (const pair of new FormData(signinForm)) {
+          data.append(pair[0], pair[1]);
+      }
+      fetch('/user/sign-in', {
+        method: 'POST',
+        body: data,
+        credentials: 'include'
+      }).then(async response => {
 
-          // Reset the form state
-          signinButton.disabled = false;
-          signinButton.textContent = 'Sign in';
-          formInputs.forEach((input) => {
-            input.classList.remove('govuk-input--error');
-          });
-          document.querySelectorAll('.govuk-error-message').forEach((el) => {
-            el.style.display = 'none'; 
-            el.parentNode.classList.remove('govuk-form-group--error')
-          });
-          errorSummary.classList.add('display-none');
-
-          // If response is OK, redirect to the previous page or homepage
-          if (response.ok) {
-            window.location.href = referrer || '/';
-
-          // Otherwise provide the errors
-          } else {
-            const responseJson = await response.json();
-            for (const error of responseJson.errors ?? []) {
-              const input = document.getElementById(error.path);
-              if (input) {
-                const errorElement = document.getElementById(`${error.path}ErrorMessage`);
-                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
-                errorElement.style.display = '';
-                input.classList.add('govuk-input--error');
-                errorElement.parentNode.classList.add('govuk-form-group--error');
-              }
-            }
-            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
-          }
-        }).catch(err => {
-          errorSummary.classList.remove('display-none');
-          errorDescription.textContent = err.message;
-          signinButton.disabled = false;
-          signinButton.textContent = 'Sign in';
+        // Reset the form state
+        signinButton.disabled = false;
+        signinButton.textContent = 'Sign in';
+        formInputs.forEach((input) => {
+          input.classList.remove('govuk-input--error');
         });
+        document.querySelectorAll('.govuk-error-message').forEach((el) => {
+          el.style.display = 'none'; 
+          el.parentNode.classList.remove('govuk-form-group--error')
+        });
+        errorSummary.classList.add('display-none');
+
+        // If response is OK, redirect to the previous page or homepage
+        if (response.ok) {
+          window.location.href = referrer || '/';
+
+        // Otherwise provide the errors
+        } else {
+          const responseJson = await response.json();
+          for (const error of responseJson.errors ?? []) {
+            const input = document.getElementById(error.path);
+            if (input) {
+              const errorElement = document.getElementById(`${error.path}ErrorMessage`);
+              errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+              errorElement.style.display = '';
+              input.classList.add('govuk-input--error');
+              errorElement.parentNode.classList.add('govuk-form-group--error');
+            }
+          }
+          throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+        }
+      }).catch(err => {
+        errorSummary.classList.remove('display-none');
+        errorDescription.textContent = err.message;
+        signinButton.disabled = false;
+        signinButton.textContent = 'Sign in';
       });
     });
   </script>
