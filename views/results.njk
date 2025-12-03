@@ -213,148 +213,155 @@
       {% set sharingHtml %}
         <form id="sharingForm" class="govuk-form-group govuk-!-margin-0" novalidate>
           <h2 class="govuk-heading-m">Share this prototype</h2>
-          {% if not isOwner %}
-            <p class="govuk-body">
-              Only the members of this prototype's workspace, {{ workspace.name }}, can manage sharing. 
-            </p>
-          {% endif %}
-          {{ govukSelect({
-            classes: "govuk-!-width-full",
-            id: "newWorkspaceId",
-            name: "newWorkspaceId",
-            label: {
-              text: "Choose a workspace",
-              classes: "govuk-label--s"
-            },
-            items: allWorkspaces,
-            disabled: not isOwner
-          }) }}
-          {% set publicSharingPasswordHtml %}
-            {{ govukPasswordInput({
-              id: "publicSharingPassword",
-              name: "publicSharingPassword",
-              autocomplete: "new-password",
-              value: livePrototypePublicPassword if livePrototypePublicPassword !== "" else "",
+          <div class="sharing-column govuk-!-padding-left-0">
+            {% if not isOwner %}
+              <p class="govuk-body">
+                Only the members of this prototype's workspace, {{ workspace.name }}, can manage sharing. 
+              </p>
+            {% endif %}
+            {{ govukSelect({
+              classes: "govuk-!-width-full",
+              id: "newWorkspaceId",
+              name: "newWorkspaceId",
               label: {
-                text: "Password"
+                text: "Choose a workspace",
+                classes: "govuk-label--s"
               },
+              items: allWorkspaces,
               disabled: not isOwner
             }) }}
-          {% endset -%}
-          {{ govukRadios({
-            name: "publicSharing",
-            fieldset: {
-              legend: {
-                text: "Share the live demo prototype publicly",
-                isPageHeading: false,
-                classes: "govuk-fieldset__legend--s"
-              }
-            },
-            items: [
-              {
-                value: "doNotSharePublicly",
-                text: "Do not share publicly",
-                disabled: not isOwner,
-                checked: not isLivePrototypePublic
-              },
-              {
-                value: "doSharePubliclyWithPassword",
-                text: "Share publicly with password",
-                conditional: {
-                  html: publicSharingPasswordHtml
-                },
-                disabled: not isOwner,
-                checked: isLivePrototypePublic and livePrototypePublicPassword != ""
-              },
-              {
-                value: "doSharePubliclyWithoutPassword",
-                text: "Share publicly",
-                disabled: not isOwner,
-                checked: isLivePrototypePublic and livePrototypePublicPassword == ""
-              }
-            ]
-          }) }}
-          {% if isOwner %}
-            <div class="govuk-button-group">
-              {{ govukButton({
-                id: 'updateSharingButton',
-                text: "Save public sharing",
-                type: "submit",
-                preventDoubleClick: true,
-                disabled: not isOwner
-              }) }}
-              {{ govukButton({
-                id: 'copyPublicLinkButton',
-                text: "Copy public link",
-                type: "button",
-                classes: "govuk-button--secondary",
-                disabled: not isLivePrototypePublic
-              }) }}
-            </div>
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-label--s" for="userToAdd">Share the prototype with other users</label>
-              <div id="event-name-hint" class="govuk-hint">
-                Press the Enter key to add a user
-              </div>
-              <div class="govuk-input__wrapper">
-                <input class="govuk-input" list="allUsers" id="userToAdd" name="userToAdd" autocomplete="off" />
-                <datalist id="allUsers" >
-                  {% for user in allUsers %}
-                    <option value="{{ user.email }}" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">{{ user.name }}</option>
-                  {% endfor %}
-                </datalist>
-              </div>
-            </div>
-            {% macro removeUserButton(userId) %}
-              {{ govukButton({
-                text: "Remove",
-                classes: "govuk-button--warning govuk-!-margin-0 remove-shared-user-button",
-                attributes: {
-                  "data-user-id": userId
+            {% set publicSharingPasswordHtml %}
+              {{ govukPasswordInput({
+                id: "publicSharingPassword",
+                name: "publicSharingPassword",
+                autocomplete: "new-password",
+                value: livePrototypePublicPassword if livePrototypePublicPassword !== "" else "",
+                label: {
+                  text: "Password"
                 },
                 disabled: not isOwner
               }) }}
-            {% endmacro %}
-            {% set rows = [
-              [{ text: "Not shared with any users", colspan: 2, classes: "display-none" if sharedWithUsers | length > 0 else "" }],
-              [{text: "hidden user", classes: "display-none"}, {html: removeUserButton("none"), classes: "display-none"}]
-              ] %}
-            {% for user in sharedWithUsers %}
-              {% set _ = rows.push([
-                { text: user.name ~ " (" ~ user.email ~ ")" },
-                { html: removeUserButton(user.id) }
-              ]) %}
-            {% endfor %}
-            {{ govukTable({
-              firstCellIsHeader: false,
-              classes: "shared-with-users-table",
-              head: [
-                {
-                  text: "User"
-                },
-                {
-                  text: "Remove"
+            {% endset -%}
+            {{ govukRadios({
+              name: "publicSharing",
+              fieldset: {
+                legend: {
+                  text: "Share the live demo prototype publicly",
+                  isPageHeading: false,
+                  classes: "govuk-fieldset__legend--s"
                 }
-              ],
-              rows: rows
+              },
+              items: [
+                {
+                  value: "doNotSharePublicly",
+                  text: "Do not share publicly",
+                  disabled: not isOwner,
+                  checked: not isLivePrototypePublic
+                },
+                {
+                  value: "doSharePubliclyWithPassword",
+                  text: "Share publicly with password",
+                  conditional: {
+                    html: publicSharingPasswordHtml
+                  },
+                  disabled: not isOwner,
+                  checked: isLivePrototypePublic and livePrototypePublicPassword != ""
+                },
+                {
+                  value: "doSharePubliclyWithoutPassword",
+                  text: "Share publicly",
+                  disabled: not isOwner,
+                  checked: isLivePrototypePublic and livePrototypePublicPassword == ""
+                }
+              ]
             }) }}
-            <p id="sharingLastUpdated" class="govuk-body"></p>
-          {% else %}
-            {% set rows = [] %}
-            {% for user in sharedWithUsers %}
-              {% set _ = rows.push([
-                { text: user.name ~ " (" ~ user.email ~ ")" }
-              ]) %}
-            {% endfor %}
-            {{ govukTable({
-              firstCellIsHeader: false,
-              caption: "Share the prototype with other users",
-              captionClasses: "govuk-table__caption--s govuk-!-margin-top-6",
-              classes: "shared-with-users-table",
-              head: [],
-              rows: rows
-            }) }}
-          {% endif %}
+            {% if isOwner %}
+              <div class="govuk-button-group">
+                {{ govukButton({
+                  id: 'updateSharingButton',
+                  text: "Save public sharing",
+                  type: "submit",
+                  preventDoubleClick: true,
+                  disabled: not isOwner
+                }) }}
+                {{ govukButton({
+                  id: 'copyPublicLinkButton',
+                  text: "Copy public link",
+                  type: "button",
+                  classes: "govuk-button--secondary",
+                  disabled: not isLivePrototypePublic
+                }) }}
+              </div>
+              <p class="sharing-last-updated govuk-body display-none"></p>
+            {% endif %}
+          </div>
+          <div class="sharing-column govuk-!-padding-right-0">
+            {% if isOwner %}
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-label--s" for="userToAdd">Share the prototype with other users</label>
+                <div id="event-name-hint" class="govuk-hint">
+                  Press the Enter key to add a user
+                </div>
+                <div class="govuk-input__wrapper">
+                  <input class="govuk-input" list="allUsers" id="userToAdd" name="userToAdd" autocomplete="off" />
+                  <datalist id="allUsers" >
+                    {% for user in allUsers %}
+                      <option value="{{ user.email }}" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">{{ user.name }}</option>
+                    {% endfor %}
+                  </datalist>
+                </div>
+              </div>
+              {% macro removeUserButton(userId) %}
+                {{ govukButton({
+                  text: "Remove",
+                  classes: "govuk-button--warning govuk-!-margin-0 remove-shared-user-button",
+                  attributes: {
+                    "data-user-id": userId
+                  },
+                  disabled: not isOwner
+                }) }}
+              {% endmacro %}
+              {% set rows = [
+                [{ text: "Not shared with any users", colspan: 2, classes: "display-none" if sharedWithUsers | length > 0 else "" }],
+                [{text: "hidden user", classes: "display-none"}, {html: removeUserButton("none"), classes: "display-none"}]
+                ] %}
+              {% for user in sharedWithUsers %}
+                {% set _ = rows.push([
+                  { text: user.name ~ " (" ~ user.email ~ ")" },
+                  { html: removeUserButton(user.id) }
+                ]) %}
+              {% endfor %}
+              {{ govukTable({
+                firstCellIsHeader: false,
+                classes: "shared-with-users-table",
+                head: [
+                  {
+                    text: "User"
+                  },
+                  {
+                    text: "Remove"
+                  }
+                ],
+                rows: rows
+              }) }}
+              <p class="sharing-last-updated govuk-body"></p>
+            {% else %}
+              {% set rows = [] %}
+              {% for user in sharedWithUsers %}
+                {% set _ = rows.push([
+                  { text: user.name ~ " (" ~ user.email ~ ")" }
+                ]) %}
+              {% endfor %}
+              {{ govukTable({
+                firstCellIsHeader: false,
+                caption: "Share the prototype with other users",
+                captionClasses: "govuk-table__caption--s govuk-!-margin-top-6",
+                classes: "shared-with-users-table",
+                head: [],
+                rows: rows
+              }) }}
+            {% endif %}
+          </div>
         </form>
       {% endset -%}
 
@@ -470,6 +477,7 @@
     const promptTypeInput = document.getElementById('promptType');
     const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
     const suggestionButtons = document.querySelectorAll('.suggestion-button');
+    const sharingLastUpdateds = document.getElementsByClassName('sharing-last-updated');
     const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
     const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
     const prototypeId = '{{ prototypeId }}';
@@ -543,11 +551,17 @@
     const toggleDemoButton = document.getElementById('toggleDemoButton');
     const mainColumn = document.getElementById('mainColumn');
     const demoColumn = document.getElementById('demoColumn');
+    const sharingColumns = document.getElementsByClassName('sharing-column');
     toggleDemoButton.addEventListener('click', function() {
-      demoColumn.classList.toggle('display-none');
+      [demoColumn, ...sharingLastUpdateds].forEach(element => {
+        element.classList.toggle('display-none');
+      });
       [demoColumn, mainColumn].forEach(column => {
         column.classList.toggle('govuk-grid-column-one-half');
         column.classList.toggle('govuk-grid-column-full');
+      });
+      Array.from(sharingColumns).forEach(column => {
+        column.classList.toggle('govuk-grid-column-one-half');
       });
       toggleDemoButton.textContent = demoColumn.classList.contains('display-none') ? 'Show demo' : 'Hide demo';
     });
@@ -591,19 +605,15 @@
       document.querySelector('.govuk-form-group:has(#editor)').classList.remove('govuk-form-group--error');
 
       const jsonCodeEditor = document.getElementById('editor');
+      textPromptInput.disabled = !textPromptInput.disabled;
+      textPromptInput.classList.toggle('display-none');
+      jsonCodeInput.disabled = !jsonCodeInput.disabled;
+      jsonCodeEditor.classList.toggle('display-none');
       if (promptTypeInput.value === 'text') {
         promptTypeInput.value = 'json';
-        textPromptInput.disabled = true; 
-        textPromptInput.classList.add('display-none'); 
-        jsonCodeInput.disabled = false; 
-        jsonCodeEditor.classList.remove('display-none'); 
         switchPromptTypeButton.textContent = "Switch to text";
       } else {
         promptTypeInput.value = 'text';
-        jsonCodeInput.disabled = true; 
-        jsonCodeEditor.classList.add('display-none'); 
-        textPromptInput.disabled = false; 
-        textPromptInput.classList.remove('display-none'); 
         switchPromptTypeButton.textContent = "Switch to JSON";
       }
     });

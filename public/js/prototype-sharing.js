@@ -9,7 +9,6 @@ const publicSharingRadios = document.querySelectorAll(
 );
 const publicSharingPassword = document.getElementById('publicSharingPassword');
 const sharingButton = document.getElementById('updateSharingButton');
-const sharingLastUpdated = document.getElementById('sharingLastUpdated');
 
 const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
 
@@ -100,7 +99,9 @@ const saveSharingSettings = async function () {
             copyPublicLinkButton.disabled = !data.livePrototypePublic;
             // If response is OK, show success, otherwise show error
             if (response.ok) {
-                sharingLastUpdated.textContent = `Sharing settings saved today at ${new Date().toLocaleTimeString()}.`;
+                Array.from(sharingLastUpdateds).forEach((element) => {
+                    element.textContent = `Sharing settings saved today at ${new Date().toLocaleTimeString()}.`;
+                });
                 sharingButton.disabled = false;
                 sharingButton.textContent = 'Save public sharing';
                 publicSharingPassword.disabled = false;
