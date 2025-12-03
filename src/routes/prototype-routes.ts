@@ -1,6 +1,7 @@
 import opentelemetry from '@opentelemetry/api';
 import express, { Request, Response } from 'express';
 import { body, param, query } from 'express-validator';
+import { ValidatorResultError } from 'jsonschema';
 import moment from 'moment';
 import { Document } from 'mongoose';
 import * as nunjucks from 'nunjucks';
@@ -1179,6 +1180,9 @@ export async function handleCreatePrototype(
         });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (jsonError: any) {
+        const errorMessage = prepareJsonValidationErrorMessage(
+            jsonError as Error
+        );
         const activeSpan = opentelemetry.trace.getActiveSpan();
         if (activeSpan) {
             const error = jsonError as {
@@ -1189,11 +1193,14 @@ export async function handleCreatePrototype(
             activeSpan.setAttribute('error.name', error.name ?? '');
             activeSpan.setAttribute('error.message', error.message ?? '');
             activeSpan.setAttribute('error.stack', error.stack ?? '');
+            if (jsonError instanceof ValidatorResultError) {
+                activeSpan.setAttribute('error.validation', errorMessage);
+            }
         }
         // If the JSON did not parse correctly, show the error
         if (promptType === 'json') {
             res.status(400).json({
-                message: prepareJsonValidationErrorMessage(jsonError as Error),
+                message: errorMessage,
             });
         } else {
             throw jsonError;

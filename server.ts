@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import compression from 'compression';
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
@@ -71,6 +72,9 @@ app.use(
 // Parse JSON and URL-encoded bodies
 app.use(express.urlencoded());
 app.use(bodyParser.json());
+
+// Compress everything
+app.use(compression());
 
 // Configure Nunjucks with the correct paths
 export const nunjucksEnv = nunjucks.configure(

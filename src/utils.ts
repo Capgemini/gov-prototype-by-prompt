@@ -158,8 +158,8 @@ export function getFormSchemaForJsonInputValidation(
     // Create a clone of the schema to avoid modifying the original
     formSchema = structuredClone(formSchema);
 
-    // Recursively update the schema to remove 'null' types and update required fields
-    formSchema = updateOptionalJsonSchemaFields(formSchema);
+    // Recursively update the schema to remove 'null' types, update required fields, and move examples to description
+    formSchema = updateJsonSchemaFields(formSchema);
 
     // Remove AI-specific properties that are not part of user input
     delete formSchema.properties?.changes_made;
@@ -245,18 +245,17 @@ export function prepareJsonValidationErrorMessage(error: Error): string {
 }
 
 /**
- * Prepare the JSON schema for validation by removing 'null' types
- * and updating the required fields recursively.
+ * Prepare the JSON schema for validation.
+ * Recursively remove 'null' types and move examples to description
  * @param {JsonSchema} formSchema The JSON schema to prepare for validation.
- * @returns {JsonSchema} The modified JSON schema with 'null' types removed and required fields updated.
+ * @returns {JsonSchema} The modified JSON schema.
  */
-export function updateOptionalJsonSchemaFields(
-    formSchema: JsonSchema
-): JsonSchema {
+export function updateJsonSchemaFields(formSchema: JsonSchema): JsonSchema {
     for (const key in formSchema.properties) {
+        const property = formSchema.properties[key];
+
         // If the property type is an array and includes 'null',
         // remove 'null' from the type array and update the required fields.
-        const property = formSchema.properties[key];
         if (Array.isArray(property.type) && property.type.includes('null')) {
             property.type = property.type.filter(
                 (type: string) => type !== 'null'
@@ -268,10 +267,24 @@ export function updateOptionalJsonSchemaFields(
             }
         }
 
+        // Move the examples to description if examples exist
+        if (property.examples && property.examples.length > 0) {
+            const examplesText =
+                property.examples.length === 1
+                    ? `For example, '${property.examples[0]}'.`
+                    : `For example, ${property.examples
+                          .map((example: string) => `'${example}'`)
+                          .join(' or ')}.`;
+            property.description = property.description
+                ? property.description + ' ' + examplesText
+                : examplesText;
+            delete property.examples;
+        }
+
         // If the property has a type of 'object',
         // recursively call this function to prepare nested schemas.
         if (property.items?.type === 'object') {
-            property.items = updateOptionalJsonSchemaFields(property.items);
+            property.items = updateJsonSchemaFields(property.items);
         }
     }
     return formSchema;
@@ -386,8 +399,17 @@ export function validateTemplateDataText(
         ) {
             delete question.hint_text;
         }
-        if (question.answer_type !== 'branching_choice') {
+        if (question.answer_type === 'branching_choice') {
+            delete question.next_question_value;
+        } else {
             delete question.options_branching;
+        }
+        if (question.required) {
+            question.required_error_text =
+                question.required_error_text ??
+                'Answer this question to continue';
+        } else {
+            delete question.required_error_text;
         }
 
         // Make sure questions with options have at least one option
@@ -402,12 +424,12 @@ export function validateTemplateDataText(
             validationErrors.push({
                 argument: undefined,
                 instance: question,
-                message: `must have at least one option`,
+                message: `must have at least one ${question.answer_type} option`,
                 name: 'required',
                 path: ['questions', index],
                 property: `instance.questions[${String(index)}]`,
                 schema: {},
-                stack: `instance.questions[${String(index)}] must have at least one option`,
+                stack: `instance.questions[${String(index)}] must have at least one ${question.answer_type} option`,
             });
         }
 
@@ -420,30 +442,58 @@ export function validateTemplateDataText(
             ),
         ]);
 
-        // Throw an error if the next_question_value is invalid
+        // Throw an error if the next_question_value for non-branching questions is invalid
         if (
-            (question.next_question_value !== undefined &&
-                !validNextQuestionValues.has(question.next_question_value)) ||
-            (question.answer_type === 'branching_choice' &&
-                question.options_branching?.some(
-                    (option) =>
-                        !validNextQuestionValues.has(option.next_question_value)
-                ))
+            question.next_question_value !== undefined &&
+            !validNextQuestionValues.has(question.next_question_value)
         ) {
             validationErrors.push({
                 argument: undefined,
                 instance: question,
                 message: `must be one of ${Array.from(
                     validNextQuestionValues
-                ).join(', ')}`,
+                ).join(', ')}, not ${String(question.next_question_value)}`,
                 name: 'invalid',
                 path: ['questions', index],
                 property: `instance.questions[${String(index)}].next_question_value`,
                 schema: {},
                 stack: `instance.questions[${String(index)}].next_question_value must be one of ${Array.from(
                     validNextQuestionValues
-                ).join(', ')}`,
+                ).join(', ')}, not ${String(question.next_question_value)}`,
             });
+        }
+
+        // Throw an error if the next_question_value for branching questions is invalid
+        if (question.answer_type === 'branching_choice') {
+            for (const [optionIndex, option] of (
+                question.options_branching ?? []
+            ).entries()) {
+                if (!validNextQuestionValues.has(option.next_question_value)) {
+                    validationErrors.push({
+                        argument: undefined,
+                        instance: option,
+                        message: `must be one of ${Array.from(
+                            validNextQuestionValues
+                        ).join(
+                            ', '
+                        )}, not ${String(option.next_question_value)}`,
+                        name: 'invalid',
+                        path: [
+                            'questions',
+                            index,
+                            'options_branching',
+                            optionIndex,
+                        ],
+                        property: `instance.questions[${String(index)}].options_branching[${String(optionIndex)}]`,
+                        schema: {},
+                        stack: `instance.questions[${String(index)}].options_branching[${String(optionIndex)}] must be one of ${Array.from(
+                            validNextQuestionValues
+                        ).join(
+                            ', '
+                        )}, not ${String(option.next_question_value)}`,
+                    });
+                }
+            }
         }
     }
 

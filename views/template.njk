@@ -18,13 +18,12 @@
 {% from "govuk/components/pagination/macro.njk" import govukPagination %}
 {% from "govuk/components/password-input/macro.njk" import govukPasswordInput %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
-{% from "govuk/components/details/macro.njk" import govukDetails %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% block headIcons %}{% endblock %}
 
 {% block head %}
-  <link href="{{ assetPath }}/font-override.css" rel="stylesheet">
+  <link href="{{ assetPath }}/css/font-override.css" rel="stylesheet">
   <link href="{{ assetPath }}/govuk-frontend.min.css" rel="stylesheet">
   <style>
     header a.govuk-header__link, footer > .govuk-width-container, .display-none {

@@ -217,7 +217,7 @@ export function getMultiPageBase(
                   `  <script type="module" src="{{ assetPath }}/hmrc-frontend-${hmrcVersion}.min.js"></script>`,
               ]
             : []),
-        `  <script type="module" src="/assets/form.js"></script>`,
+        `  <script type="module" src="/assets/js/form.js"></script>`,
         `  <script type="module">`,
         `    import { initAll } from '{{ assetPath }}/govuk-frontend.min.js'`,
         `    initAll()`,

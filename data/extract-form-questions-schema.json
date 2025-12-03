@@ -16,49 +16,73 @@
     "properties": {
         "explanation": {
             "type": ["string", "null"],
-            "description": "An explanation of why you as the LLM have generated the form in this way. Include any assumptions you have made and data you have generated that was not provided in the user prompt. This must be specific and concise, and not state the obvious nor duplicate any information already provided elsewhere. If the user is asking for an existing form to be updated, only explain the changes that have been made. Refer to yourself in the first person, the user creating the prompt in the second person, and the user filling out the form in the third person. For example, 'I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.' or 'I have added a multiple choice question to allow the user to select their preferred contact methods.'"
+            "description": "A concise, specific explanation of why you, as the LLM, generated the form in this way. Clearly state any assumptions, inferred requirements, or data you generated that was not present in the user prompt. Do not repeat information already provided elsewhere in the form. If updating an existing form, only explain the changes made. Write in the first person for yourself, the second person for the prompt creator, and the third person for the form user.",
+            "examples": [
+                "I assumed that the user will need to provide their name, address, and date of birth, and that they must be at least 18 years old.",
+                "I have added a multiple choice question to allow the user to select their preferred contact methods."
+            ]
         },
         "changes_made": {
             "type": "string",
-            "description": "A brief one-line summary of the changes that you as the LLM have made to the form. This should be concise and specific up to 80 characters long with no full stop, such as 'Removed email address question' or 'Added a question about preferred contact method'"
+            "description": "A single, concise summary (max 80 characters, no full stop) of the specific change(s) you, as the LLM, made to the form.",
+            "examples": [
+                "Removed email address question",
+                "Added a question about preferred contact method"
+            ]
         },
         "suggestions": {
             "type": ["array", "null"],
-            "description": "List possible suggestions to change the form. Each suggestion must be unique and a specific and direct instruction. Suggestions must be to add, update, or remove a question. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'",
+            "description": "A list of three unique, specific, and actionable suggestions for improving the form. Each suggestion must be a direct instruction to add, update, or remove a question. Phrase each as a clear command.",
             "items": {
                 "type": "string",
                 "minItems": 3,
                 "maxItems": 3,
-                "description": "A single suggestion for improving the form. This must be very concise, direct, and specific."
+                "description": "A single suggestion for improving the form. This must be very concise, direct, and specific.",
+                "examples": [
+                    "Add a question about the user's preferred contact method",
+                    "Ensure the user is at least 18 years old in question 5."
+                ]
             }
         },
         "title": {
             "type": "string",
-            "description": "The title of the form in plain text. This is displayed at the top of the form. This must concisely describe the purpose of the form and be in sentence case with no full stop. An example is 'Register to vote' or 'Apply for a driving licence'."
+            "description": "A concise, plain-text title describing the task that the form completes. Start with a verb. Use sentence case and do not include a full stop.",
+            "examples": [
+                "Register to vote",
+                "Get help with court fees",
+                "Apply for a driving licence"
+            ]
         },
         "description": {
             "type": "string",
-            "description": "A description of the form displayed below the title to provide additional context or instructions for filling out the form. This must be in Markdown with no headings."
+            "description": "A Markdown-formatted description shown below the title, providing clear context or instructions for filling out the form. Do not use headings."
         },
         "duration": {
             "type": "integer",
-            "description": "How long it typically takes to complete the form in minutes."
+            "description": "The typical time, in minutes, required to complete the form."
         },
         "before_you_start": {
             "type": "string",
-            "description": "A description of what the user should know or do before starting the form. It should provide clear instructions or information about eligibility or prerequisites. This must be in Markdown with no headings. An example is 'You must be a British citizen and have a valid National Insurance number to use this service.'"
+            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. Do not use headings.",
+            "examples": [
+                "You must be a British citizen and have a valid National Insurance number to use this service."
+            ]
         },
         "what_happens_next": {
             "type": "string",
-            "description": "A description of instructions or information about the next steps. This is shown after the user has submitted the form and must fit this context. This must be in Markdown with no headings. An example is 'We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information.'"
+            "description": "A Markdown-formatted description of what happens after the user submits the form. Clearly explain the next steps. Do not use headings.",
+            "examples": [
+                "We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information."
+            ]
         },
         "form_type": {
             "type": "string",
-            "description": "The type of form being generated. This is used to determine the context and purpose of the form. An example is 'registration' or 'application'. The word must make sense when prefixed before the word 'complete' once the user has completed the form."
+            "description": "A single word describing the type of form. This word should make sense when used in the phrase '[form_type] complete' after the user finishes the form.",
+            "examples": ["registration", "application"]
         },
         "show_progress_indicators": {
             "type": "boolean",
-            "description": "Whether to show progress indicators to the user as they complete the form, for example 'Question 1 of 3'. They may also be known as the question numbers. This should default to true unless the form contains a branching_choice question, or the user specifically requests not to show progress indicators."
+            "description": "Whether to show progress indicators (e.g., 'Question 1 of 3') as the user completes the form. Default to true unless the form contains a branching_choice question or the user requests otherwise."
         },
         "questions": {
             "type": "array",
@@ -82,23 +106,35 @@
                 "properties": {
                     "question_text": {
                         "type": "string",
-                        "description": "The title of the question. If the question is not required, add '(optional)' to the end of the question title. For example, 'What is your name?' or 'What is your date of birth?'. This must be a proper sentence with a question mark at the end."
+                        "description": "A full-sentence question title ending with a question mark. Do not use the word 'please'. If the question is optional, append '(optional)'.",
+                        "examples": [
+                            "What is your name?",
+                            "What is your date of birth?"
+                        ]
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "Information that helps the majority of users answer the question, like how their information will be used, or where to find it. It typically appears immediately below the question title in a smaller or lighter font. It must be a single short sentence without any full stops. An example of hint text is 'Tick the box or boxes that apply'. This field is optional, and must be null if a detailed_explanation is provided."
+                        "description": "A short, single-sentence hint with no full stop to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided.",
+                        "examples": [
+                            "Select all that apply",
+                            "You can find this on your payslip"
+                        ]
                     },
                     "detailed_explanation": {
                         "type": ["object", "null"],
-                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. If provided, it must be an object with a required title and explanation. The title must be a string in sentence case as a statement (for example, 'Interview needs'). The explanation must be a string in Markdown and may include multiple sentences or paragraphs. This field is optional. The hint text must be null if this is provided.",
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. The title must be a string in sentence case as a statement. The explanation must be a string in Markdown and may include multiple sentences or paragraphs. The hint text must be null if this is provided.",
                         "properties": {
                             "question_title": {
                                 "type": "string",
-                                "description": "A title for the detailed explanation, in sentence case as a statement. An example is 'Interview needs' or 'Vehicle transmission'."
+                                "description": "A sentence-case statement as a title for the whole question.",
+                                "examples": [
+                                    "Interview needs",
+                                    "Vehicle transmission"
+                                ]
                             },
                             "explanation_text": {
                                 "type": "string",
-                                "description": "A detailed explanation in Markdown. May include multiple sentences or paragraphs."
+                                "description": "Markdown-formatted, may include multiple sentences or paragraphs."
                             }
                         },
                         "required": ["question_title", "explanation_text"],
@@ -110,15 +146,20 @@
                     },
                     "required_error_text": {
                         "type": ["string", "null"],
-                        "description": "The error message to display if the user does not provide an answer to a required question. The message must be in plain English and get to the point. An example of an error message is 'Enter how many hours you work a week'. Leave as null if the question is not required."
+                        "description": "A concise and plain English error message shown if a required question is left unanswered as an instruction for the user. Do not start with 'please' or 'you must'. Leave as null if the question is not required.",
+                        "examples": [
+                            "Enter your date of birth",
+                            "Enter how many hours you work a week",
+                            "Select at least one option"
+                        ]
                     },
                     "next_question_value": {
                         "type": ["integer", "null"],
-                        "description": "The number of the next question (starting from 1) in the standard sequence of the form. This is typically the next question number. Use -1 if the user should finish the form with no further questions. This field is ignored for branching_choice answer types."
+                        "description": "The index (starting from 1) of the next question in the form sequence. This should normally be the next question number. Use -1 if the user should finish the form with no further questions. This cannot be larger than the total number of questions in the form. Leave as null for branching_choice answer types."
                     },
                     "answer_type": {
                         "type": "string",
-                        "description": "The type of answer required, based on what the question is asking. Possible values: 'address' (A postal address), 'bank_details' (A person's bank details), 'country' (Select a country), 'date' (A calendar date, entered as a day, month, and year), 'date_of_birth' (A person's date of birth, entered as a day, month, and year), 'email' (An email address), 'emergency_contact_details' (Name and contact details for someone to contact in an emergency), 'file_upload' (A single file upload, such as a document or image), 'gbp_currency_amount' (A monetary amount in GBP), 'multiple_choice' (Multiple choices from a list of options), 'name' (A person's name), 'national_insurance_number' (A UK National Insurance number), 'nationality' (Select a nationality), 'passport_information' (A person's passport details), 'phone_number' (A UK phone number), 'single_choice' (A single choice from a list of options), 'tax_code' (A UK tax code), 'text' (A short free-text answer), 'text_area' (A longer free-text answer, multiple sentences), 'vat_registration_number' (A UK VAT registration number), 'branching_choice' (A single choice from a list of options that may have one or more follow up questions),",
+                        "description": "The type of answer required, based on what the question is asking. Must be one of the allowed enum values. Use 'branching_choice' if the next question depends on the selected answer (e.g., 'Have you lost your licence?' with follow-up only if 'Yes').",
                         "enum": [
                             "address",
                             "bank_details",
@@ -145,7 +186,7 @@
                     },
                     "options": {
                         "type": ["array", "null"],
-                        "description": "If the answer_type is single_choice or multiple_choice, list the unique options here. Otherwise, leave as null.",
+                        "description": "For single_choice or multiple_choice questions, an array of unique options. Leave as null for other answer types.",
                         "items": {
                             "type": "string",
                             "minItems": 2,
@@ -154,7 +195,7 @@
                     },
                     "options_branching": {
                         "type": ["array", "null"],
-                        "description": "Only if the answer_type is branching_choice, list the unique options here along with the associated question index each option would branch to. Otherwise, leave as null.",
+                        "description": "For branching_choice questions, an array of options with associated next_question_value. Leave as null for other answer types.",
                         "items": {
                             "type": "object",
                             "required": ["text_value", "next_question_value"],
@@ -166,7 +207,7 @@
                                 },
                                 "next_question_value": {
                                     "type": "integer",
-                                    "description": "The number of the next question to jump to (starting from 1) if this option requires additional information or if the form continues after this option. Use -1 if the user should finish the form with no further questions."
+                                    "description": "The number of the next question to jump to (starting from 1) if this option requires additional information or if the form continues after this option. Use -1 if the user should finish the form with no further questions. This cannot be larger than the total number of questions in the form."
                                 }
                             }
                         }
@@ -175,13 +216,13 @@
                         "type": ["integer", "null"],
                         "multipleOf": 1,
                         "minimum": 0,
-                        "description": "If the answer_type is date_of_birth, this is the minimum age in years. Leave this null if there is no minimum age requirement or if the answer_type is not date_of_birth."
+                        "description": "The minimum age in years for date_of_birth questions. Leave as null if not applicable."
                     },
                     "date_of_birth_maximum_age": {
                         "type": ["integer", "null"],
                         "multipleOf": 1,
                         "minimum": 0,
-                        "description": "If the answer_type is date_of_birth, this is the maximum age in years. Leave this blank if there is no maximum age requirement or if the answer_type is not date_of_birth."
+                        "description": "The maximum age in years for date_of_birth questions. Leave as null if not applicable."
                     }
                 }
             }
