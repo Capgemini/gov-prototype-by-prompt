@@ -4,6 +4,7 @@ import session from 'express-session';
 import path from 'node:path';
 import * as nunjucks from 'nunjucks';
 import { v4 as uuidv4 } from 'uuid';
+
 import {
     arrayOrStringIncludes,
     convertToGovukMarkdown,
@@ -72,7 +73,8 @@ app.use(limiter);
 // Extend express-session to include data property
 declare module 'express-session' {
     interface SessionData {
-        data: { [key: string]: string };
+        data: Record<string, string> | undefined;
+        history: string[] | undefined;
     }
 }
 
@@ -85,9 +87,9 @@ app.use(
         cookie: {
             secure: false,
         },
-        secret: uuidv4(),
         resave: false,
         saveUninitialized: true,
+        secret: uuidv4(),
     })
 );
 
@@ -173,8 +175,11 @@ app.post(
 app.all(
     '/your-prototype/:page',
     (req: Request<{ page: string }>, res: Response) => {
+        const page = req.params.page;
+
         // Clear the session data if at the completion page
-        if (req.params.page === 'confirmation') {
+        if (page === 'confirmation') {
+            req.session.history = [];
             req.session.data = {};
         }
 
@@ -183,23 +188,57 @@ app.all(
         for (let i = 0; i < prototypeJson.questions.length; i++) {
             validPages.push(`question-${String(i + 1)}`);
         }
-        const page = req.params.page;
         if (!validPages.includes(page)) {
             res.status(404).send('Page not found');
             return;
         }
 
+        // Create the history if it doesn't exist
+        req.session.history ??= [];
+
+        // If the user clicked back then remove the last URL, otherwise add the current URL
+        // Don't add the confirmation page; we clear it here earlier
+        if (req.query.back && req.path === req.session.history.at(-2)) {
+            req.session.history.pop();
+        } else if (
+            page !== 'confirmation' &&
+            req.session.history.at(-1) !== req.path
+        ) {
+            req.session.history.push(req.path);
+        }
+
+        // Get the back link
+        let backLinkHref: string | undefined;
+        if (req.session.history.length >= 2) {
+            // Add a get param to the back link URL to indicate navigation source
+            const prevUrl = req.session.history.at(-2);
+            if (prevUrl) {
+                const url = new URL(prevUrl, `${req.protocol}://${req.host}`); // base needed for parsing
+                url.searchParams.set('back', 'true');
+                backLinkHref = url.pathname + url.search;
+            }
+        }
+
         // Render the requested page
         res.render(`your-prototype/${page}`, {
+            backLinkHref: backLinkHref,
             data: req.session.data,
         });
     }
 );
 
+// Redirect base URLs to the start page
+app.all('/', (req: Request, res: Response) => {
+    res.redirect('/your-prototype/start');
+});
+app.all('/your-prototype', (req: Request, res: Response) => {
+    res.redirect('/your-prototype/start');
+});
+
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${String(PORT)}`);
     console.log(
-        `Visit http://localhost:${PORT}/your-prototype/start to test the prototype.`
+        `Visit http://localhost:${String(PORT)}/your-prototype/start to test the prototype.`
     );
 });

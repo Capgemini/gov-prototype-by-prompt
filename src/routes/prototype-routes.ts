@@ -435,6 +435,9 @@ export function handleResetLivePrototype(
     if (req.session.liveData?.[prototypeId]) {
         req.session.liveData[prototypeId] = {};
     }
+    if (req.session.livePrototypeHistory?.[prototypeId]) {
+        req.session.livePrototypeHistory[prototypeId] = [];
+    }
     res.status(204).json({ message: 'Prototype data reset successfully' });
 }
 prototypeRouter.get(
@@ -749,6 +752,12 @@ export function renderPrototypePage(
         return;
     }
 
+    // Create the live data and history if it doesn't exist
+    req.session.liveData ??= {};
+    req.session.liveData[prototypeId] ??= {};
+    req.session.livePrototypeHistory ??= {};
+    req.session.livePrototypeHistory[prototypeId] ??= [];
+
     // Generate the page content based on the page number
     const urlPrefix = `prototype/${prototypeId}`;
     const designSystem = prototypeData.designSystem;
@@ -769,10 +778,9 @@ export function renderPrototypePage(
             showDemoWarning
         );
     } else if (page === 'confirmation') {
-        // Reset live data on confirmation
-        if (req.session.liveData?.[prototypeId]) {
-            req.session.liveData[prototypeId] = {};
-        }
+        // Reset live data and history on confirmation
+        req.session.liveData[prototypeId] = {};
+        req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateConfirmationPage(
             prototypeData.json,
             designSystem,
@@ -789,6 +797,32 @@ export function renderPrototypePage(
         );
     }
 
+    // If the user clicked back then remove the last URL, otherwise add the current URL
+    // Don't add the confirmation page; we clear it here earlier
+    if (
+        req.query.back &&
+        req.path === req.session.livePrototypeHistory[prototypeId].at(-2)
+    ) {
+        req.session.livePrototypeHistory[prototypeId].pop();
+    } else if (
+        page !== 'confirmation' &&
+        req.session.livePrototypeHistory[prototypeId].at(-1) !== req.path
+    ) {
+        req.session.livePrototypeHistory[prototypeId].push(req.path);
+    }
+
+    // Get the back link
+    let backLinkHref: string | undefined;
+    if (req.session.livePrototypeHistory[prototypeId].length >= 2) {
+        // Add a get param to the back link URL to indicate navigation source
+        const prevUrl = req.session.livePrototypeHistory[prototypeId].at(-2);
+        if (prevUrl) {
+            const url = new URL(prevUrl, `${req.protocol}://${req.host}`); // base needed for parsing
+            url.searchParams.set('back', 'true');
+            backLinkHref = url.pathname + url.search;
+        }
+    }
+
     // Incorporate the base template into the page content and render it
     const assetPath = '/assets';
     const baseTemplate = generateBasePage(assetPath, designSystem);
@@ -796,7 +830,8 @@ export function renderPrototypePage(
         nunjucks.renderString(
             pageContent.replace('{% extends "form-base.njk" %}', baseTemplate),
             {
-                data: req.session.liveData?.[prototypeId] ?? {},
+                backLinkHref: backLinkHref,
+                data: req.session.liveData[prototypeId] ?? {},
             }
         )
     );

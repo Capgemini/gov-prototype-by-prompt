@@ -58,6 +58,14 @@ export function getCheckAnswersHeader(
         ...(designSystem === 'HMRC'
             ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
             : []),
+        `  {% if backLinkHref is defined %}`,
+        `    <section aria-label="Back link">`,
+        `      {{ govukBackLink({`,
+        `        href: backLinkHref,`,
+        `        text: "Back"`,
+        `      }) }}`,
+        `    </section>`,
+        `  {% endif %}`,
         `{% endblock %}`,
         ``,
         `{% block content %}`,
@@ -156,6 +164,7 @@ export function getMultiPageBase(
         `{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}`,
         `{% from "govuk/components/select/macro.njk" import govukSelect %}`,
         `{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}`,
+        `{% from "govuk/components/back-link/macro.njk" import govukBackLink %}`,
         ...(designSystem === 'HMRC'
             ? [
                   `{% from "hmrc/components/banner/macro.njk" import hmrcBanner %}`,
@@ -270,6 +279,14 @@ export function getQuestionHeader({
         ...(designSystem === 'HMRC'
             ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
             : []),
+        `  {% if backLinkHref is defined %}`,
+        `    <section aria-label="Back link">`,
+        `      {{ govukBackLink({`,
+        `        href: backLinkHref,`,
+        `        text: "Back"`,
+        `      }) }}`,
+        `    </section>`,
+        `  {% endif %}`,
         `{% endblock %}`,
         ``,
         `{% block content %}`,
