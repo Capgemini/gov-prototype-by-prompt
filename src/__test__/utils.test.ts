@@ -105,13 +105,40 @@ describe('getFormSchemaForJsonInputValidation', () => {
         expect(result.required).toEqual(['age']);
     });
 
+    it('moves examples into descriptions', () => {
+        const schema = {
+            properties: {
+                age: {
+                    description: 'The age of the person.',
+                    examples: ['25', '30'],
+                    type: 'number',
+                },
+                name: { examples: ['Alice', 'Bob'], type: 'string' },
+            },
+            required: ['name', 'age'],
+            type: 'object',
+        };
+        const result = getFormSchemaForJsonInputValidation(schema);
+        expect(result.properties?.age.description).toEqual(
+            "The age of the person. For example, '25' or '30'."
+        );
+        expect(result.properties?.age.examples).toBeUndefined();
+        expect(result.properties?.name.description).toEqual(
+            "For example, 'Alice' or 'Bob'."
+        );
+        expect(result.properties?.name.examples).toBeUndefined();
+    });
+
     it('handles nested object schemas', () => {
         const schema = {
             properties: {
                 firstProperty: {
                     items: {
                         properties: {
-                            value: { type: ['string', 'null'] },
+                            value: {
+                                examples: ['example1'],
+                                type: ['string', 'null'],
+                            },
                         },
                         required: ['value'],
                         type: 'object',
@@ -131,6 +158,13 @@ describe('getFormSchemaForJsonInputValidation', () => {
         expect(
             result.properties?.firstProperty.items?.properties?.value.type
         ).toEqual(['string']);
+        expect(
+            result.properties?.firstProperty.items?.properties?.value
+                .description
+        ).toEqual("For example, 'example1'.");
+        expect(
+            result.properties?.firstProperty.items?.properties?.value.examples
+        ).toBeUndefined();
         expect(result.properties?.firstProperty.items?.required).toEqual([]);
         expect(result.properties?.secondProperty.type).toEqual('number');
         expect(result.required).toEqual(['firstProperty', 'secondProperty']);
@@ -185,28 +219,47 @@ describe('getFormSchemaForJsonInputValidation', () => {
 });
 
 describe('validateTemplateDataText', () => {
-    it('returns cleaned object for valid JSON and schema', () => {
-        const schema = {
-            properties: {
-                duration: { type: 'number' },
-                questions: {
-                    items: {
-                        properties: {},
-                        type: 'object',
-                    },
-                    type: 'array',
+    const baseQuestionProperties = {
+        answer_type: { type: 'string' },
+        date_of_birth_maximum_age: { type: ['number', 'null'] },
+        date_of_birth_minimum_age: { type: ['number', 'null'] },
+        next_question_value: { type: ['number', 'null'] },
+        options: {
+            items: { type: 'string' },
+            type: ['array', 'null'],
+        },
+        options_branching: {
+            items: { type: 'object' },
+            type: ['array', 'null'],
+        },
+        required: { type: 'boolean' },
+        required_error_text: { type: ['string', 'null'] },
+    };
+
+    const baseSchema = {
+        properties: {
+            duration: { type: 'number' },
+            questions: {
+                items: {
+                    properties: { ...baseQuestionProperties },
+                    required: ['answer_type'],
+                    type: 'object',
                 },
-                title: { type: 'string' },
+                type: 'array',
             },
-            required: ['title', 'duration', 'questions'],
-            type: 'object',
-        };
+            title: { type: ['string', 'null'] },
+        },
+        required: ['questions'],
+        type: 'object',
+    };
+
+    it('returns cleaned object for valid JSON and schema', () => {
         const json = JSON.stringify({
             duration: 30,
             questions: [],
             title: 'Form Title',
         });
-        const result = validateTemplateDataText(json, schema);
+        const result = validateTemplateDataText(json, baseSchema);
         expect(result).toEqual({
             duration: 30,
             questions: [],
@@ -215,77 +268,28 @@ describe('validateTemplateDataText', () => {
     });
 
     it('removes null values from the result', () => {
-        const schema = {
-            properties: {
-                duration: { type: 'number' },
-                questions: {
-                    items: {
-                        properties: {},
-                        type: 'object',
-                    },
-                    type: 'array',
-                },
-                title: { type: ['string', 'null'] },
-            },
-            required: ['duration', 'questions'],
-            type: 'object',
-        };
         const json = JSON.stringify({
             duration: 25,
             questions: [],
             title: null,
         });
-        const result = validateTemplateDataText(json, schema);
+        const result = validateTemplateDataText(json, baseSchema);
         expect(result).toEqual({ duration: 25, questions: [] });
     });
 
     it('throws error for invalid JSON', () => {
-        const schema = {
-            properties: {
-                name: { type: 'string' },
-            },
-            required: ['name'],
-            type: 'object',
-        };
         const invalidJson = '{ name: "Alice" '; // malformed JSON
-        expect(() => validateTemplateDataText(invalidJson, schema)).toThrow();
+        expect(() =>
+            validateTemplateDataText(invalidJson, baseSchema)
+        ).toThrow();
     });
 
     it('throws error if JSON does not match schema', () => {
-        const schema = {
-            properties: {
-                age: { type: 'number' },
-                name: { type: 'string' },
-            },
-            required: ['name', 'age'],
-            type: 'object',
-        };
         const json = JSON.stringify({ name: 'Bob' }); // missing age
-        expect(() => validateTemplateDataText(json, schema)).toThrow();
+        expect(() => validateTemplateDataText(json, baseSchema)).toThrow();
     });
 
     it('removes date of birth properties if not applicable', () => {
-        const schema = {
-            properties: {
-                questions: {
-                    items: {
-                        properties: {
-                            answer_type: { type: 'string' },
-                            date_of_birth_maximum_age: {
-                                type: ['number', 'null'],
-                            },
-                            date_of_birth_minimum_age: {
-                                type: ['number', 'null'],
-                            },
-                        },
-                        required: ['answer_type'],
-                        type: 'object',
-                    },
-                    type: 'array',
-                },
-            },
-            type: 'object',
-        };
         const json = JSON.stringify({
             questions: [
                 {
@@ -300,7 +304,7 @@ describe('validateTemplateDataText', () => {
                 },
             ],
         });
-        const result = validateTemplateDataText(json, schema);
+        const result = validateTemplateDataText(json, baseSchema);
         expect(result.questions[0].date_of_birth_minimum_age).toBeUndefined();
         expect(result.questions[0].date_of_birth_maximum_age).toBeUndefined();
         expect(result.questions[1].date_of_birth_minimum_age).toBe(18);
@@ -308,33 +312,6 @@ describe('validateTemplateDataText', () => {
     });
 
     it('removes options properties if not applicable', () => {
-        const schema = {
-            properties: {
-                questions: {
-                    items: {
-                        properties: {
-                            answer_type: { type: 'string' },
-                            options: {
-                                items: {
-                                    type: 'string',
-                                },
-                                type: ['array', 'null'],
-                            },
-                            options_branching: {
-                                items: {
-                                    type: 'object',
-                                },
-                                type: ['array', 'null'],
-                            },
-                        },
-                        required: ['answer_type'],
-                        type: 'object',
-                    },
-                    type: 'array',
-                },
-            },
-            type: 'object',
-        };
         const json = JSON.stringify({
             questions: [
                 {
@@ -371,7 +348,7 @@ describe('validateTemplateDataText', () => {
                 },
             ],
         });
-        const result = validateTemplateDataText(json, schema);
+        const result = validateTemplateDataText(json, baseSchema);
         expect(result.questions[0].options).toBeUndefined();
         expect(result.questions[0].options_branching).toBeUndefined();
         expect(result.questions[1].options).toBeUndefined();
@@ -380,6 +357,62 @@ describe('validateTemplateDataText', () => {
         expect(result.questions[2].options_branching).toBeUndefined();
         expect(result.questions[3].options).toBeDefined();
         expect(result.questions[3].options_branching).toBeUndefined();
+    });
+
+    it('removes next_question_value property for branching_choice questions', () => {
+        const json = JSON.stringify({
+            questions: [
+                {
+                    answer_type: 'text',
+                    next_question_value: 2,
+                },
+                {
+                    answer_type: 'branching_choice',
+                    next_question_value: 3,
+                    options_branching: [
+                        { next_question_value: 3, text_value: 'Option 1' },
+                        { next_question_value: -1, text_value: 'Option 2' },
+                    ],
+                },
+                {
+                    answer_type: 'address',
+                    next_question_value: -1,
+                },
+            ],
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(result.questions[0].next_question_value).toBeDefined();
+        expect(result.questions[1].next_question_value).toBeUndefined();
+        expect(result.questions[2].next_question_value).toBeDefined();
+    });
+
+    it('handles only required questions having required_error_text', () => {
+        const json = JSON.stringify({
+            questions: [
+                {
+                    answer_type: 'address',
+                    required: true,
+                },
+                {
+                    answer_type: 'text',
+                    required: false,
+                    required_error_text: 'This should be removed',
+                },
+                {
+                    answer_type: 'text',
+                    required: true,
+                    required_error_text: 'Bespoke error text for question 3',
+                },
+            ],
+        });
+
+        const result = validateTemplateDataText(json, baseSchema);
+
+        expect(result.questions[0].required_error_text).toBeDefined();
+        expect(result.questions[1].required_error_text).toBeUndefined();
+        expect(result.questions[2].required_error_text).toBe(
+            'Bespoke error text for question 3'
+        );
     });
 
     it.each([
@@ -435,38 +468,16 @@ describe('validateTemplateDataText', () => {
     ])(
         'throws an error if choice questions do not have options',
         (questions: Partial<ITemplateField>[], throws: boolean) => {
-            const schema = {
-                properties: {
-                    questions: {
-                        items: {
-                            properties: {
-                                answer_type: { type: 'string' },
-                                next_question_value: {
-                                    type: ['number', 'null'],
-                                },
-                                options_branching: {
-                                    items: {
-                                        type: 'object',
-                                    },
-                                    type: ['array', 'null'],
-                                },
-                            },
-                            required: ['answer_type'],
-                            type: 'object',
-                        },
-                        type: 'array',
-                    },
-                },
-                type: 'object',
-            };
             const json = JSON.stringify({
                 questions: questions,
             });
             if (throws) {
-                expect(() => validateTemplateDataText(json, schema)).toThrow();
+                expect(() =>
+                    validateTemplateDataText(json, baseSchema)
+                ).toThrow();
             } else {
                 expect(() =>
-                    validateTemplateDataText(json, schema)
+                    validateTemplateDataText(json, baseSchema)
                 ).not.toThrow();
             }
         }
@@ -534,38 +545,16 @@ describe('validateTemplateDataText', () => {
     ])(
         'throws an error if next_question_value is not valid',
         (questions: Partial<ITemplateField>[], throws: boolean) => {
-            const schema = {
-                properties: {
-                    questions: {
-                        items: {
-                            properties: {
-                                answer_type: { type: 'string' },
-                                next_question_value: {
-                                    type: ['number', 'null'],
-                                },
-                                options_branching: {
-                                    items: {
-                                        type: 'object',
-                                    },
-                                    type: ['array', 'null'],
-                                },
-                            },
-                            required: ['answer_type'],
-                            type: 'object',
-                        },
-                        type: 'array',
-                    },
-                },
-                type: 'object',
-            };
             const json = JSON.stringify({
                 questions: questions,
             });
             if (throws) {
-                expect(() => validateTemplateDataText(json, schema)).toThrow();
+                expect(() =>
+                    validateTemplateDataText(json, baseSchema)
+                ).toThrow();
             } else {
                 expect(() =>
-                    validateTemplateDataText(json, schema)
+                    validateTemplateDataText(json, baseSchema)
                 ).not.toThrow();
             }
         }

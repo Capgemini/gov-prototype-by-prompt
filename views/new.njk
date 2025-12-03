@@ -23,7 +23,7 @@
         {{ govukTextarea({
           name: "prompt",
           id: "textPrompt",
-          rows: 5,
+          rows: 6,
           label: {
             text: "Describe the form or service you want to create",
             classes: "govuk-label--m"
@@ -73,10 +73,7 @@
       }) }}
       <h2 class="govuk-heading-m">Instructions</h2>
       <p class="govuk-body">Describe what the form is for, what fields or questions the form should include, and any eligibility criteria or instructions for the user.</p>
-      {{ govukDetails({
-        summaryText: "View an example prompt",
-        text: "Create a driving licence application form. Ask for name, email, date of birth, preferred contact methods, automatic or manual, and to explain any health problems. Must be a UK resident and over 17 years old."
-      }) }}
+      <p class="govuk-body"><a class="govuk-link" href="/help/create-a-new-prototype#example-prompts" target="_blank">View example prompts</a></p>
     </div>
   </div>
 {% endblock %}

@@ -132,12 +132,18 @@
                     <li>
                       {{ option.text_value }}
                       {% if option.next_question_value and option.next_question_value > 0 %}
-                        &rarr; Question {{ option.next_question_value }}
+                        &rarr; question {{ option.next_question_value }}
                       {% else %}
-                        &rarr; End Of Form
+                        &rarr; finish
                       {% endif %}
                     </li>
                   {% endfor %}
+                </ul>
+              {% endif %}
+
+              {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
+                <ul>
+                  <li>&rarr; question {{ question.next_question_value }}</li>
                 </ul>
               {% endif %}
 
