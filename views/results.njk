@@ -70,13 +70,13 @@
             </label>
           </h1>
           <div id="editor" class="{{"" if showJsonPrompt else "display-none"}}">
-            <div id="aceEditor" style="height: 350px"></div>
+            <div id="aceEditor" style="height: 400px; resize: vertical"></div>
             <p><a class="govuk-link" href="/help/supported-prototype-options" target="_blank">View available options</a></p>
           </div>
           {{ govukTextarea({
             name: "prompt",
             id: "textPrompt",
-            rows: 5,
+            rows: 6,
             classes: "display-none" if showJsonPrompt else "",
             disabled: showJsonPrompt
           }) }}
@@ -397,8 +397,8 @@
       <iframe id="previewFrame" 
               src="/prototype/{{ prototypeId }}/start" 
               width="100%" 
-              height="600px" 
-              style="border: 1px solid #b1b4b6; border-radius: 4px;"
+              height="650px" 
+              style="border: 1px solid #b1b4b6; border-radius: 4px; resize: vertical"
               sandbox="allow-same-origin allow-scripts allow-forms"
               title="{{ prototypeTitle }}">
       </iframe>
