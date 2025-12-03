@@ -459,7 +459,6 @@
     const promptTypeInput = document.getElementById('promptType');
     const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
     const suggestionButtons = document.querySelectorAll('.suggestion-button');
-    const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
     const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
     const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
     const prototypeId = '{{ prototypeId }}';
@@ -474,14 +473,6 @@
         errorElement,
         textPromptInput
     );
-
-    // Copy public link button functionality
-    copyPublicLinkButton.addEventListener('click', function() {
-      const publicLink = `{{ req.host }}/prototype/{{ prototypeId }}/start`;
-      navigator.clipboard.writeText(publicLink).catch(err => {
-        console.error('Failed to copy: ', err);
-      });
-    });
 
     // Handle async form submission
     promptForm.addEventListener('submit', async function(event) {

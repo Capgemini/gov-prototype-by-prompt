@@ -11,6 +11,16 @@ const publicSharingPassword = document.getElementById('publicSharingPassword');
 const sharingButton = document.getElementById('updateSharingButton');
 const sharingLastUpdated = document.getElementById('sharingLastUpdated');
 
+const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
+
+// Copy public link button functionality
+copyPublicLinkButton.addEventListener('click', function () {
+    const publicLink = `{{ req.host }}/prototype/{{ prototypeId }}/start`;
+    navigator.clipboard.writeText(publicLink).catch((err) => {
+        console.error('Failed to copy: ', err);
+    });
+});
+
 // Disable or enable sharing inputs
 const disableSharingInputs = function (disabled) {
     const sharedWithUserButtons = document.querySelectorAll(
