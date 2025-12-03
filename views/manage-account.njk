@@ -114,162 +114,158 @@
       }
     });
 
-    document.addEventListener('DOMContentLoaded', async function() {
+    const updateNameForm = document.getElementById('updateNameForm');
+    const nameFormInputs = updateNameForm.querySelectorAll('input, select');
+    const updateNameButton = document.getElementById('updateNameButton');
 
-      const updateNameForm = document.getElementById('updateNameForm');
-      const nameFormInputs = updateNameForm.querySelectorAll('input, select');
-      const updateNameButton = document.getElementById('updateNameButton');
+    const updatePasswordForm = document.getElementById('updatePasswordForm');
+    const passwordFormInputs = updatePasswordForm.querySelectorAll('input, select');
+    const updatePasswordButton = document.getElementById('updatePasswordButton');
 
-      const updatePasswordForm = document.getElementById('updatePasswordForm');
-      const passwordFormInputs = updatePasswordForm.querySelectorAll('input, select');
-      const updatePasswordButton = document.getElementById('updatePasswordButton');
+    const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+    const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+    const successBanner = document.querySelector('.success-banner');
 
-      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
-      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
-      const successBanner = document.querySelector('.success-banner');
+    // Add a hidden error element to the name form inputs
+    for (const input of nameFormInputs) {
+      const errorElement = document.createElement('p');
+      errorElement.id = `${input.id}NameErrorMessage`;
+      errorElement.className = 'govuk-error-message';
+      errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
+      errorElement.style.display = 'none';
+      input.parentNode.insertBefore(
+        errorElement,
+        input
+      );
+    }
 
-      // Add a hidden error element to the name form inputs
-      for (const input of nameFormInputs) {
-        const errorElement = document.createElement('p');
-        errorElement.id = `${input.id}NameErrorMessage`;
-        errorElement.className = 'govuk-error-message';
-        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
-        errorElement.style.display = 'none';
-        input.parentNode.insertBefore(
-          errorElement,
-          input
-        );
+    // Add a hidden error element to the password form inputs
+    for (const input of passwordFormInputs) {
+      const errorElement = document.createElement('p');
+      errorElement.id = `${input.id}PasswordErrorMessage`;
+      errorElement.className = 'govuk-error-message';
+      errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
+      errorElement.style.display = 'none';
+      input.parentNode.parentNode.insertBefore(
+        errorElement,
+        input.parentNode
+      );
+    }
+
+    updateNameForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      updateNameButton.disabled = true;
+      updateNameButton.textContent = 'Processing...';
+      
+      const data = new URLSearchParams();
+      for (const pair of new FormData(updateNameForm)) {
+          data.append(pair[0], pair[1]);
       }
+      fetch('/user/updateUser', {
+        method: 'POST',
+        body: data,
+        credentials: 'include'
+      }).then(async response => {
+        const responseJson = await response.json();
 
-      // Add a hidden error element to the password form inputs
-      for (const input of passwordFormInputs) {
-        const errorElement = document.createElement('p');
-        errorElement.id = `${input.id}PasswordErrorMessage`;
-        errorElement.className = 'govuk-error-message';
-        errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span>Message`;
-        errorElement.style.display = 'none';
-        input.parentNode.parentNode.insertBefore(
-          errorElement,
-          input.parentNode
-        );
-      }
+        //Reset button state
+        updateNameButton.disabled = false;
+        updateNameButton.textContent = 'Update name';
 
-      updateNameForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
+        nameFormInputs.forEach((input) => {
+          input.classList.remove('govuk-input--error');
+        });
+        document.querySelectorAll('.govuk-error-message').forEach((el) => {
+          el.style.display = 'none'; 
+          el.parentNode.classList.remove('govuk-form-group--error');
+        });
+        errorSummary.classList.add('display-none');
 
-        updateNameButton.disabled = true;
-        updateNameButton.textContent = 'Processing...';
-        
-        const data = new URLSearchParams();
-        for (const pair of new FormData(updateNameForm)) {
-            data.append(pair[0], pair[1]);
-        }
-        fetch('/user/updateUser', {
-          method: 'POST',
-          body: data,
-          credentials: 'include'
-        }).then(async response => {
-          const responseJson = await response.json();
-
-          //Reset button state
-          updateNameButton.disabled = false;
-          updateNameButton.textContent = 'Update name';
-
-          nameFormInputs.forEach((input) => {
-            input.classList.remove('govuk-input--error');
-          });
-          document.querySelectorAll('.govuk-error-message').forEach((el) => {
-            el.style.display = 'none'; 
-            el.parentNode.classList.remove('govuk-form-group--error');
-          });
-          errorSummary.classList.add('display-none');
-
-          if (response.ok) {
-            updateNameForm.reset();
-            //reload page to show correct account details 
-            window.location.reload();
-          } else {
-            for (const error of responseJson.errors ?? []) {
-              const input = document.getElementById(error.path);
-              if (input) {
-                const errorElement = document.getElementById(`${error.path}NameErrorMessage`);
-                if(errorElement){
-                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
-                  errorElement.style.display = '';
-                  input.classList.add('govuk-input--error');
-                  errorElement.parentNode.classList.add('govuk-form-group--error');
-                }
+        if (response.ok) {
+          updateNameForm.reset();
+          //reload page to show correct account details 
+          window.location.reload();
+        } else {
+          for (const error of responseJson.errors ?? []) {
+            const input = document.getElementById(error.path);
+            if (input) {
+              const errorElement = document.getElementById(`${error.path}NameErrorMessage`);
+              if(errorElement){
+                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                errorElement.style.display = '';
+                input.classList.add('govuk-input--error');
+                errorElement.parentNode.classList.add('govuk-form-group--error');
               }
             }
-            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
           }
-        }).catch(err => {
-          errorSummary.classList.remove('display-none');
-          errorDescription.textContent = err.message;
-          updateNameButton.disabled = false;
-          updateNameButton.textContent = 'Update name';
-        });
-      });
-      
-      
-      updatePasswordForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        updatePasswordButton.disabled = true;
-        updatePasswordButton.textContent = 'Processing...';
-        
-        const data = new URLSearchParams();
-        for (const pair of new FormData(updatePasswordForm)) {
-            data.append(pair[0], pair[1]);
+          throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
         }
-        fetch('/user/updateUser', {
-          method: 'POST',
-          body: data,
-          credentials: 'include'
-        }).then(async response => {
-          const responseJson = await response.json();
+      }).catch(err => {
+        errorSummary.classList.remove('display-none');
+        errorDescription.textContent = err.message;
+        updateNameButton.disabled = false;
+        updateNameButton.textContent = 'Update name';
+      });
+    });
+    
+    
+    updatePasswordForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
 
-          //Reset button state
-          updatePasswordButton.disabled = false;
-          updatePasswordButton.textContent = 'Update Password';
+      updatePasswordButton.disabled = true;
+      updatePasswordButton.textContent = 'Processing...';
+      
+      const data = new URLSearchParams();
+      for (const pair of new FormData(updatePasswordForm)) {
+          data.append(pair[0], pair[1]);
+      }
+      fetch('/user/updateUser', {
+        method: 'POST',
+        body: data,
+        credentials: 'include'
+      }).then(async response => {
+        const responseJson = await response.json();
 
-          passwordFormInputs.forEach((input) => {
-            input.classList.remove('govuk-input--error');
-          });
-          document.querySelectorAll('.govuk-error-message').forEach((el) => {
-            el.style.display = 'none'; 
-            el.parentNode.classList.remove('govuk-form-group--error');
-          });
-          errorSummary.classList.add('display-none');
+        //Reset button state
+        updatePasswordButton.disabled = false;
+        updatePasswordButton.textContent = 'Update Password';
 
-          if (response.ok) {
-            successBanner.classList.remove('display-none');
-            successBanner.scrollIntoView();
-            updatePasswordForm.reset();
-          } else {
-            successBanner.classList.add('display-none');
-            for (const error of responseJson.errors ?? []) {
-              const input = document.getElementById(error.path);
-              if (input) {
-                const errorElement = document.getElementById(`${error.path}PasswordErrorMessage`);
-                if(errorElement){
-                  errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
-                  errorElement.style.display = '';
-                  input.classList.add('govuk-input--error');
-                  errorElement.parentNode.classList.add('govuk-form-group--error');
-                }
+        passwordFormInputs.forEach((input) => {
+          input.classList.remove('govuk-input--error');
+        });
+        document.querySelectorAll('.govuk-error-message').forEach((el) => {
+          el.style.display = 'none'; 
+          el.parentNode.classList.remove('govuk-form-group--error');
+        });
+        errorSummary.classList.add('display-none');
+
+        if (response.ok) {
+          successBanner.classList.remove('display-none');
+          successBanner.scrollIntoView();
+          updatePasswordForm.reset();
+        } else {
+          successBanner.classList.add('display-none');
+          for (const error of responseJson.errors ?? []) {
+            const input = document.getElementById(error.path);
+            if (input) {
+              const errorElement = document.getElementById(`${error.path}PasswordErrorMessage`);
+              if(errorElement){
+                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                errorElement.style.display = '';
+                input.classList.add('govuk-input--error');
+                errorElement.parentNode.classList.add('govuk-form-group--error');
               }
             }
-            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
           }
-        }).catch(err => {
-          errorSummary.classList.remove('display-none');
-          errorDescription.textContent = err.message;
-          updatePasswordButton.disabled = false;
-          updatePasswordButton.textContent = 'Update password';
-        });
+          throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+        }
+      }).catch(err => {
+        errorSummary.classList.remove('display-none');
+        errorDescription.textContent = err.message;
+        updatePasswordButton.disabled = false;
+        updatePasswordButton.textContent = 'Update password';
       });
-      
     });
 
   </script>
