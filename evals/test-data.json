@@ -1,0 +1,209 @@
+[
+    {
+        "prompt": "Create a driving licence application form. Ask for name, email, date of birth, preferred contact methods, automatic or manual, and to explain any health problems. Must be a UK resident and over 17 years old.",
+        "expected": {
+            "before_you_start": "You must be a UK resident and at least 17 years old to complete this form.",
+            "description": "This form collects your details to apply for a driving licence in the UK.",
+            "duration": 10,
+            "explanation": "This form is designed to gather the necessary information for a driving licence application following UK residency and age requirements. The questions are structured to confirm eligibility before collecting specific details about the applicant's preferences and health. The eligibility criteria include being a UK resident and at least 17 years of age, which informs the structure and sequence of the questions.",
+            "form_type": "application",
+            "questions": [
+                {
+                    "answer_type": "name",
+                    "hint_text": "Enter your full name as it appears on official documents",
+                    "next_question_value": 2,
+                    "question_text": "What is your name?",
+                    "required": true,
+                    "required_error_text": "Enter your full name"
+                },
+                {
+                    "answer_type": "email",
+                    "hint_text": "Enter a valid email address for contact",
+                    "next_question_value": 3,
+                    "question_text": "What is your email address?",
+                    "required": true,
+                    "required_error_text": "Enter your email address"
+                },
+                {
+                    "answer_type": "date",
+                    "next_question_value": 4,
+                    "question_text": "What is your date of birth?",
+                    "required": true,
+                    "required_error_text": "Enter your date of birth"
+                },
+                {
+                    "answer_type": "multiple_choice",
+                    "hint_text": "Select how we should contact you regarding your application",
+                    "next_question_value": 5,
+                    "options": ["Email", "Phone", "Post"],
+                    "question_text": "How do you want to be contacted?",
+                    "required": true,
+                    "required_error_text": "Select at least one contact method"
+                },
+                {
+                    "answer_type": "single_choice",
+                    "hint_text": "Select your preference for type of vehicle",
+                    "next_question_value": 6,
+                    "options": ["Automatic", "Manual"],
+                    "question_text": "Do you prefer an automatic or manual licence?",
+                    "required": true,
+                    "required_error_text": "Select your vehicle preference"
+                },
+                {
+                    "answer_type": "text_area",
+                    "hint_text": "Let us know if there are any relevant health issues",
+                    "next_question_value": -1,
+                    "question_text": "Do you have any health problems that may affect your driving?",
+                    "required": false
+                }
+            ],
+            "show_progress_indicators": true,
+            "title": "Apply for a driving licence",
+            "what_happens_next": "After you submit the form, your application will be processed, and you will receive information on the next steps via your preferred contact method."
+        }
+    },
+    {
+        "prompt": "Create a form to apply for a replacement library card from Devon County Council. Ask for their name, address, email address, whether they know their previous card number, and if so what the number is.",
+        "expected": {
+            "before_you_start": "You should have your personal information ready. If you know your previous library card number, have it available to help speed up the application process.",
+            "description": "This form is for Devon County Council library users who need to apply for a replacement library card. Fill in the details below to process your application.",
+            "duration": 5,
+            "explanation": "The form is created to facilitate the application for a replacement library card specifically from Devon County Council. It includes essential details typically required for such a request, assuming that the user may or may not remember their previous card number.",
+            "form_type": "application",
+            "questions": [
+                {
+                    "answer_type": "name",
+                    "hint_text": "Please enter your full name",
+                    "next_question_value": 2,
+                    "question_text": "What is your name?",
+                    "required": true,
+                    "required_error_text": "Enter your name"
+                },
+                {
+                    "answer_type": "address",
+                    "next_question_value": 3,
+                    "question_text": "What is your address?",
+                    "required": true,
+                    "required_error_text": "Enter your address"
+                },
+                {
+                    "answer_type": "email",
+                    "hint_text": "Enter a valid email address for correspondence",
+                    "next_question_value": 4,
+                    "question_text": "What is your email address?",
+                    "required": true,
+                    "required_error_text": "Enter your email address"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "hint_text": "Select yes or no to continue",
+                    "options_branching": [
+                        {
+                            "next_question_value": 5,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": 6,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Do you know your previous library card number?",
+                    "required": true,
+                    "required_error_text": "Select an option"
+                },
+                {
+                    "answer_type": "text",
+                    "hint_text": "Enter the number if you have it",
+                    "next_question_value": -1,
+                    "question_text": "What is your previous library card number?",
+                    "required": true,
+                    "required_error_text": "Enter your library card number"
+                }
+            ],
+            "show_progress_indicators": false,
+            "title": "Apply for a replacement library card",
+            "what_happens_next": "After submitting the form, your application will be reviewed by the library staff. If further information is needed, they will contact you via the email you provided."
+        }
+    },
+    {
+        "prompt": "Create a form to register a PAYE employer. Ask for employer name, number of employees, if they have a company registration number and if so what that is, and if they provide taxable employee benefits and if so to describe what they are.",
+        "expected": {
+            "before_you_start": "Ensure you have all necessary information about your business and employees before starting the form. You will need your employer name and information about your employees.",
+            "description": "This form collects information needed to register as a PAYE employer. Fill out the details about your business and employees.",
+            "duration": 10,
+            "explanation": "The form is designed to guide users through the registration process for a PAYE employer. It captures essential information such as the employer's name, the number of employees, and details about the company registration number and taxable employee benefits. Each question logically flows into the next, especially where conditions apply (e.g., company registration number and taxable benefits).",
+            "form_type": "registration",
+            "questions": [
+                {
+                    "answer_type": "text",
+                    "hint_text": "The legal name of your business",
+                    "next_question_value": 2,
+                    "question_text": "What is your employer name?",
+                    "required": true,
+                    "required_error_text": "Enter your employer name"
+                },
+                {
+                    "answer_type": "text",
+                    "hint_text": "Enter a number",
+                    "next_question_value": 3,
+                    "question_text": "How many employees do you have?",
+                    "required": true,
+                    "required_error_text": "Enter the number of employees"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "hint_text": "This helps verify your business",
+                    "options_branching": [
+                        {
+                            "next_question_value": 4,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": 5,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Do you have a company registration number?",
+                    "required": true,
+                    "required_error_text": "Select yes or no"
+                },
+                {
+                    "answer_type": "text",
+                    "hint_text": "Your official company registration number",
+                    "next_question_value": 5,
+                    "question_text": "What is your company registration number?",
+                    "required": true,
+                    "required_error_text": "Enter your company registration number"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "hint_text": "Taxable benefits include items like car allowances",
+                    "options_branching": [
+                        {
+                            "next_question_value": 6,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": -1,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Do you provide taxable employee benefits?",
+                    "required": true,
+                    "required_error_text": "Select yes or no"
+                },
+                {
+                    "answer_type": "text_area",
+                    "hint_text": "List the benefits provided",
+                    "next_question_value": -1,
+                    "question_text": "Describe the taxable employee benefits you provide.",
+                    "required": true,
+                    "required_error_text": "Describe the taxable employee benefits"
+                }
+            ],
+            "show_progress_indicators": true,
+            "title": "Register a PAYE employer",
+            "what_happens_next": "After submitting the form, your information will be processed, and you will receive confirmation of your PAYE employer registration."
+        }
+    }
+]

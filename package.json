@@ -54,7 +54,8 @@
         "format": "prettier --write .",
         "db:start": "docker-compose up -d",
         "db:stop": "docker-compose down",
-        "db:reset": "docker-compose down -v && docker-compose up -d"
+        "db:reset": "docker-compose down -v && docker-compose up -d",
+        "evals": "jest --config=evals/jest.config.ts"
     },
     "dependencies": {
         "@azure/monitor-opentelemetry-exporter": "~1.0.0-beta.32",
