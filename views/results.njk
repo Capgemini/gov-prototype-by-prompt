@@ -527,7 +527,7 @@
       structureTabLink?.addEventListener('click', () => {
         mermaid.init(undefined, '.mermaid')
       });
-    })
+    });
 
 
     switchStructureTypeButton.addEventListener('click', async function(event) {
@@ -541,7 +541,7 @@
         simpleStructure.classList.remove('display-none');
         switchStructureTypeButton.textContent = "Graph view";
       }
-    })
+    });
 
     // Handle async form submission
     promptForm.addEventListener('submit', async function(event) {
