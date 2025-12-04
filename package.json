@@ -46,8 +46,8 @@
     "scripts": {
         "start": "npx --yes tsx --require ./src/instrumentation.ts server.ts",
         "dev": "tsx watch ./server.ts",
-        "test": "jest",
-        "test:watch": "jest --watch",
+        "test": "jest --config=jest.config.ts",
+        "test:watch": "jest --watch --config=jest.config.ts",
         "test:db": "tsx ./src/database/test-connection.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
