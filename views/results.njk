@@ -121,7 +121,13 @@
 
       {% set structureHtml %}
         <h2 class="govuk-heading-m">View the prototype structure</h2>
-          <div id="simpleStructure" class="display-none">
+        {{ govukButton({
+          id: "switchStructureTypeButton",
+          type: "button",
+          text: "Graph view",
+          classes: "govuk-button--secondary"
+        }) }}
+          <div id="listStructure">
             <ol>
               {% for question in json["questions"] %}
                 <li>
@@ -164,11 +170,11 @@
               {% endfor %}
             </ol>
           </div>
-          <div class="mermaid" id="prototypeGraph">
+          <div class="mermaid display-none" id="prototypeGraph" style="text-align: center;" >
             flowchart TD
             {% for question in json["questions"] %}
                 {% set parentLoop = loop %}
-                Q{{ parentLoop.index }}["{{ question.question_text | escape }}<br><small><strong>{{question.answer_type}}</strong></small>"]
+                Q{{ parentLoop.index }}["{{ question.question_text | escape }}"]
                 {% if question.answer_type == 'branching_choice' and question.options_branching %}
                     {% for option in question.options_branching %}
                         Q{{ parentLoop.index }} -->|{{ option.text_value | escape }}| {% if option.next_question_value and option.next_question_value > 0 %}Q{{ option.next_question_value }}{% else %}Finish{% endif %}
@@ -181,12 +187,6 @@
             {% endfor %}
             Finish(["End"])
           </div>
-        {{ govukButton({
-          id: "switchStructureTypeButton",
-          type: "button",
-          text: "Simple view",
-          classes: "govuk-button--secondary"
-        }) }}
       {% endset %}
 
       {% set historyHtml %}
@@ -491,7 +491,7 @@
     const promptTypeInput = document.getElementById('promptType');
     const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
     const switchStructureTypeButton = document.getElementById('switchStructureTypeButton');
-    const simpleStructure = document.getElementById('simpleStructure');
+    const listStructure = document.getElementById('listStructure');
     const prototypeGraph = document.getElementById('prototypeGraph');
     const suggestionButtons = document.querySelectorAll('.suggestion-button');
     const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
@@ -520,25 +520,23 @@
       const structureTabLink = document.querySelector('.govuk-tabs__tab[href="#structure"]');
       if (graphEl) {
         const rect = graphEl.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
+        if (rect.width > 0 && rect.height > 0 && switchStructureTypeButton.textContent === 'List view') {
           mermaid.init(undefined, '.mermaid')
         }
       }
-      structureTabLink?.addEventListener('click', () => {
-        mermaid.init(undefined, '.mermaid')
-      });
     });
 
 
     switchStructureTypeButton.addEventListener('click', async function(event) {
       event.preventDefault();
-      if (switchStructureTypeButton.textContent === 'Graph view') {
-        simpleStructure.classList.add('display-none'); 
-        prototypeGraph.classList.remove('display-none'); 
-        switchStructureTypeButton.textContent = "Simple view";
+      if (switchStructureTypeButton.textContent.trim() === "Graph view") {
+        listStructure.classList.add('display-none'); 
+        prototypeGraph.classList.remove('display-none');
+        mermaid.init(undefined, '.mermaid');
+        switchStructureTypeButton.textContent = "List view";
       } else {
-        prototypeGraph.classList.add('display-none'); 
-        simpleStructure.classList.remove('display-none');
+        prototypeGraph.classList.add('display-none');
+        listStructure.classList.remove('display-none');
         switchStructureTypeButton.textContent = "Graph view";
       }
     });
