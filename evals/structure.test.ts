@@ -56,4 +56,27 @@ describe('Form structure', () => {
             expect(actual.form_type).toEqual(expected.form_type);
         }
     );
+
+    it.each(indexes)(
+        'should have at least one option for choice questions (i=%i)',
+        async (index) => {
+            const { actual, expected } = (await getTestData())[index];
+            actual.questions
+                .filter(
+                    (q) =>
+                        q.answer_type === 'single_choice' ||
+                        q.answer_type === 'multiple_choice'
+                )
+                .forEach((q) => {
+                    expect(q.options && q.options.length > 0).toBe(true);
+                });
+            actual.questions
+                .filter((q) => q.answer_type === 'branching_choice')
+                .forEach((q) => {
+                    expect(
+                        q.options_branching && q.options_branching.length > 0
+                    ).toBe(true);
+                });
+        }
+    );
 });

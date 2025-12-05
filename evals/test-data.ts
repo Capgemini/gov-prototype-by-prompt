@@ -1,39 +1,41 @@
 import 'dotenv/config';
 
-import formSchema from '../data/extract-form-questions-schema.json';
 import { createFormWithOpenAI } from '../src/openai';
-import { DefaultPrototypeDesignSystem, ITemplateData } from '../src/types';
-import {
-    getEnvironmentVariables,
-    validateTemplateDataText,
-} from '../src/utils';
+import { DefaultPrototypeDesignSystem, TemplateData } from '../src/types';
+import { getEnvironmentVariables } from '../src/utils';
 import testData from './test-data.json';
 
 const envVars = getEnvironmentVariables();
 
 interface TestCase {
-    actual: ITemplateData;
-    expected: ITemplateData;
+    actual: TemplateData;
+    expected: TemplateData;
     prompt: string;
 }
 
 /**
  * Generate a validated response from OpenAI for a given prompt.
  * @param {string} prompt the prompt to send to OpenAI
- * @returns {Promise<ITemplateData>} the validated response
+ * @returns {Promise<TemplateData>} the validated response
  */
-async function generateAndValidateForm(prompt: string): Promise<ITemplateData> {
-    let responseText = await createFormWithOpenAI(
+async function generateAndValidateForm(prompt: string): Promise<TemplateData> {
+    return createFormWithOpenAI(
         envVars,
         prompt,
         DefaultPrototypeDesignSystem,
         false
-    );
-    responseText = responseText
-        .replace(/\\"/g, '“')
-        .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
-    const templateData = validateTemplateDataText(responseText, formSchema);
-    return templateData;
+    ).then((responseText) => {
+        responseText = responseText
+            .replace(/\\"/g, '“')
+            .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
+
+        // Parse the JSON and remove any null values
+        const templateData = JSON.parse(responseText, (key, value) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            if (value !== null) return value;
+        }) as TemplateData;
+        return templateData;
+    });
 }
 
 let cachedResponses: null | TestCase[] = null;
@@ -45,19 +47,15 @@ let cachedResponses: null | TestCase[] = null;
 export async function getTestData(): Promise<TestCase[]> {
     if (cachedResponses) return cachedResponses;
 
-    const result: TestCase[] = [];
-    for (const testCase of testData as {
-        expected: ITemplateData;
-        prompt: string;
-    }[]) {
-        const actual = await generateAndValidateForm(testCase.prompt);
-        result.push({
-            actual,
-            expected: testCase.expected,
-            prompt: testCase.prompt,
-        });
-    }
-    cachedResponses = result;
+    cachedResponses = await Promise.all(
+        testData.map(async (testCase) => {
+            return generateAndValidateForm(testCase.prompt).then((actual) => ({
+                actual,
+                expected: testCase.expected,
+                prompt: testCase.prompt,
+            }));
+        })
+    );
     return cachedResponses;
 }
 

@@ -47,30 +47,32 @@ export async function createFormWithOpenAI(
         createSchema.required.push('suggestions');
     }
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getCreateSystemPrompt(designSystem, enableSuggestions),
-                role: 'system',
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: getCreateSystemPrompt(
+                        designSystem,
+                        enableSuggestions
+                    ),
+                    role: 'system',
+                },
+                {
+                    content: prompt,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'create-form-schema',
+                    schema: createSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
             },
-            {
-                content: prompt,
-                role: 'user',
-            },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'create-form-schema',
-                schema: createSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
-    });
-
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
@@ -94,29 +96,28 @@ export async function generateSuggestionsWithOpenAI(
     });
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getGenerateSuggestionsSystemPrompt(
-                    templateData,
-                    designSystem
-                ),
-                role: 'system',
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: getGenerateSuggestionsSystemPrompt(
+                        templateData,
+                        designSystem
+                    ),
+                    role: 'system',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'generate-form-suggestions-schema',
+                    schema: suggestionsSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
             },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'generate-form-suggestions-schema',
-                schema: suggestionsSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
-    });
-
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
@@ -163,34 +164,33 @@ export async function updateFormWithOpenAI(
         templateData = { ...templateData, suggestions: [] };
     }
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getUpdateSystemPrompt(
-                    templateData,
-                    designSystem,
-                    enableSuggestions
-                ),
-                role: 'system',
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: getUpdateSystemPrompt(
+                        templateData,
+                        designSystem,
+                        enableSuggestions
+                    ),
+                    role: 'system',
+                },
+                {
+                    content: prompt,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'update-form-schema',
+                    schema: updateSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
             },
-            {
-                content: prompt,
-                role: 'user',
-            },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'update-form-schema',
-                schema: updateSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
-    });
-
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
