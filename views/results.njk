@@ -121,48 +121,73 @@
 
       {% set structureHtml %}
         <h2 class="govuk-heading-m">View the prototype structure</h2>
-        <ol>
-          {% for question in json["questions"] %}
-            <li>
-              <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }} 
-              
-              {% if question.answer_type == 'branching_choice' and question.options_branching %}
-                <ul>
-                  {% for option in question.options_branching %}
-                    <li>
-                      {{ option.text_value }}
-                      {% if option.next_question_value and option.next_question_value > 0 %}
-                        &rarr; question {{ option.next_question_value }}
-                      {% else %}
-                        &rarr; finish
-                      {% endif %}
-                    </li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
+        {{ govukButton({
+          id: "switchStructureTypeButton",
+          type: "button",
+          text: "Graph view",
+          classes: "govuk-button--secondary"
+        }) }}
+          <div id="listStructure">
+            <ol>
+              {% for question in json["questions"] %}
+                <li>
+                  <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }} 
+                  
+                  {% if question.answer_type == 'branching_choice' and question.options_branching %}
+                    <ul>
+                      {% for option in question.options_branching %}
+                        <li>
+                          {{ option.text_value }}
+                          {% if option.next_question_value and option.next_question_value > 0 %}
+                            &rarr; question {{ option.next_question_value }}
+                          {% else %}
+                            &rarr; finish
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
 
-              {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
-                <ul>
-                  <li>&rarr; question {{ question.next_question_value }}</li>
-                </ul>
-              {% endif %}
+                  {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
+                    <ul>
+                      <li>&rarr; question {{ question.next_question_value }}</li>
+                    </ul>
+                  {% endif %}
 
-              {% if question.options %}
-                <ul>
-                  {% for option in question.options %}
-                    <li>{{ option }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-              {% if question.answer_type == "date_of_birth" and question.date_of_birth_minimum_age %}
-                <ul><li>Minimum age: {{ question.date_of_birth_minimum_age }} years</li></ul>
-              {% endif %}
-              {% if question.answer_type == "date_of_birth" and question.date_of_birth_maximum_age %}
-                <ul><li>Maximum age: {{ question.date_of_birth_maximum_age }} years</li></ul>
-              {% endif %}
-          {% endfor %}
-        </ol>
-      {% endset -%}
+                  {% if question.options %}
+                    <ul>
+                      {% for option in question.options %}
+                        <li>{{ option }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                  {% if question.answer_type == "date_of_birth" and question.date_of_birth_minimum_age %}
+                    <ul><li>Minimum age: {{ question.date_of_birth_minimum_age }} years</li></ul>
+                  {% endif %}
+                  {% if question.answer_type == "date_of_birth" and question.date_of_birth_maximum_age %}
+                    <ul><li>Maximum age: {{ question.date_of_birth_maximum_age }} years</li></ul>
+                  {% endif %}
+              {% endfor %}
+            </ol>
+          </div>
+          <div class="mermaid display-none" id="prototypeGraph" style="text-align: center;" >
+            flowchart TD
+            {% for question in json["questions"] %}
+                {% set parentLoop = loop %}
+                Q{{ parentLoop.index }}["{{ question.question_text | escape }}"]
+                {% if question.answer_type == 'branching_choice' and question.options_branching %}
+                    {% for option in question.options_branching %}
+                        Q{{ parentLoop.index }} -->|{{ option.text_value | escape }}| {% if option.next_question_value and option.next_question_value > 0 %}Q{{ option.next_question_value }}{% else %}Finish{% endif %}
+                    {% endfor %}
+                {% elif question.next_question_value and question.next_question_value > 0 %}
+                    Q{{ parentLoop.index }} --> Q{{ question.next_question_value }}
+                {% else %}
+                    Q{{ parentLoop.index }} --> Finish
+                {% endif %}
+            {% endfor %}
+            Finish(["End"])
+          </div>
+      {% endset %}
 
       {% set historyHtml %}
         <h2 class="govuk-heading-m">View previous versions</h2>
@@ -407,6 +432,7 @@
   <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="{{ assetPath }}/ace-editor-src-min/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
   <script src="{{ assetPath }}/ace-linters/ace-linters.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/mermaid/mermaid.min.js" type="text/javascript" charset="utf-8"></script>
   <script>
     // Enable autocompletion
     ace.require("ace/ext/language_tools");
@@ -464,6 +490,9 @@
     const startButton = document.getElementById('startPrototypeButton');
     const promptTypeInput = document.getElementById('promptType');
     const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
+    const switchStructureTypeButton = document.getElementById('switchStructureTypeButton');
+    const listStructure = document.getElementById('listStructure');
+    const prototypeGraph = document.getElementById('prototypeGraph');
     const suggestionButtons = document.querySelectorAll('.suggestion-button');
     const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
     const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
@@ -479,6 +508,37 @@
         errorElement,
         textPromptInput
     );
+
+    mermaid.initialize({ 
+      startOnLoad: false,
+      theme: "neutral",
+      securityLevel: 'loose',
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const graphEl = document.getElementById('prototypeGraph');
+      if (graphEl) {
+        const rect = graphEl.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0 && switchStructureTypeButton.textContent === 'List view') {
+          mermaid.init(undefined, '.mermaid')
+        }
+      }
+    });
+
+
+    switchStructureTypeButton.addEventListener('click', async function(event) {
+      event.preventDefault();
+      if (switchStructureTypeButton.textContent.trim() === "Graph view") {
+        listStructure.classList.add('display-none'); 
+        prototypeGraph.classList.remove('display-none');
+        mermaid.init(undefined, '.mermaid');
+        switchStructureTypeButton.textContent = "List view";
+      } else {
+        prototypeGraph.classList.add('display-none');
+        listStructure.classList.remove('display-none');
+        switchStructureTypeButton.textContent = "Graph view";
+      }
+    });
 
     // Handle async form submission
     promptForm.addEventListener('submit', async function(event) {

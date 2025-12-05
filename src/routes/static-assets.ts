@@ -13,6 +13,10 @@ export function setupStaticAssets(app: express.Express, dirname: string) {
         '/assets/ace-linters',
         express.static(path.join(dirname, 'node_modules/ace-linters/build'))
     );
+    app.use(
+        '/assets/mermaid',
+        express.static(path.join(dirname, 'node_modules/mermaid/dist'))
+    );
 
     // Serve GOV.UK CSS and JS assets
     const govukAssets = [
