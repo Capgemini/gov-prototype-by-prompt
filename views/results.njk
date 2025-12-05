@@ -517,7 +517,6 @@
     
     document.addEventListener('DOMContentLoaded', () => {
       const graphEl = document.getElementById('prototypeGraph');
-      const structureTabLink = document.querySelector('.govuk-tabs__tab[href="#structure"]');
       if (graphEl) {
         const rect = graphEl.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0 && switchStructureTypeButton.textContent === 'List view') {
