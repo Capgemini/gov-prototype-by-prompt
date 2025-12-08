@@ -1,6 +1,6 @@
 [
     {
-        "prompt": "Create a driving licence application form. Ask for name, email, date of birth, preferred contact methods, automatic or manual, and to explain any health problems. Must be a UK resident and over 17 years old.",
+        "prompt": "Create a driving licence application form. Ask for name, email, date of birth, preferred contact methods, automatic or manual, and to explain any health problems. Tell them they must be a UK resident and over 17 years old before they start.",
         "expected": {
             "before_you_start": "You must be a UK resident and at least 17 years old to complete this form.",
             "description": "This form collects your details to apply for a driving licence in the UK.",
@@ -51,7 +51,7 @@
                 },
                 {
                     "answer_type": "text_area",
-                    "hint_text": "Let us know if there are any relevant health issues",
+                    "hint_text": "Provide details of any relevant health issues",
                     "next_question_value": -1,
                     "question_text": "Do you have any health problems that may affect your driving?",
                     "required": false
@@ -73,7 +73,6 @@
             "questions": [
                 {
                     "answer_type": "name",
-                    "hint_text": "Please enter your full name",
                     "next_question_value": 2,
                     "question_text": "What is your name?",
                     "required": true,
@@ -103,7 +102,7 @@
                             "text_value": "Yes"
                         },
                         {
-                            "next_question_value": 6,
+                            "next_question_value": -1,
                             "text_value": "No"
                         }
                     ],
