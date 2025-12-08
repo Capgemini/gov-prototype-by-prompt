@@ -25,7 +25,7 @@
                     "required_error_text": "Enter your email address"
                 },
                 {
-                    "answer_type": "date",
+                    "answer_type": "date_of_birth",
                     "next_question_value": 4,
                     "question_text": "What is your date of birth?",
                     "required": true,
@@ -204,6 +204,189 @@
             "show_progress_indicators": true,
             "title": "Register a PAYE employer",
             "what_happens_next": "After submitting the form, your information will be processed, and you will receive confirmation of your PAYE employer registration."
+        }
+    },
+    {
+        "prompt": "Create a form to request a tax refund. Ask for name, address, NI number, which year the refund is for (give a list of five), if they know the amount their owed, and if so the amount",
+        "expected": {
+            "before_you_start": "Make sure you have your National Insurance number and any relevant documents related to your tax payments.",
+            "description": "Fill out this form to request a refund on your taxes. Provide all requested information accurately.",
+            "duration": 5,
+            "form_type": "request",
+            "questions": [
+                {
+                    "answer_type": "name",
+                    "hint_text": "Enter your full name as it appears on your tax records.",
+                    "next_question_value": 2,
+                    "question_text": "What is your name?",
+                    "required": true,
+                    "required_error_text": "Enter your name"
+                },
+                {
+                    "answer_type": "address",
+                    "next_question_value": 3,
+                    "question_text": "What is your address?",
+                    "required": true,
+                    "required_error_text": "Enter your address"
+                },
+                {
+                    "answer_type": "national_insurance_number",
+                    "hint_text": "Your NI number helps us identify your tax contributions.",
+                    "next_question_value": 4,
+                    "question_text": "What is your National Insurance number?",
+                    "required": true,
+                    "required_error_text": "Enter your National Insurance number"
+                },
+                {
+                    "answer_type": "single_choice",
+                    "hint_text": "Select the year for your tax refund request.",
+                    "next_question_value": 5,
+                    "options": [
+                        "2023-2024",
+                        "2022-2023",
+                        "2021-2022",
+                        "2020-2021",
+                        "2019-2020"
+                    ],
+                    "question_text": "Which tax year are you requesting a refund for?",
+                    "required": true,
+                    "required_error_text": "Select a tax year"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "hint_text": "Let us know if you have calculated your refund amount.",
+                    "options_branching": [
+                        {
+                            "next_question_value": 6,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": -1,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Do you know the amount you are owed?",
+                    "required": true,
+                    "required_error_text": "Indicate if you know the amount owed"
+                },
+                {
+                    "answer_type": "gbp_currency_amount",
+                    "hint_text": "Enter the amount in pounds.",
+                    "next_question_value": -1,
+                    "question_text": "What is the amount you believe you are owed?",
+                    "required": true,
+                    "required_error_text": "Enter the amount owed"
+                }
+            ],
+            "show_progress_indicators": false,
+            "title": "Request a tax refund",
+            "what_happens_next": "After submitting the form, you will receive confirmation of your request. Further instructions will be provided if additional information is needed."
+        }
+    },
+    {
+        "prompt": "Create a form to register to vote. Ask for name, date of birth, if they're a UK, qualifying EU, or qualifying commonwealth citizen, their main address. Check if they're a student with a term-time address, and if so ask what that address is too. Check if they want to register anonymously, and if so ask them to explain why and upload supporting evidence.",
+        "expected": {
+            "before_you_start": "You must be 16 or over and a British, qualifying Commonwealth, or qualifying EU citizen. You need your address details to complete this form. You can only register anonymously if you have a valid reason.",
+            "description": "Complete this form to register to vote in UK elections. Provide your personal details, citizenship information, and addresses. If you want to register anonymously, you will need to explain why and provide supporting evidence.",
+            "duration": 10,
+            "form_type": "application",
+            "questions": [
+                {
+                    "answer_type": "name",
+                    "hint_text": "As it appears on your official documents",
+                    "next_question_value": 2,
+                    "question_text": "What is your full name?",
+                    "required": true,
+                    "required_error_text": "Enter your full name"
+                },
+                {
+                    "answer_type": "date_of_birth",
+                    "date_of_birth_minimum_age": 16,
+                    "next_question_value": 3,
+                    "question_text": "What is your date of birth?",
+                    "required": true,
+                    "required_error_text": "Enter your date of birth"
+                },
+                {
+                    "answer_type": "single_choice",
+                    "hint_text": "Select if you are a British, qualifying EU, or qualifying Commonwealth citizen",
+                    "next_question_value": 4,
+                    "options": [
+                        "British citizen",
+                        "Qualifying EU citizen",
+                        "Qualifying Commonwealth citizen"
+                    ],
+                    "question_text": "What is your nationality?",
+                    "required": true,
+                    "required_error_text": "Select your nationality"
+                },
+                {
+                    "answer_type": "address",
+                    "next_question_value": 5,
+                    "question_text": "What is your main address?",
+                    "required": true,
+                    "required_error_text": "Enter your main address"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "options_branching": [
+                        {
+                            "next_question_value": 6,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": 7,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Are you a student with a term-time address?",
+                    "required": true,
+                    "required_error_text": "Select yes or no"
+                },
+                {
+                    "answer_type": "address",
+                    "next_question_value": 7,
+                    "question_text": "What is your term-time address?",
+                    "required": true,
+                    "required_error_text": "Enter your term-time address"
+                },
+                {
+                    "answer_type": "branching_choice",
+                    "hint_text": "This hides your details from the public electoral register",
+                    "options_branching": [
+                        {
+                            "next_question_value": 8,
+                            "text_value": "Yes"
+                        },
+                        {
+                            "next_question_value": -1,
+                            "text_value": "No"
+                        }
+                    ],
+                    "question_text": "Do you want to register to vote anonymously?",
+                    "required": true,
+                    "required_error_text": "Select yes or no"
+                },
+                {
+                    "answer_type": "text_area",
+                    "hint_text": "Give reasons for your request",
+                    "next_question_value": 9,
+                    "question_text": "Explain why you want to register anonymously",
+                    "required": true,
+                    "required_error_text": "Provide a reason for registering anonymously"
+                },
+                {
+                    "answer_type": "file_upload",
+                    "hint_text": "Upload one or more files that support your reason",
+                    "next_question_value": -1,
+                    "question_text": "Upload evidence supporting your anonymous registration request",
+                    "required": true,
+                    "required_error_text": "Upload supporting evidence"
+                }
+            ],
+            "show_progress_indicators": false,
+            "title": "Register to vote",
+            "what_happens_next": "After you submit this form, your application will be checked. You may be contacted for more information. If successful, you will be added to the electoral register and able to vote in elections."
         }
     }
 ]
