@@ -153,9 +153,10 @@
           id: "switchStructureTypeButton",
           type: "button",
           text: "Graph view",
-          classes: "govuk-button--secondary"
+          classes: "govuk-button--secondary govuk-!-margin-bottom-2"
         }) }}
-          <div id="listStructure">
+        <div class="govuk-grid-row">
+          <div id="listStructure" class="govuk-!-padding-left-0">
             <ol>
               {% for question in json["questions"] %}
                 <li>
@@ -198,7 +199,7 @@
               {% endfor %}
             </ol>
           </div>
-          <div class="mermaid display-none" id="prototypeGraph" style="text-align: center;" >
+          <div id="prototypeGraph" class="mermaid display-none govuk-!-padding-right-0" style="text-align: center;">
             flowchart TD
             {% for question in json["questions"] %}
                 {% set parentLoop = loop %}
@@ -215,7 +216,8 @@
             {% endfor %}
             Finish(["End"])
           </div>
-      {% endset %}
+        </div>
+      {% endset -%}
 
       {% set historyHtml %}
         <h2 class="govuk-heading-m">View previous versions</h2>
@@ -522,12 +524,14 @@
         textPromptInput
     );
 
+    // Initialize mermaid for the prototype structure graph
     mermaid.initialize({ 
       startOnLoad: false,
       theme: "neutral",
       securityLevel: 'loose',
     });
-    
+
+    // Load the graph if it's visible
     document.addEventListener('DOMContentLoaded', () => {
       const graphEl = document.getElementById('prototypeGraph');
       if (graphEl) {
@@ -538,17 +542,15 @@
       }
     });
 
-
+    // Handle switching between list and graph views of the prototype structure
     switchStructureTypeButton.addEventListener('click', async function(event) {
       event.preventDefault();
+      listStructure.classList.toggle('display-none');
+      prototypeGraph.classList.toggle('display-none');
       if (switchStructureTypeButton.textContent.trim() === "Graph view") {
-        listStructure.classList.add('display-none'); 
-        prototypeGraph.classList.remove('display-none');
         mermaid.init(undefined, '.mermaid');
         switchStructureTypeButton.textContent = "List view";
       } else {
-        prototypeGraph.classList.add('display-none');
-        listStructure.classList.remove('display-none');
         switchStructureTypeButton.textContent = "Graph view";
       }
     });
@@ -613,17 +615,31 @@
     const demoColumn = document.getElementById('demoColumn');
     const sharingColumns = document.getElementsByClassName('sharing-column');
     toggleDemoButton.addEventListener('click', function() {
-      [demoColumn, ...sharingLastUpdateds].forEach(element => {
+      [demoColumn, ...sharingLastUpdateds, switchStructureTypeButton].forEach(element => {
         element.classList.toggle('display-none');
       });
       [demoColumn, mainColumn].forEach(column => {
         column.classList.toggle('govuk-grid-column-one-half');
         column.classList.toggle('govuk-grid-column-full');
       });
-      Array.from(sharingColumns).forEach(column => {
+      Array.from([...sharingColumns, listStructure, prototypeGraph]).forEach(column => {
         column.classList.toggle('govuk-grid-column-one-half');
       });
-      toggleDemoButton.textContent = demoColumn.classList.contains('display-none') ? 'Show demo' : 'Hide demo';
+      if (demoColumn.classList.contains('display-none')) {
+        toggleDemoButton.textContent = 'Show demo';
+        listStructure.classList.remove('display-none');
+        prototypeGraph.classList.remove('display-none');
+        mermaid.init(undefined, '.mermaid');
+      } else {
+        toggleDemoButton.textContent = 'Hide demo';
+        if (switchStructureTypeButton.textContent.trim() === "Graph view") {
+          listStructure.classList.remove('display-none');
+          prototypeGraph.classList.add('display-none');
+        } else {
+          listStructure.classList.add('display-none');
+          prototypeGraph.classList.remove('display-none');
+        }
+      }
     });
 
     // Handle the reset button click event
