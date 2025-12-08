@@ -48,7 +48,11 @@
         {{ govukButton({
           id: "toggleDemoButton",
           text: "Hide demo",
-          classes: "govuk-button--secondary"
+          classes: "govuk-button--secondary",
+          attributes: {
+            "aria-expanded": "true",
+            "aria-controls": "demoColumn"
+          }
         }) }}
         {{ govukButton({
           id: "resetDemoButton",
@@ -70,7 +74,7 @@
             </label>
           </h1>
           <div id="editor" class="{{"" if showJsonPrompt else "display-none"}}">
-            <div id="aceEditor" style="height: 400px; resize: vertical"></div>
+            <div id="aceEditor" style="height: 400px; resize: vertical; overflow: auto"></div>
             <p><a class="govuk-link" href="/help/supported-prototype-options" target="_blank">View available options</a></p>
           </div>
           {{ govukTextarea({
@@ -432,7 +436,7 @@
               src="/prototype/{{ prototypeId }}/start" 
               width="100%" 
               height="650px" 
-              style="border: 1px solid #b1b4b6; border-radius: 4px; resize: vertical"
+              style="border: 1px solid #b1b4b6; border-radius: 4px; resize: vertical; overflow: auto"
               sandbox="allow-same-origin allow-scripts allow-forms"
               title="{{ prototypeTitle }}">
       </iframe>
@@ -625,6 +629,7 @@
       Array.from([...sharingColumns, listStructure, prototypeGraph]).forEach(column => {
         column.classList.toggle('govuk-grid-column-one-half');
       });
+      toggleDemoButton.setAttribute('aria-expanded', !demoColumn.classList.contains('display-none'));
       if (demoColumn.classList.contains('display-none')) {
         toggleDemoButton.textContent = 'Show demo';
         listStructure.classList.remove('display-none');
