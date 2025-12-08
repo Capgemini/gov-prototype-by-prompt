@@ -53,6 +53,7 @@ refreshSuggestionsLink.addEventListener('click', async function (event) {
             );
             errorSummary.classList.remove('display-none');
             errorDescription.textContent = err.message;
+            errorSummary.scrollIntoView();
             refreshSuggestionsLink.href = 'javascript:;';
             refreshSuggestionsLink.textContent = 'refresh';
         });
