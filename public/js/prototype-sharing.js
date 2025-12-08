@@ -9,7 +9,6 @@ const publicSharingRadios = document.querySelectorAll(
 );
 const publicSharingPassword = document.getElementById('publicSharingPassword');
 const sharingButton = document.getElementById('updateSharingButton');
-const sharingLastUpdated = document.getElementById('sharingLastUpdated');
 
 const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
 
@@ -59,6 +58,7 @@ const saveSharingSettings = async function () {
     ) {
         errorSummary.classList.remove('display-none');
         errorDescription.innerHTML = 'Enter a password.';
+        errorSummary.scrollIntoView();
         publicSharingPassword.classList.add('govuk-input--error');
         return;
     } else {
@@ -99,7 +99,9 @@ const saveSharingSettings = async function () {
             copyPublicLinkButton.disabled = !data.livePrototypePublic;
             // If response is OK, show success, otherwise show error
             if (response.ok) {
-                sharingLastUpdated.textContent = `Sharing settings saved today at ${new Date().toLocaleTimeString()}.`;
+                Array.from(sharingLastUpdateds).forEach((element) => {
+                    element.textContent = `Sharing settings saved today at ${new Date().toLocaleTimeString()}.`;
+                });
                 sharingButton.disabled = false;
                 sharingButton.textContent = 'Save public sharing';
                 publicSharingPassword.disabled = false;
@@ -114,6 +116,7 @@ const saveSharingSettings = async function () {
         .catch((err) => {
             errorSummary.classList.remove('display-none');
             errorDescription.textContent = err.message;
+            errorSummary.scrollIntoView();
             sharingButton.disabled = false;
             sharingButton.textContent = 'Save public sharing';
             publicSharingPassword.disabled = false;
@@ -163,6 +166,7 @@ userToAddInput.addEventListener('keyup', async function (event) {
             if (existingIds.includes(userId)) {
                 errorSummary.classList.remove('display-none');
                 errorDescription.innerHTML = `User ${userToAddInput.value.trim()} already has access.`;
+                errorSummary.scrollIntoView();
                 return;
             }
 
