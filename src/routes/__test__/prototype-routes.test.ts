@@ -787,9 +787,8 @@ describe('handleLivePrototypePasswordSubmission', () => {
         res: any
     ) => Promise<void>;
     beforeEach(async () => {
-        ({ handleLivePrototypePasswordSubmission } = await import(
-            '../prototype-routes'
-        ));
+        ({ handleLivePrototypePasswordSubmission } =
+            await import('../prototype-routes'));
     });
 
     it('should render 404 if prototype not found', async () => {
@@ -896,9 +895,8 @@ describe('handlePrototypeSubmitQuestion', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let handlePrototypeSubmitQuestion: (req: any, res: any) => void;
     beforeEach(async () => {
-        ({ handlePrototypeSubmitQuestion } = await import(
-            '../prototype-routes'
-        ));
+        ({ handlePrototypeSubmitQuestion } =
+            await import('../prototype-routes'));
     });
 
     it.each([{}, { liveData: {} }])(
@@ -1140,11 +1138,16 @@ describe('renderPrototypePage', () => {
         expect(response._getData()).toBe('rendered-html');
     });
 
-    it('should render the confirmation page and reset liveData', () => {
+    it('should render the confirmation page and reset the session data', () => {
         const request = httpMocks.createRequest({
             ...defaultRequest,
             params: { id: prototypeData1.id, page: 'confirmation' },
-            session: { liveData: { [prototypeData1.id]: { some: 'data' } } },
+            session: {
+                liveData: { [prototypeData1.id]: { some: 'data' } },
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1', '/url2'],
+                },
+            },
         });
         const response = httpMocks.createResponse();
 
@@ -1153,6 +1156,9 @@ describe('renderPrototypePage', () => {
         expect(generateConfirmationPageMock).toHaveBeenCalled();
         expect(generateBasePageMock).toHaveBeenCalled();
         expect(request.session.liveData?.[prototypeData1.id]).toStrictEqual({});
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toStrictEqual([]);
         expect(nunjucksRenderStringMock).toHaveBeenCalledWith(
             expect.stringContaining('confirmation-content'),
             expect.any(Object)
@@ -1173,6 +1179,117 @@ describe('renderPrototypePage', () => {
 
             expect(response.statusCode).toBe(404);
             expect(response._getRenderView()).toBe('page-not-found.njk');
+        }
+    );
+
+    it('removes the last URL from the history if the user navigated back', () => {
+        const request = httpMocks.createRequest({
+            ...defaultRequest,
+            params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
+            query: { back: 'true' },
+            session: {
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1', '/url2', '/url3'],
+                },
+            },
+        });
+        const response = httpMocks.createResponse();
+
+        renderPrototypePage(request, response);
+
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toEqual(['/url1', '/url2']);
+    });
+
+    it('does not remove the last URL from the history if the user did not navigate back', () => {
+        const request = httpMocks.createRequest({
+            ...defaultRequest,
+            params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url3',
+            query: { back: 'true' },
+            session: {
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1', '/url2'],
+                },
+            },
+        });
+        const response = httpMocks.createResponse();
+
+        renderPrototypePage(request, response);
+
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toEqual(['/url1', '/url2', '/url3']);
+    });
+
+    it('adds the URL to the history', () => {
+        const request = httpMocks.createRequest({
+            ...defaultRequest,
+            params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
+            session: {
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1'],
+                },
+            },
+        });
+        const response = httpMocks.createResponse();
+
+        renderPrototypePage(request, response);
+
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toEqual(['/url1', '/url2']);
+    });
+
+    it('does not add duplicate URLs to the history', () => {
+        const request = httpMocks.createRequest({
+            ...defaultRequest,
+            params: { id: prototypeData1.id, page: 'question-1' },
+            path: '/url2',
+            session: {
+                livePrototypeHistory: {
+                    [prototypeData1.id]: ['/url1', '/url2'],
+                },
+            },
+        });
+        const response = httpMocks.createResponse();
+
+        renderPrototypePage(request, response);
+
+        expect(
+            request.session.livePrototypeHistory?.[prototypeData1.id]
+        ).toEqual(['/url1', '/url2']);
+    });
+
+    it.each([
+        [['/url1', '/url2'], '/url2?back=true'],
+        [['/url1'], '/url1?back=true'],
+        [[], undefined],
+        [undefined, undefined],
+    ])(
+        'where the history is %s, sets the back link to %s',
+        (history, backLinkHref) => {
+            const request = httpMocks.createRequest({
+                ...defaultRequest,
+                params: { id: prototypeData1.id, page: 'question-1' },
+                path: '/url3',
+                session: {
+                    livePrototypeHistory: {
+                        [prototypeData1.id]: history,
+                    },
+                },
+            });
+            const response = httpMocks.createResponse();
+
+            renderPrototypePage(request, response);
+
+            expect(nunjucksRenderStringMock).toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ backLinkHref: backLinkHref })
+            );
         }
     );
 });

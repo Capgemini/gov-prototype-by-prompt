@@ -338,6 +338,7 @@ export function logOutUser(req: Request, res: Response) {
     res.locals.user = undefined;
     req.session.liveData = {};
     req.session.livePrototypePasswords = {};
+    req.session.livePrototypeHistory = {};
     res.redirect('/user/sign-in');
 }
 userRouter.get('/log-out', logOutUser);
