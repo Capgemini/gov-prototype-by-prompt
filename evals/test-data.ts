@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import fs from 'fs';
+import path from 'path';
 
 import { createFormWithOpenAI } from '../src/openai';
 import { DefaultPrototypeDesignSystem, TemplateData } from '../src/types';
@@ -11,6 +13,44 @@ interface TestCase {
     actual: TemplateData;
     expected: TemplateData;
     prompt: string;
+}
+
+// Define the cache file path using the global variable
+const cachePath = path.join(
+    process.cwd(),
+    'evals',
+    '.tmp',
+    (globalThis as unknown as { CACHE_FILE: string }).CACHE_FILE
+);
+fs.mkdirSync(path.dirname(cachePath), { recursive: true });
+
+/**
+ * Generate and cache test data by processing prompts through OpenAI.
+ * @returns {Promise<TestCase[]>} the test data
+ */
+export async function getTestData(): Promise<TestCase[]> {
+    const cache = readCache();
+    if (cache) return cache;
+
+    const cachedResponses = await Promise.all(
+        testData.map(async (testCase) => {
+            return generateAndValidateForm(testCase.prompt).then((actual) => ({
+                actual,
+                expected: testCase.expected,
+                prompt: testCase.prompt,
+            }));
+        })
+    );
+    writeCache(cachedResponses);
+    return cachedResponses;
+}
+
+/**
+ * Get the total number of test data cases.
+ * @returns {number} the total number of test data cases
+ */
+export function getTestDataLength(): number {
+    return testData.length;
 }
 
 /**
@@ -38,31 +78,14 @@ async function generateAndValidateForm(prompt: string): Promise<TemplateData> {
     });
 }
 
-let cachedResponses: null | TestCase[] = null;
-
-/**
- * Generate and cache test data by processing prompts through OpenAI.
- * @returns {Promise<TestCase[]>} the test data
- */
-export async function getTestData(): Promise<TestCase[]> {
-    if (cachedResponses) return cachedResponses;
-
-    cachedResponses = await Promise.all(
-        testData.map(async (testCase) => {
-            return generateAndValidateForm(testCase.prompt).then((actual) => ({
-                actual,
-                expected: testCase.expected,
-                prompt: testCase.prompt,
-            }));
-        })
-    );
-    return cachedResponses;
+function readCache(): null | TestCase[] {
+    try {
+        return JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+    } catch {
+        return null;
+    }
 }
 
-/**
- * Get the total number of test data cases.
- * @returns {number} the total number of test data cases
- */
-export function getTestDataLength(): number {
-    return testData.length;
+function writeCache(obj: TestCase[]): void {
+    fs.writeFileSync(cachePath, JSON.stringify(obj, null, 2));
 }
