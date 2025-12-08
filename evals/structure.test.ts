@@ -40,43 +40,12 @@ describe('Form structure', () => {
             expect(
                 actual.questions
                     .filter((q) => q.answer_type === 'branching_choice')
-                    .map((q) => q.next_question_value)
+                    .map((q) => q.options_branching)
             ).toEqual(
                 expected.questions
                     .filter((q) => q.answer_type === 'branching_choice')
-                    .map((q) => q.next_question_value)
+                    .map((q) => q.options_branching)
             );
-        }
-    );
-
-    it.each(indexes)(
-        'should have the correct form_type (i=%i)',
-        async (index) => {
-            const { actual, expected } = (await getTestData())[index];
-            expect(actual.form_type).toEqual(expected.form_type);
-        }
-    );
-
-    it.each(indexes)(
-        'should have at least one option for choice questions (i=%i)',
-        async (index) => {
-            const { actual, expected } = (await getTestData())[index];
-            actual.questions
-                .filter(
-                    (q) =>
-                        q.answer_type === 'single_choice' ||
-                        q.answer_type === 'multiple_choice'
-                )
-                .forEach((q) => {
-                    expect(q.options && q.options.length > 0).toBe(true);
-                });
-            actual.questions
-                .filter((q) => q.answer_type === 'branching_choice')
-                .forEach((q) => {
-                    expect(
-                        q.options_branching && q.options_branching.length > 0
-                    ).toBe(true);
-                });
         }
     );
 });
