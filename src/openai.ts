@@ -1,4 +1,5 @@
 import opentelemetry from '@opentelemetry/api';
+import * as nunjucks from 'nunjucks';
 import { AzureOpenAI } from 'openai';
 
 import formSchema from '../data/extract-form-questions-schema.json';
@@ -48,14 +49,19 @@ export async function createFormWithOpenAI(
         createSchema.required.push('suggestions');
     }
 
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('create-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
+        suggestions: enableSuggestions
+            ? 'You must include three suggestions.'
+            : '',
+    });
+
     return client.chat.completions
         .create({
             messages: [
                 {
-                    content: getCreateSystemPrompt(
-                        designSystem,
-                        enableSuggestions
-                    ),
+                    content: systemPrompt,
                     role: 'system',
                 },
                 {
@@ -97,15 +103,21 @@ export async function generateSuggestionsWithOpenAI(
     });
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('suggestions-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
+    });
+
     return client.chat.completions
         .create({
             messages: [
                 {
-                    content: getGenerateSuggestionsSystemPrompt(
-                        templateData,
-                        designSystem
-                    ),
+                    content: systemPrompt,
                     role: 'system',
+                },
+                {
+                    content: JSON.stringify(templateData),
+                    role: 'user',
                 },
             ],
             model: envVars.AZURE_OPENAI_MODEL_NAME,
@@ -119,30 +131,6 @@ export async function generateSuggestionsWithOpenAI(
             },
         })
         .then((response) => response.choices[0].message.content ?? '{}');
-}
-
-/**
- * Gets the system prompt to generate a form in JSON format.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @param {boolean} enableSuggestions Whether to include suggestions in the system prompt.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-export function getCreateSystemPrompt(
-    designSystem: PrototypeDesignSystemsType,
-    enableSuggestions: boolean
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to generate a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey.
-
-Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
-
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. ${enableSuggestions ? 'You must include three suggestions. ' : ''}No other data should be included in your response.`;
 }
 
 /**
@@ -167,6 +155,10 @@ export async function judgeFormWithOpenAI(
         endpoint: envVars.AZURE_OPENAI_ENDPOINT,
     });
 
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('judge-prompt.njk');
+
+    // Prepare the user prompt
     const userMessage = `User Prompt: "${prompt}"
 JSON Form: ${JSON.stringify(templateData, null, 2)}
 Criteria: "${criteria}"`;
@@ -175,7 +167,7 @@ Criteria: "${criteria}"`;
         .create({
             messages: [
                 {
-                    content: getJudgeSystemPrompt(),
+                    content: systemPrompt,
                     role: 'system',
                 },
                 {
@@ -240,16 +232,24 @@ export async function updateFormWithOpenAI(
         templateData = { ...templateData, suggestions: [] };
     }
 
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('update-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
+        suggestions: enableSuggestions
+            ? 'You must include three brand-new suggestions.'
+            : '',
+    });
+
     return client.chat.completions
         .create({
             messages: [
                 {
-                    content: getUpdateSystemPrompt(
-                        templateData,
-                        designSystem,
-                        enableSuggestions
-                    ),
+                    content: systemPrompt,
                     role: 'system',
+                },
+                {
+                    content: JSON.stringify(templateData),
+                    role: 'user',
                 },
                 {
                     content: prompt,
@@ -270,91 +270,13 @@ export async function updateFormWithOpenAI(
 }
 
 /**
- * Gets the system prompt to generate suggestions for a form.
- * @param {TemplateData} templateData The existing form data to update.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getGenerateSuggestionsSystemPrompt(
-    templateData: TemplateData,
-    designSystem: PrototypeDesignSystemsType
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}.
-
-Each suggestion must be a specific and direct instruction. Suggestions must be to add, update, or remove a question, or to update the form. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. No other data should be included in your response.
-
-The form${orgFor} to generate suggestions for is as follows:
-${JSON.stringify(templateData, null, 2)}`;
-}
-
-/**
- * Gets the system prompt to judge a form in JSON format.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getJudgeSystemPrompt(): string {
-    return `You are grading a JSON Form according to given Criteria. The user has used their own Prompt to create a JSON Form. Your task is to judge whether the form meets all of the provided Criteria.
-
-In the form, the next_question_value is the index (starting from 1) of the next question in the form sequence, or -1 to finish the form.
-
-The JSON Form must fully meet the Criteria to pass. If it does not meet all aspects of the Criteria, it fails. Provide a concise reason explaining why the form does or does not meet the Criteria. You respond with a JSON object with this structure: {reason: string, pass: boolean}.
-
-Examples:
-
-User Prompt: "Create a form to collect user information that asks for a name and email."
-JSON Form: {questions: [{type: "text", question_text: "What is your name?", next_question_value: 2}, {type: "email", question_text: "What is your email?", next_question_value: -1}]}
-Criteria: "The form includes all necessary questions and is logically ordered."
-{reason: "The form includes questions for name and email, and the questions are in a logical order.", pass: true}
-
-User Prompt: "Create a form to register for a mailing list that asks for name and address."
-JSON Form: {questions: [{type: "text", question_text: "What is your name?", next_question_value: -1}, {type: "address", question_text: "What is your address?", next_question_value: -1}]}
-Criteria: "The form includes all necessary questions and is logically ordered."
-{reason: "The questions are not in a logical order; the address question is unreachable.", pass: false}`;
-}
-
-/**
  * Gets the organization context for the design system.
  * @param {PrototypeDesignSystemsType} designSystem The design system to use.
  * @returns {string} The organization context for the design system.
  */
 function getOrgFor(designSystem: PrototypeDesignSystemsType): string {
     if (designSystem === 'HMRC') {
-        return ' for HMRC';
+        return 'for HMRC';
     }
-    return ' for the UK Government';
-}
-
-/**
- * Gets the system prompt to update a form in JSON format.
- * @param {TemplateData} templateData The existing form data to update.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @param {boolean} enableSuggestions Whether to include suggestions in the system prompt.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getUpdateSystemPrompt(
-    templateData: TemplateData,
-    designSystem: PrototypeDesignSystemsType,
-    enableSuggestions: boolean
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to update a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey. Only make the changes specified by the user, do not make any other changes.
-
-Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
-
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. The explanation should only describe the changes made to the form. ${enableSuggestions ? 'You must include three brand-new suggestions; do not reuse the existing suggestions. ' : ''}No other data should be included in your response.
-
-The form${orgFor} to update is as follows:
-${JSON.stringify(templateData, null, 2)}`;
+    return 'for the UK Government';
 }

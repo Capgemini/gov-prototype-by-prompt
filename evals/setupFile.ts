@@ -1,19 +1,18 @@
+import path from 'node:path';
+import * as nunjucks from 'nunjucks';
+
 import { judgeFormWithOpenAI } from '../src/openai';
 import { EnvironmentVariables, TemplateData } from '../src/types';
 
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace jest {
-        interface Matchers<R> {
-            toPassLLMJudge(
-                envVars: EnvironmentVariables,
-                prompt: string,
-                criteria: string
-            ): Promise<R>;
-        }
+// Configure Nunjucks templating environment to make templates available during tests
+export const nunjucksEnv = nunjucks.configure(
+    [path.join(__dirname, '../data/prompts/')],
+    {
+        autoescape: true,
     }
-}
+);
 
+// Custom Jest matcher to evaluate form data using an LLM judge
 expect.extend({
     async toPassLLMJudge(
         actual: TemplateData,
@@ -46,3 +45,17 @@ expect.extend({
         }
     },
 });
+
+// Declare the custom matcher in the Jest namespace
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace jest {
+        interface Matchers<R> {
+            toPassLLMJudge(
+                envVars: EnvironmentVariables,
+                prompt: string,
+                criteria: string
+            ): Promise<R>;
+        }
+    }
+}

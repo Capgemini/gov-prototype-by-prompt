@@ -24,6 +24,7 @@ interface ChatCreateMockType {
 let chatCreateMock: jest.Mock;
 let setAttributeMock: jest.Mock;
 let getActiveSpanMock: jest.Mock;
+let nunjucksRenderMock: jest.Mock;
 beforeEach(() => {
     chatCreateMock = jest.fn().mockReturnValue(
         Promise.resolve({
@@ -48,6 +49,10 @@ beforeEach(() => {
             getActiveSpan: getActiveSpanMock,
         },
     }));
+    nunjucksRenderMock = jest.fn().mockReturnValue('rendered-prompt');
+    jest.doMock('nunjucks', () => ({
+        render: nunjucksRenderMock,
+    }));
 });
 
 afterEach(() => {
@@ -69,16 +74,16 @@ describe('createFormWithOpenAI', () => {
     });
 
     it.each([
-        [true, 'GOV.UK', ' for the UK Government'],
-        [false, 'GOV.UK', ' for the UK Government'],
-        [true, 'HMRC', ' for HMRC'],
-        [false, 'HMRC', ' for HMRC'],
+        [true, 'GOV.UK', 'for the UK Government'],
+        [false, 'GOV.UK', 'for the UK Government'],
+        [true, 'HMRC', 'for HMRC'],
+        [false, 'HMRC', 'for HMRC'],
     ] as [boolean, PrototypeDesignSystemsType, string][])(
         'returns the response content from OpenAI (enableSuggestions=%s, designSystem=%s)',
         async (
             enableSuggestions: boolean,
             designSystem: PrototypeDesignSystemsType,
-            orgContext: string
+            orgFor: string
         ) => {
             const result = await createFormWithOpenAI(
                 envVars,
@@ -86,24 +91,25 @@ describe('createFormWithOpenAI', () => {
                 designSystem,
                 enableSuggestions
             );
+            expect(nunjucksRenderMock).toHaveBeenCalledWith(
+                'create-prompt.njk',
+                {
+                    orgFor: orgFor,
+                    suggestions: enableSuggestions
+                        ? 'You must include three suggestions.'
+                        : '',
+                }
+            );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
             expect(data.model).toBe(modelName);
-            expect(data.messages[0].content).toContain(
-                'generate a JSON representation of a form'
-            );
-            expect(data.messages[0].content).toContain(orgContext);
+            expect(data.messages[0].content).toContain('rendered-prompt');
             expect(data.messages[1].content).toBe(prompt);
             expect(data.response_format.json_schema.name).toBe(
                 'create-form-schema'
             );
 
             // Test the suggestions logic
-            expect(
-                data.messages[0].content.includes(
-                    'You must include three suggestions.'
-                )
-            ).toBe(enableSuggestions);
             expect(
                 data.response_format.json_schema.schema.required.includes(
                     'suggestions'
@@ -168,16 +174,16 @@ describe('updateFormWithOpenAI', () => {
     });
 
     it.each([
-        [true, 'GOV.UK', ' for the UK Government'],
-        [false, 'GOV.UK', ' for the UK Government'],
-        [true, 'HMRC', ' for HMRC'],
-        [false, 'HMRC', ' for HMRC'],
+        [true, 'GOV.UK', 'for the UK Government'],
+        [false, 'GOV.UK', 'for the UK Government'],
+        [true, 'HMRC', 'for HMRC'],
+        [false, 'HMRC', 'for HMRC'],
     ] as [boolean, PrototypeDesignSystemsType, string][])(
         'returns the response content from OpenAI (enableSuggestions=%s, designSystem=%s)',
         async (
             enableSuggestions: boolean,
             designSystem: PrototypeDesignSystemsType,
-            orgContext: string
+            orgFor: string
         ) => {
             const result = await updateFormWithOpenAI(
                 envVars,
@@ -186,25 +192,25 @@ describe('updateFormWithOpenAI', () => {
                 designSystem,
                 enableSuggestions
             );
+            expect(nunjucksRenderMock).toHaveBeenCalledWith(
+                'update-prompt.njk',
+                {
+                    orgFor: orgFor,
+                    suggestions: enableSuggestions
+                        ? 'You must include three brand-new suggestions.'
+                        : '',
+                }
+            );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
             expect(data.model).toBe(modelName);
-            expect(data.messages[0].content).toContain(
-                'update a JSON representation of a form'
-            );
-            expect(data.messages[0].content).toContain(orgContext);
-            expect(data.messages[1].content).toBe(prompt);
-            expect(data.messages[1].content).toBe(prompt);
+            expect(data.messages[0].content).toContain('rendered-prompt');
+            expect(data.messages[2].content).toBe(prompt);
             expect(data.response_format.json_schema.name).toBe(
                 'update-form-schema'
             );
 
             // Test the suggestions logic
-            expect(
-                data.messages[0].content.includes(
-                    'You must include three brand-new suggestions;'
-                )
-            ).toBe(enableSuggestions);
             expect(
                 data.response_format.json_schema.schema.required.includes(
                     'suggestions'
@@ -284,29 +290,28 @@ describe('generateSuggestionsWithOpenAI', () => {
     });
 
     it.each([
-        ['GOV.UK', ' for the UK Government'],
-        ['GOV.UK', ' for the UK Government'],
-        ['HMRC', ' for HMRC'],
-        ['HMRC', ' for HMRC'],
+        ['GOV.UK', 'for the UK Government'],
+        ['GOV.UK', 'for the UK Government'],
+        ['HMRC', 'for HMRC'],
+        ['HMRC', 'for HMRC'],
     ] as [PrototypeDesignSystemsType, string][])(
         'returns the response content from OpenAI (designSystem=%s)',
-        async (
-            designSystem: PrototypeDesignSystemsType,
-            orgContext: string
-        ) => {
+        async (designSystem: PrototypeDesignSystemsType, orgFor: string) => {
             const result = await generateSuggestionsWithOpenAI(
                 envVars,
                 {} as TemplateData, // Mocking TemplateData as an empty object
                 designSystem
             );
+            expect(nunjucksRenderMock).toHaveBeenCalledWith(
+                'suggestions-prompt.njk',
+                {
+                    orgFor: orgFor,
+                }
+            );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
             expect(data.model).toBe(modelName);
-            expect(data.messages[0].content).toContain(
-                'generate suggestions for how to update'
-            );
-            expect(data.messages[0].content).toContain(orgContext);
-            expect(data.messages.length).toBe(1);
+            expect(data.messages[0].content).toContain('rendered-prompt');
             expect(data.response_format.json_schema.name).toBe(
                 'generate-form-suggestions-schema'
             );
@@ -358,12 +363,11 @@ describe('judgeFormWithOpenAI', () => {
             {} as TemplateData,
             'some criteria'
         );
+        expect(nunjucksRenderMock).toHaveBeenCalledWith('judge-prompt.njk');
         expect(chatCreateMock).toHaveBeenCalled();
         const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
         expect(data.model).toBe(modelName);
-        expect(data.messages[0].content).toContain(
-            'Your task is to judge whether the form meets all of the provided Criteria.'
-        );
+        expect(data.messages[0].content).toContain('rendered-prompt');
         expect(data.response_format.json_schema.name).toBe('judge-form-schema');
 
         // Test the result
