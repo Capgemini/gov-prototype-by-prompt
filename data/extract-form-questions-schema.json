@@ -63,7 +63,7 @@
         },
         "before_you_start": {
             "type": "string",
-            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. Do not use headings.",
+            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. This should not duplicate the description. Do not use headings.",
             "examples": [
                 "You must be a British citizen and have a valid National Insurance number to use this service."
             ]
@@ -114,7 +114,7 @@
                     },
                     "hint_text": {
                         "type": ["string", "null"],
-                        "description": "A short, single-sentence hint with no full stop to help users answer the question, such as where to find information or how it will be used. This must be null if detailed_explanation is provided.",
+                        "description": "A short, single sentence with no full stop to help users answer the question, such as where to find information or how it will be used. Only include if the question needs clarification. This must be null if detailed_explanation is provided.",
                         "examples": [
                             "Select all that apply",
                             "You can find this on your payslip"

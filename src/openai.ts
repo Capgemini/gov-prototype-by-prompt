@@ -210,6 +210,8 @@ Your task is to generate a JSON representation of a form${orgFor} based on user 
 
 Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
 
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
+
 Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
 
 Your response must only be valid JSON that adheres to the schema. ${enableSuggestions ? 'You must include three suggestions. ' : ''}No other data should be included in your response.`;
@@ -228,7 +230,7 @@ function getGenerateSuggestionsSystemPrompt(
     const orgFor = getOrgFor(designSystem);
     return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
 
-Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}. 
+Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}.
 
 Each suggestion must be a specific and direct instruction. Suggestions must be to add, update, or remove a question, or to update the form. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'
 
@@ -270,6 +272,8 @@ function getUpdateSystemPrompt(
 Your task is to update a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey. Only make the changes specified by the user, do not make any other changes.
 
 Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
+
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
 
 Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
 
