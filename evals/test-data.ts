@@ -11,7 +11,6 @@ const envVars = getEnvironmentVariables();
 
 interface TestCase {
     actual: TemplateData;
-    expected: TemplateData;
     prompt: string;
 }
 
@@ -33,17 +32,12 @@ export async function getTestData(): Promise<TestCase[]> {
     if (cache) return cache;
 
     const cachedResponses = await Promise.all(
-        testData.map(
-            async (testCase: { expected: TemplateData; prompt: string }) => {
-                return generateAndValidateForm(testCase.prompt).then(
-                    (actual) => ({
-                        actual,
-                        expected: testCase.expected,
-                        prompt: testCase.prompt,
-                    })
-                );
-            }
-        )
+        testData.map(async (testCase: { prompt: string }) => {
+            return generateAndValidateForm(testCase.prompt).then((actual) => ({
+                actual,
+                prompt: testCase.prompt,
+            }));
+        })
     );
     writeCache(cachedResponses);
     return cachedResponses;
