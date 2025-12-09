@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["pass", "reason"],
+    "additionalProperties": false,
+    "properties": {
+        "pass": {
+            "type": "boolean",
+            "description": "True if the JSON Form fully meets the Criteria, otherwise False."
+        },
+        "reason": {
+            "type": "string",
+            "description": "A concise explanation of why the JSON Form does or does not meet the Criteria."
+        }
+    }
+}

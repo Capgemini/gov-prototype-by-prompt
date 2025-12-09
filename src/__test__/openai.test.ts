@@ -25,7 +25,11 @@ let chatCreateMock: jest.Mock;
 let setAttributeMock: jest.Mock;
 let getActiveSpanMock: jest.Mock;
 beforeEach(() => {
-    chatCreateMock = jest.fn();
+    chatCreateMock = jest.fn().mockReturnValue(
+        Promise.resolve({
+            choices: [{ message: { content: '{"name":"Test Form"}' } }],
+        })
+    );
     jest.doMock('openai', () => ({
         AzureOpenAI: jest.fn().mockImplementation(() => ({
             chat: {
@@ -76,9 +80,6 @@ describe('createFormWithOpenAI', () => {
             designSystem: PrototypeDesignSystemsType,
             orgContext: string
         ) => {
-            chatCreateMock.mockReturnValueOnce({
-                choices: [{ message: { content: '{"name":"Test Form"}' } }],
-            });
             const result = await createFormWithOpenAI(
                 envVars,
                 prompt,
@@ -115,9 +116,6 @@ describe('createFormWithOpenAI', () => {
     );
 
     it('logs the prompt if there is an opentelemetry span', async () => {
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: '{"name":"Test Form"}' } }],
-        });
         await createFormWithOpenAI(envVars, prompt, 'GOV.UK', false);
         expect(getActiveSpanMock).toHaveBeenCalled();
         expect(setAttributeMock).toHaveBeenCalledWith('openai.prompt', prompt);
@@ -125,18 +123,17 @@ describe('createFormWithOpenAI', () => {
 
     it('does not log the prompt if there is not an opentelemetry span', async () => {
         getActiveSpanMock.mockReturnValueOnce(undefined);
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: '{"name":"Test Form"}' } }],
-        });
         await createFormWithOpenAI(envVars, prompt, 'GOV.UK', false);
         expect(getActiveSpanMock).toHaveBeenCalled();
         expect(setAttributeMock).not.toHaveBeenCalled();
     });
 
     it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: undefined } }],
-        });
+        chatCreateMock.mockReturnValueOnce(
+            Promise.resolve({
+                choices: [{ message: { content: undefined } }],
+            })
+        );
         const result = await createFormWithOpenAI(
             envVars,
             prompt,
@@ -182,9 +179,6 @@ describe('updateFormWithOpenAI', () => {
             designSystem: PrototypeDesignSystemsType,
             orgContext: string
         ) => {
-            chatCreateMock.mockReturnValueOnce({
-                choices: [{ message: { content: '{"name":"Test Form"}' } }],
-            });
             const result = await updateFormWithOpenAI(
                 envVars,
                 prompt,
@@ -223,9 +217,6 @@ describe('updateFormWithOpenAI', () => {
     );
 
     it('logs the prompt if there is an opentelemetry span', async () => {
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: '{"name":"Test Form"}' } }],
-        });
         await updateFormWithOpenAI(
             envVars,
             prompt,
@@ -239,9 +230,6 @@ describe('updateFormWithOpenAI', () => {
 
     it('does not log the prompt if there is not an opentelemetry span', async () => {
         getActiveSpanMock.mockReturnValueOnce(undefined);
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: '{"name":"Test Form"}' } }],
-        });
         await updateFormWithOpenAI(
             envVars,
             prompt,
@@ -254,9 +242,11 @@ describe('updateFormWithOpenAI', () => {
     });
 
     it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: undefined } }],
-        });
+        chatCreateMock.mockReturnValueOnce(
+            Promise.resolve({
+                choices: [{ message: { content: undefined } }],
+            })
+        );
         const result = await updateFormWithOpenAI(
             envVars,
             prompt,
@@ -304,9 +294,6 @@ describe('generateSuggestionsWithOpenAI', () => {
             designSystem: PrototypeDesignSystemsType,
             orgContext: string
         ) => {
-            chatCreateMock.mockReturnValueOnce({
-                choices: [{ message: { content: '{"name":"Test Form"}' } }],
-            });
             const result = await generateSuggestionsWithOpenAI(
                 envVars,
                 {} as TemplateData, // Mocking TemplateData as an empty object
@@ -330,9 +317,11 @@ describe('generateSuggestionsWithOpenAI', () => {
     );
 
     it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce({
-            choices: [{ message: { content: undefined } }],
-        });
+        chatCreateMock.mockReturnValueOnce(
+            Promise.resolve({
+                choices: [{ message: { content: undefined } }],
+            })
+        );
         const result = await generateSuggestionsWithOpenAI(
             envVars,
             {} as TemplateData, // Mocking TemplateData as an empty object
@@ -347,6 +336,66 @@ describe('generateSuggestionsWithOpenAI', () => {
         });
         await expect(
             generateSuggestionsWithOpenAI(envVars, {} as TemplateData, 'GOV.UK')
+        ).rejects.toThrow('API error');
+    });
+});
+
+describe('judgeFormWithOpenAI', () => {
+    let judgeFormWithOpenAI: (
+        envVars: ReturnType<typeof envVarSchema.parse>,
+        prompt: string,
+        templateData: TemplateData,
+        criteria: string
+    ) => Promise<string>;
+    beforeEach(async () => {
+        ({ judgeFormWithOpenAI } = await import('../openai'));
+    });
+
+    it('returns the response content from OpenAI', async () => {
+        const result = await judgeFormWithOpenAI(
+            envVars,
+            'Judge this form',
+            {} as TemplateData,
+            'some criteria'
+        );
+        expect(chatCreateMock).toHaveBeenCalled();
+        const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
+        expect(data.model).toBe(modelName);
+        expect(data.messages[0].content).toContain(
+            'Your task is to judge whether the form meets all of the provided Criteria.'
+        );
+        expect(data.response_format.json_schema.name).toBe('judge-form-schema');
+
+        // Test the result
+        expect(result).toBe('{"name":"Test Form"}');
+    });
+
+    it('returns {} if OpenAI response content is undefined', async () => {
+        chatCreateMock.mockReturnValueOnce(
+            Promise.resolve({
+                choices: [{ message: { content: undefined } }],
+            })
+        );
+        const result = await judgeFormWithOpenAI(
+            envVars,
+            'Judge this form',
+            {} as TemplateData,
+            'some criteria'
+        );
+        expect(result).toBe('{}');
+    });
+
+    it('throws if OpenAI call fails', async () => {
+        chatCreateMock.mockImplementationOnce(() => {
+            throw new Error('API error');
+        });
+        await expect(
+            judgeFormWithOpenAI(
+                envVars,
+                'Judge this form',
+                {} as TemplateData,
+                'some criteria'
+            )
         ).rejects.toThrow('API error');
     });
 });

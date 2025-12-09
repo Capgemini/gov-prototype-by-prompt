@@ -3,6 +3,7 @@ import { AzureOpenAI } from 'openai';
 
 import formSchema from '../data/extract-form-questions-schema.json';
 import suggestionsSchema from '../data/generate-form-suggestions-schema.json';
+import judgeSchema from '../data/llm-judge-response-schema.json';
 import {
     EnvironmentVariables,
     PrototypeDesignSystemsType,
@@ -145,6 +146,57 @@ Your response must only be valid JSON that adheres to the schema. ${enableSugges
 }
 
 /**
+ * Prompts the OpenAI API to judge a form and returns the response.
+ * @param {EnvironmentVariables} envVars The environment variables containing OpenAI API configuration.
+ * @param {string} prompt The user prompt to create the form.
+ * @param {TemplateData} templateData The form data to judge.
+ * @param {string} criteria The criteria to judge the form against.
+ * @returns {Promise<string>} The response from the OpenAI API.
+ * @throws an error if the API call fails.
+ */
+export async function judgeFormWithOpenAI(
+    envVars: EnvironmentVariables,
+    prompt: string,
+    templateData: TemplateData,
+    criteria: string
+): Promise<string> {
+    const client = new AzureOpenAI({
+        apiKey: envVars.AZURE_OPENAI_API_KEY,
+        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
+        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
+        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    });
+
+    const userMessage = `User Prompt: "${prompt}"
+JSON Form: ${JSON.stringify(templateData, null, 2)}
+Criteria: "${criteria}"`;
+
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: getJudgeSystemPrompt(),
+                    role: 'system',
+                },
+                {
+                    content: userMessage,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'judge-form-schema',
+                    schema: judgeSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
+            },
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
+}
+
+/**
  * Prompts the OpenAI API to update with a given prompt and returns the response.
  * @param {EnvironmentVariables} envVars The environment variables containing OpenAI API configuration.
  * @param {string} prompt The prompt to send to the OpenAI API.
@@ -240,6 +292,30 @@ Your response must only be valid JSON that adheres to the schema. No other data 
 
 The form${orgFor} to generate suggestions for is as follows:
 ${JSON.stringify(templateData, null, 2)}`;
+}
+
+/**
+ * Gets the system prompt to judge a form in JSON format.
+ * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
+ */
+function getJudgeSystemPrompt(): string {
+    return `You are grading a JSON Form according to given Criteria. The user has used their own Prompt to create a JSON Form. Your task is to judge whether the form meets all of the provided Criteria. 
+
+In the form, the next_question_value is the index (starting from 1) of the next question in the form sequence, or -1 to finish the form.
+
+The JSON Form must fully meet the Criteria to pass. If it does not meet all aspects of the Criteria, it fails. Provide a concise reason explaining why the form does or does not meet the Criteria. You respond with a JSON object with this structure: {reason: string, pass: boolean}.
+
+Examples:
+
+User Prompt: "Create a form to collect user information that asks for a name and email."
+JSON Form: {questions: [{type: "text", question_text: "What is your name?", next_question_value: 2}, {type: "email", question_text: "What is your email?", next_question_value: -1}]}
+Criteria: "The form includes all necessary questions and is logically ordered."
+{reason: "The form includes questions for name and email, and the questions are in a logical order.", pass: true}
+
+User Prompt: "Create a form to register for a mailing list that asks for name and address."
+JSON Form: {questions: [{type: "text", question_text: "What is your name?", next_question_value: -1}, {type: "address", question_text: "What is your address?", next_question_value: -1}]}
+Criteria: "The form includes all necessary questions and is logically ordered."
+{reason: "The questions are not in a logical order; the address question is unreachable.", pass: false}`;
 }
 
 /**
