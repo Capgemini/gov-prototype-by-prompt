@@ -9,13 +9,21 @@ describe('Form validity', () => {
         'should have valid question next_question_values (i=%i)',
         async (index) => {
             const { actual } = (await getTestData())[index];
-            for (const [index, question] of actual.questions.entries()) {
+            for (const [
+                question_index,
+                question,
+            ] of actual.questions.entries()) {
                 if (question.next_question_value !== undefined) {
                     const validNextQuestionValues = new Set<number>([
                         -1,
                         ...Array.from(
-                            { length: actual.questions.length - index - 1 },
-                            (_, i) => index + 2 + i
+                            {
+                                length:
+                                    actual.questions.length -
+                                    question_index -
+                                    1,
+                            },
+                            (_, i) => question_index + 2 + i
                         ),
                     ]);
                     expect(validNextQuestionValues).toContain(
@@ -30,13 +38,21 @@ describe('Form validity', () => {
         'should have valid branching_choice next_question_values (i=%i)',
         async (index) => {
             const { actual } = (await getTestData())[index];
-            for (const [index, question] of actual.questions.entries()) {
+            for (const [
+                question_index,
+                question,
+            ] of actual.questions.entries()) {
                 if (question.answer_type === 'branching_choice') {
                     const validNextQuestionValues = new Set<number>([
                         -1,
                         ...Array.from(
-                            { length: actual.questions.length - index - 1 },
-                            (_, i) => index + 2 + i
+                            {
+                                length:
+                                    actual.questions.length -
+                                    question_index -
+                                    1,
+                            },
+                            (_, i) => question_index + 2 + i
                         ),
                     ]);
                     for (const option of question.options_branching ?? []) {

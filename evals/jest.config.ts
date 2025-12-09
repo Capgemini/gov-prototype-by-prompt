@@ -4,7 +4,7 @@ const config: Config = {
     globals: {
         CACHE_FILE: `llm-cache-${new Date().toISOString().replace(/[:.]/g, '-')}.json`,
     },
-    maxWorkers: 1,
+    maxWorkers: 4,
     preset: 'ts-jest',
     setupFilesAfterEnv: ['dotenv/config', '<rootDir>/setupFile.ts'],
     silent: false,

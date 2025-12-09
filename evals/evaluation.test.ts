@@ -110,13 +110,25 @@ describe('Form LLM evaluation', () => {
     );
 
     it.each(indexes)(
+        'answer_type is correct and matches the question (i=%i)',
+        async (index) => {
+            const { actual, prompt } = (await getTestData())[index];
+            await expect(actual).toPassLLMJudge(
+                envVars,
+                prompt,
+                `The answer type is valid and matches the question.`
+            );
+        }
+    );
+
+    it.each(indexes)(
         'form title is concise and descriptive (i=%i)',
         async (index) => {
             const { actual, prompt } = (await getTestData())[index];
             await expect(actual).toPassLLMJudge(
                 envVars,
                 prompt,
-                `Form title starts with a verb and describes what the form allows users to do.`
+                `Form title concisely describes what the form allows users to do.`
             );
         }
     );
@@ -129,6 +141,18 @@ describe('Form LLM evaluation', () => {
                 envVars,
                 prompt,
                 `Questions are unambiguous, use plain language, and avoid technical jargon.`
+            );
+        }
+    );
+
+    it.each(indexes)(
+        'question titles in detailed explanations describe the whole question (i=%i)',
+        async (index) => {
+            const { actual, prompt } = (await getTestData())[index];
+            await expect(actual).toPassLLMJudge(
+                envVars,
+                prompt,
+                `Question titles in detailed explanations concisely reflect the question being asked and its explanation.`
             );
         }
     );
