@@ -27,7 +27,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
 
-It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
+It connects to an OpenAI LLM running in Azure; we have been using GPT-4.1-mini.
 
 It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL database.
 
