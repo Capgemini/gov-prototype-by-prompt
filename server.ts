@@ -87,7 +87,7 @@ export const nunjucksEnv = nunjucks.configure(
     {
         autoescape: true,
         express: app,
-        noCache: true,
+        noCache: nodeEnv !== 'production',
     }
 );
 
