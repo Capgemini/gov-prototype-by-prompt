@@ -8,7 +8,7 @@ describe('Form validity', () => {
     it.each(indexes)(
         'should have valid question next_question_values (i=%i)',
         async (index) => {
-            const { actual, expected } = (await getTestData())[index];
+            const { actual } = (await getTestData())[index];
             for (const [index, question] of actual.questions.entries()) {
                 if (question.next_question_value !== undefined) {
                     const validNextQuestionValues = new Set<number>([
@@ -29,7 +29,7 @@ describe('Form validity', () => {
     it.each(indexes)(
         'should have valid branching_choice next_question_values (i=%i)',
         async (index) => {
-            const { actual, expected } = (await getTestData())[index];
+            const { actual } = (await getTestData())[index];
             for (const [index, question] of actual.questions.entries()) {
                 if (question.answer_type === 'branching_choice') {
                     const validNextQuestionValues = new Set<number>([
@@ -52,7 +52,7 @@ describe('Form validity', () => {
     it.each(indexes)(
         'should have at least one option for choice questions (i=%i)',
         async (index) => {
-            const { actual, expected } = (await getTestData())[index];
+            const { actual } = (await getTestData())[index];
             actual.questions
                 .filter(
                     (q) =>

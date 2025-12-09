@@ -1,11 +1,11 @@
 import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
+import testData from '../data/evals-test-data.json';
 import { createFormWithOpenAI } from '../src/openai';
 import { DefaultPrototypeDesignSystem, TemplateData } from '../src/types';
 import { getEnvironmentVariables } from '../src/utils';
-import testData from './test-data.json';
 
 const envVars = getEnvironmentVariables();
 
@@ -33,13 +33,17 @@ export async function getTestData(): Promise<TestCase[]> {
     if (cache) return cache;
 
     const cachedResponses = await Promise.all(
-        testData.map(async (testCase) => {
-            return generateAndValidateForm(testCase.prompt).then((actual) => ({
-                actual,
-                expected: testCase.expected,
-                prompt: testCase.prompt,
-            }));
-        })
+        testData.map(
+            async (testCase: { expected: TemplateData; prompt: string }) => {
+                return generateAndValidateForm(testCase.prompt).then(
+                    (actual) => ({
+                        actual,
+                        expected: testCase.expected,
+                        prompt: testCase.prompt,
+                    })
+                );
+            }
+        )
     );
     writeCache(cachedResponses);
     return cachedResponses;
@@ -80,7 +84,7 @@ async function generateAndValidateForm(prompt: string): Promise<TemplateData> {
 
 function readCache(): null | TestCase[] {
     try {
-        return JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+        return JSON.parse(fs.readFileSync(cachePath, 'utf8')) as TestCase[];
     } catch {
         return null;
     }
