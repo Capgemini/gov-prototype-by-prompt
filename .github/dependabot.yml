@@ -22,15 +22,13 @@ updates:
           include: 'scope'
           prefix: ''
       groups:
-          minor-updates:
+          npm-minor-and-patch-updates:
               patterns:
                   - '*'
               update-types:
                   - 'minor'
+                  - 'patch'
       ignore:
-          # Ignore all patch updates
-          - dependency-name: '*'
-            update-types: ['version-update:semver-patch']
           # Ignore node versions
           - dependency-name: 'node'
           - dependency-name: '@types/node'
@@ -49,3 +47,10 @@ updates:
           - 'dependencies'
       open-pull-requests-limit: 5
       rebase-strategy: 'auto'
+      groups:
+          gh-actions-minor-and-patch-updates:
+              patterns:
+                  - '*'
+              update-types:
+                  - 'minor'
+                  - 'patch'

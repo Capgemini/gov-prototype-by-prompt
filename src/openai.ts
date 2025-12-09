@@ -136,9 +136,9 @@ export function getCreateSystemPrompt(
 
 Your task is to generate a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey.
 
-Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly. 
+Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
 
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
 
 Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
 
@@ -282,7 +282,7 @@ function getGenerateSuggestionsSystemPrompt(
     const orgFor = getOrgFor(designSystem);
     return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
 
-Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}. 
+Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}.
 
 Each suggestion must be a specific and direct instruction. Suggestions must be to add, update, or remove a question, or to update the form. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'
 
@@ -299,7 +299,7 @@ ${JSON.stringify(templateData, null, 2)}`;
  * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
  */
 function getJudgeSystemPrompt(): string {
-    return `You are grading a JSON Form according to given Criteria. The user has used their own Prompt to create a JSON Form. Your task is to judge whether the form meets all of the provided Criteria. 
+    return `You are grading a JSON Form according to given Criteria. The user has used their own Prompt to create a JSON Form. Your task is to judge whether the form meets all of the provided Criteria.
 
 In the form, the next_question_value is the index (starting from 1) of the next question in the form sequence, or -1 to finish the form.
 
@@ -349,9 +349,9 @@ Your task is to update a JSON representation of a form${orgFor} based on user in
 
 Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
 
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
 
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand. 
+Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
 
 Your response must only be valid JSON that adheres to the schema. The explanation should only describe the changes made to the form. ${enableSuggestions ? 'You must include three brand-new suggestions; do not reuse the existing suggestions. ' : ''}No other data should be included in your response.
 
