@@ -138,7 +138,7 @@ Your task is to generate a JSON representation of a form${orgFor} based on user 
 
 Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly. 
 
-Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
 
 Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
 
@@ -349,7 +349,7 @@ Your task is to update a JSON representation of a form${orgFor} based on user in
 
 Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
 
-Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
+Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts. 
 
 Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand. 
 
