@@ -205,7 +205,7 @@ describe('updateFormWithOpenAI', () => {
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
             expect(data.model).toBe(modelName);
             expect(data.messages[0].content).toContain('rendered-prompt');
-            expect(data.messages[2].content).toBe(prompt);
+            expect(data.messages[1].content).toContain(prompt);
             expect(data.response_format.json_schema.name).toBe(
                 'update-form-schema'
             );
