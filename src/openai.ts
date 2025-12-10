@@ -248,11 +248,7 @@ export async function updateFormWithOpenAI(
                     role: 'system',
                 },
                 {
-                    content: JSON.stringify(templateData),
-                    role: 'user',
-                },
-                {
-                    content: prompt,
+                    content: `TEMPLATE DATA:\n${JSON.stringify(templateData, null, 2)}\n\nPROMPT: ${prompt}`,
                     role: 'user',
                 },
             ],
