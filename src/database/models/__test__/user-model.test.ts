@@ -57,7 +57,7 @@ describe('UserModel', () => {
             const newUser = new User(mockUser);
             await newUser.save();
 
-            expect(await UserModel.deleteById(newUser.id as string)).toEqual(
+            expect(await UserModel.deleteById(newUser.id)).toEqual(
                 true
             );
         });
@@ -93,7 +93,7 @@ describe('UserModel', () => {
         it('should return user when get by id exists', async () => {
             const newUser = new User(mockUser);
             await newUser.save();
-            const user = await UserModel.getById(newUser.id as string);
+            const user = await UserModel.getById(newUser.id);
             expect(user?.id).toEqual(newUser.id);
         });
 
@@ -114,7 +114,7 @@ describe('UserModel', () => {
         it('should return updated user for update', async () => {
             const newUser = new User(mockUser);
             await newUser.save();
-            const updatedUser = await UserModel.update(newUser.id as string, {
+            const updatedUser = await UserModel.update(newUser.id, {
                 email: 'updated-email',
             });
             expect(updatedUser?.email).toEqual('updated-email');

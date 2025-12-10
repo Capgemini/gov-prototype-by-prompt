@@ -32,7 +32,7 @@ describe('PrototypeModel', () => {
             await newPrototype.save();
             const result = await PrototypeModel.canUserAccess(
                 mockUserId1,
-                newPrototype.id as string
+                newPrototype.id
             );
             expect(result).toBe(true);
         });
@@ -45,7 +45,7 @@ describe('PrototypeModel', () => {
             await newPrototype.save();
             const result = await PrototypeModel.canUserAccess(
                 mockUserId2,
-                newPrototype.id as string
+                newPrototype.id
             );
             expect(result).toBe(true);
         });
@@ -324,7 +324,7 @@ describe('PrototypeModel', () => {
             const newPrototype = new Prototype(mockPrototype1);
             await newPrototype.save();
             const result = await PrototypeModel.update(
-                newPrototype.id as string,
+                newPrototype.id,
                 { firstPrompt: 'new-first-prompt' }
             );
             expect(result?.firstPrompt).toBe('new-first-prompt');
