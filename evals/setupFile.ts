@@ -4,6 +4,10 @@ import * as nunjucks from 'nunjucks';
 import { judgeFormWithOpenAI } from '../src/openai';
 import { EnvironmentVariables, TemplateData } from '../src/types';
 
+// Set the cache file name as a global variable
+(globalThis as unknown as { CACHE_FILE: string }).CACHE_FILE =
+    `llm-cache-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+
 // Configure Nunjucks templating environment to make templates available during tests
 export const nunjucksEnv = nunjucks.configure(
     [path.join(__dirname, '../data/prompts/')],
