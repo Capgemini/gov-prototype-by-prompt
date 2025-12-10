@@ -9,7 +9,7 @@
         "prompt": "Create a form to register a PAYE employer. Ask for employer name, number of employees, if they have a company registration number and if so what that is, and if they provide taxable employee benefits and if so to describe what they are."
     },
     {
-        "prompt": "Create a form to request a tax refund. Ask for name, address, NI number, which year the refund is for (give a list of five), if they know the amount their owed, and if so the amount"
+        "prompt": "Create a form to request a tax refund. Ask for name, address, NI number, which year the refund is for (give a list of five), if they know the amount they're owed, and if so the amount"
     },
     {
         "prompt": "Create a form to register to vote. Ask for name, date of birth, if they're a UK, qualifying EU, or qualifying commonwealth citizen, their main address. Check if they're a student with a term-time address, and if so ask what that address is too. Check if they want to register anonymously, and if so ask them to explain why and upload supporting evidence."
