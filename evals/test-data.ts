@@ -67,10 +67,10 @@ async function generateAndValidateForm(prompt: string): Promise<TemplateData> {
             .replace(/\\"/g, '“')
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
 
-        // Parse the JSON and remove any null values
+        // Parse the JSON and transform null values to undefined
         const templateData = JSON.parse(responseText, (key, value) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            if (value !== null) return value;
+            return value ?? undefined;
         }) as TemplateData;
         return templateData;
     });
