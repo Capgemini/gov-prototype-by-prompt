@@ -6,6 +6,7 @@ import {
     prototypeId2,
     user1PersonalWorkspace,
     user1PersonalWorkspaceId,
+    user2PersonalWorkspaceId,
     userId1,
     userId2,
 } from '../../../../jest/mockTestData';
@@ -19,6 +20,7 @@ const mockUserId1 = userId1.toString();
 const mockUserId2 = userId2.toString();
 const mockUser1PersonalWorkspaceId = user1PersonalWorkspaceId.toString();
 const mockUser1PersonalWorkspace = user1PersonalWorkspace;
+const mockUser2PersonalWorkspaceId = user2PersonalWorkspaceId.toString();
 
 beforeEach(async () => {
     const newWorkspace = new Workspace(mockUser1PersonalWorkspace);
@@ -179,10 +181,28 @@ describe('PrototypeModel', () => {
     });
 
     describe('getByUserId', () => {
-        it('should get prototypes by user ID', async () => {
-            const result = await PrototypeModel.getByUserId(mockUserId1, false);
-            expect(Array.isArray(result)).toBe(true);
-        });
+        it.each([
+            [true, 1],
+            [false, 2],
+        ])(
+            'should get prototypes by user ID (onlyCreated=%s',
+            async (onlyCreated, expectedCount) => {
+                const newPrototype = new Prototype(mockPrototype1);
+                await newPrototype.save();
+                const newPrototype2 = new Prototype({
+                    ...mockPrototype2,
+                    workspaceId: mockUser1PersonalWorkspaceId,
+                });
+                await newPrototype2.save();
+
+                const result = await PrototypeModel.getByUserId(
+                    mockUserId1,
+                    onlyCreated
+                );
+                expect(Array.isArray(result)).toBe(true);
+                expect(result).toHaveLength(expectedCount);
+            }
+        );
 
         it('should throw when error occurs in getByUserId', async () => {
             await disconnectFromDatabase();
@@ -277,12 +297,33 @@ describe('PrototypeModel', () => {
             expect(result).toHaveLength(1);
         });
 
-        it('should not return previous prototypes if the user cannot access them', async () => {
-            const newPrototype = new Prototype(mockPrototype1);
+        it('should not return previous prototypes if the user cannot access the current prototype', async () => {
+            const newPrototype = new Prototype({
+                ...mockPrototype1,
+                workspaceId: mockUser2PersonalWorkspaceId,
+            });
             await newPrototype.save();
             const newPrototype2 = new Prototype({
                 ...mockPrototype2,
                 workspaceId: mockUser1PersonalWorkspaceId,
+            });
+            await newPrototype2.save();
+            const result = await PrototypeModel.getPreviousPrototypes(
+                mockPrototypeId2,
+                mockUserId2
+            );
+            expect(result).toHaveLength(0);
+        });
+
+        it('should not return previous prototypes if the user cannot access the previous prototype', async () => {
+            const newPrototype = new Prototype({
+                ...mockPrototype1,
+                workspaceId: mockUser1PersonalWorkspaceId,
+            });
+            await newPrototype.save();
+            const newPrototype2 = new Prototype({
+                ...mockPrototype2,
+                workspaceId: mockUser2PersonalWorkspaceId,
             });
             await newPrototype2.save();
             const result = await PrototypeModel.getPreviousPrototypes(
@@ -323,10 +364,9 @@ describe('PrototypeModel', () => {
         it('should update a prototype', async () => {
             const newPrototype = new Prototype(mockPrototype1);
             await newPrototype.save();
-            const result = await PrototypeModel.update(
-                newPrototype.id,
-                { firstPrompt: 'new-first-prompt' }
-            );
+            const result = await PrototypeModel.update(newPrototype.id, {
+                firstPrompt: 'new-first-prompt',
+            });
             expect(result?.firstPrompt).toBe('new-first-prompt');
         });
 
