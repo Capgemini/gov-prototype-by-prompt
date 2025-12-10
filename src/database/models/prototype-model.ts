@@ -1,9 +1,8 @@
-import { RootFilterQuery } from 'mongoose';
+import { ObjectId, QueryFilter } from 'mongoose';
 
 import {
     IPrototypeData,
     Prototype,
-    PrototypeQuery,
 } from '../../types/schemas/prototype-schema';
 import { WorkspaceModel } from './workspace-model';
 
@@ -70,12 +69,7 @@ export class PrototypeModel {
                 return 0;
             }
 
-            // Build query for prototypes in the workspace that the user can access
-            const query: RootFilterQuery<typeof Prototype> = {
-                workspaceId,
-            };
-
-            return await Prototype.countDocuments(query);
+            return await Prototype.countDocuments({ workspaceId });
         } catch (error) {
             console.error(
                 'Error counting prototypes by user ID and workspace ID:',
@@ -149,7 +143,7 @@ export class PrototypeModel {
             }
 
             // Build query for prototypes in the workspace that the user can access
-            const query: RootFilterQuery<typeof Prototype> = {
+            const query: QueryFilter<IPrototypeData> = {
                 workspaceId,
             };
 
@@ -179,7 +173,7 @@ export class PrototypeModel {
             );
 
             // Build the chain of previous IDs
-            const previousIds: string[] = [];
+            const previousIds: ObjectId[] = [];
             let currentId: string | undefined = prototypeId;
 
             // First, get the current prototype to start the chain
@@ -203,7 +197,7 @@ export class PrototypeModel {
 
                 if (!canAccess) break;
 
-                previousIds.push(currentId);
+                previousIds.push(prototype._id);
                 currentId = prototype.previousId;
             }
 
@@ -267,13 +261,13 @@ export class PrototypeModel {
     private static async buildUserAccessQuery(
         userId: string,
         onlyCreated = false
-    ): Promise<PrototypeQuery> {
+    ): Promise<QueryFilter<IPrototypeData>> {
         const userWorkspaces = await WorkspaceModel.getByUserId(userId);
         const userWorkspaceIds = userWorkspaces.map(
-            (workspace) => workspace._id
+            (workspace) => workspace.id
         );
 
-        const query: PrototypeQuery = {
+        const query: QueryFilter<IPrototypeData> = {
             $or: [
                 { sharedWithUserIds: { $in: [userId] } },
                 { workspaceId: { $in: userWorkspaceIds } },
