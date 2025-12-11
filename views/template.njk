@@ -73,8 +73,8 @@
       },
       {
         text: "Manage users" if currentUser.isAdmin === true else "Manage account",
-        href: "/admin/users" if currentUser.isAdmin === true else "/user/manage-account",
-        active: "/admin/users" in req.originalUrl if currentUser.isAdmin === true else "/manage-account" in req.originalUrl
+        href: "/admin/user" if currentUser.isAdmin === true else "/user/manage-account",
+        active: "/admin/user" in req.originalUrl if currentUser.isAdmin === true else "/manage-account" in req.originalUrl
       },
       {
         text: "Help",

@@ -102,7 +102,7 @@ export async function renderUsersPage(
         invalidPagination
     ) {
         res.redirect(
-            `/admin/users?page=${String(page)}&perPage=${String(perPage)}&isActive=${isActive}&isAdmin=${isAdmin}`
+            `/admin/user?page=${String(page)}&perPage=${String(perPage)}&isActive=${isActive}&isAdmin=${isAdmin}`
         );
         return;
     }
@@ -113,7 +113,7 @@ export async function renderUsersPage(
     let paginationNextHref = '';
     let paginationItems: object[] = [];
     if (showPagination) {
-        const baseUrl = `/admin/users?isActive=${isActive}&isAdmin=${isAdmin}`;
+        const baseUrl = `/admin/user?isActive=${isActive}&isAdmin=${isAdmin}`;
         ({ paginationItems, paginationNextHref, paginationPreviousHref } =
             generatePagination(page, perPage, totalPages, baseUrl));
     }
@@ -125,11 +125,9 @@ export async function renderUsersPage(
     // Prepare the user rows for rendering
     const userRows: object[] = await Promise.all(
         users.map(async (u) => {
-            const totalPrototypes = await countPrototypesByUserId(u.id, false);
-            const totalPrototypesText = `${String(totalPrototypes)} prototype${totalPrototypes === 1 ? '' : 's'}`;
             return [
                 {
-                    html: `<b><a href="/admin/users/${u.id}">${u.name}</a>${user.id === u.id ? ' (you)' : ''}</b><br><span class="govuk-body govuk-!-font-size-16">${u.email}</span>`,
+                    html: `<b><a href="/admin/user/${u.id}">${u.name}</a>${user.id === u.id ? ' (you)' : ''}</b><br><span class="govuk-body govuk-!-font-size-16">${u.email}</span>`,
                 },
                 {
                     html: String(await countPrototypesByUserId(u.id, false)),
@@ -198,7 +196,7 @@ export async function renderUsersPage(
     });
 }
 adminRouter.get(
-    '/users',
+    '/user',
     [verifyAdminUser, query('*').trim().toLowerCase()],
     renderUsersPage
 );

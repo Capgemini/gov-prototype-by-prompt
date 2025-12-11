@@ -16,11 +16,20 @@
         {% endif %}
       </p>
       {% if totalUsers > 0 %}
-        {{ govukButton({
-          text: "Reset filters",
-          href: "/admin/users",
-          classes: "govuk-button--secondary"
-        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Log out",
+            classes: "govuk-button--secondary",
+            type: "submit",
+            href: "/user/log-out",
+            preventDoubleClick: true
+          }) }}
+          {{ govukButton({
+            text: "Reset filters",
+            href: "/admin/user",
+            classes: "govuk-button--secondary"
+          }) }}
+        </div>
         <div class="govuk-grid-row">
           <div class="govuk-grid-column-one-half">
             {{ govukSelect({
@@ -107,6 +116,14 @@
             }
           },
           items: perPageItems
+        }) }}
+      {% else %}
+        {{ govukButton({
+          text: "Log out",
+          classes: "govuk-button--secondary",
+          type: "submit",
+          href: "/user/log-out",
+          preventDoubleClick: true
         }) }}
       {% endif %}
     </div>
