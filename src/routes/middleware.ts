@@ -83,64 +83,113 @@ export const verifyLivePrototype = async (
     next: NextFunction
 ) => {
     // Try to get the user from the session
+    let user: IUser | undefined;
     if (req.session.currentUserId) {
-        req.user = (await getUserById(req.session.currentUserId)) ?? undefined;
-    }
-    if (req.user) {
-        res.locals.user = req.user;
+        user = (await getUserById(req.session.currentUserId)) ?? undefined;
     }
 
-    const userId = req.user?.id;
+    // Attach the user to the tracing span if they exist
+    if (user) {
+        const activeSpan = opentelemetry.trace.getActiveSpan();
+        if (activeSpan && logUserIdInAzureAppInsights)
+            activeSpan.setAttribute('user.id', user.id);
+        if (user.isActive !== false) {
+            req.user = user;
+            res.locals.user = user;
+        }
+    }
+
+    // Get prototype data
+    const userId = user?.id;
     const prototypeId = req.params.id;
     const prototypeData = await getPrototypeById(prototypeId);
-    const isPrototypePublic = prototypeData?.livePrototypePublic;
-    const sessionPassword = req.session.livePrototypePasswords?.[prototypeId];
+    const secFetchDest = req.header('sec-fetch-dest');
 
-    const userCanAccessPrototype =
-        userId &&
-        prototypeData?.id &&
-        (await canUserAccessPrototype(userId, prototypeData.id));
-
-    // If the prototype doesn't exist.
-    // or the user is not the owner, it's not shared with them, and it's not public,
-    // then return a 404 or 403 page.
-    if (!prototypeData || (!userCanAccessPrototype && !isPrototypePublic)) {
-        const secFetchDest = req.header('sec-fetch-dest');
-        if (userId) {
-            if (secFetchDest === 'empty') {
-                res.status(404).json({ message: 'Prototype not found' });
-                return;
-            }
-            res.status(404).render('prototype-not-found.njk', {
-                insideIframe: secFetchDest === 'iframe',
-            });
+    // If it doesn't exist
+    if (!prototypeData) {
+        // Prepare the response
+        let status: number;
+        let message: string;
+        let render: string;
+        if (!user) {
+            status = 401;
+            message = 'You are not signed in';
+            render = 'not-signed-in.njk';
+        } else if (user.isActive === false) {
+            status = 403;
+            message = 'Your account has been deactivated';
+            render = 'account-deactivated.njk';
         } else {
-            if (secFetchDest === 'empty') {
-                res.status(404).json({ message: 'You are not signed in' });
-                return;
-            }
-            res.status(404).render('not-signed-in.njk', {
+            status = 404;
+            message = 'Prototype not found';
+            render = 'prototype-not-found.njk';
+        }
+
+        // Send the response
+        if (secFetchDest === 'empty') {
+            res.status(status).json({ message });
+        } else {
+            res.status(status).render(render, {
                 insideIframe: secFetchDest === 'iframe',
             });
         }
         return;
     }
 
-    // If the prototype is public, has a password set, and the session password does not match,
-    // then prompt the user for the password.
-    if (
-        isPrototypePublic &&
-        prototypeData.livePrototypePublicPassword !== '' &&
-        prototypeData.livePrototypePublicPassword !== sessionPassword &&
-        !userCanAccessPrototype
-    ) {
-        res.render('password-protected.njk', {
-            insideIframe: req.header('sec-fetch-dest') === 'iframe',
-            prototypeId: prototypeData.id,
-        });
-    } else {
+    // Get prototype access data
+    const sessionPassword = req.session.livePrototypePasswords?.[prototypeId];
+    const userCanAccessPrototype =
+        userId && (await canUserAccessPrototype(userId, prototypeData.id));
+
+    // If the prototype is public
+    if (prototypeData.livePrototypePublic) {
+        if (
+            !prototypeData.livePrototypePublicPassword ||
+            prototypeData.livePrototypePublicPassword === '' ||
+            prototypeData.livePrototypePublicPassword === sessionPassword ||
+            (userCanAccessPrototype && user?.isActive !== false)
+        ) {
+            req.prototypeData = prototypeData;
+            next();
+            return;
+        } else {
+            res.render('password-protected.njk', {
+                insideIframe: req.header('sec-fetch-dest') === 'iframe',
+                prototypeId: prototypeData.id,
+            });
+            return;
+        }
+    }
+
+    // Otherwise it is not public, prepare the response
+    let status: number;
+    let message: string;
+    let render: string;
+    if (!user) {
+        status = 401;
+        message = 'You are not signed in';
+        render = 'not-signed-in.njk';
+    } else if (user.isActive === false) {
+        status = 403;
+        message = 'Your account has been deactivated';
+        render = 'account-deactivated.njk';
+    } else if (userCanAccessPrototype) {
         req.prototypeData = prototypeData;
         next();
+        return;
+    } else {
+        status = 404;
+        message = 'Prototype not found';
+        render = 'prototype-not-found.njk';
+    }
+
+    // Send the response
+    if (secFetchDest === 'empty') {
+        res.status(status).json({ message });
+    } else {
+        res.status(status).render(render, {
+            insideIframe: secFetchDest === 'iframe',
+        });
     }
 };
 
@@ -182,16 +231,38 @@ export const verifyUser = async (
     next: NextFunction
 ) => {
     // Try to get the user from the session
+    let user: IUser | undefined;
     if (req.session.currentUserId) {
-        req.user = (await getUserById(req.session.currentUserId)) ?? undefined;
+        user = (await getUserById(req.session.currentUserId)) ?? undefined;
     }
-    if (req.user) {
+
+    const secFetchDest = req.header('sec-fetch-dest');
+
+    if (user) {
         // If the user is found
-        res.locals.user = req.user;
         const activeSpan = opentelemetry.trace.getActiveSpan();
         if (activeSpan && logUserIdInAzureAppInsights)
-            activeSpan.setAttribute('user.id', req.user.id);
-        next();
+            activeSpan.setAttribute('user.id', user.id);
+
+        // Stop if the user is deactivated
+        if (user.isActive === false) {
+            const secFetchDest = req.header('sec-fetch-dest');
+            if (secFetchDest === 'empty') {
+                res.status(403).json({
+                    message: 'Your account has been deactivated',
+                });
+                return;
+            }
+            res.status(403).render('account-deactivated.njk', {
+                insideIframe: secFetchDest === 'iframe',
+            });
+            return;
+        } else {
+            req.user = user;
+            res.locals.user = user;
+            next();
+            return;
+        }
     } else {
         // If they are not logged in or the user does not exist
         req.session.currentUserId = undefined;
@@ -199,12 +270,11 @@ export const verifyUser = async (
             res.redirect('/user/sign-in'); // Redirect to sign in if on homepage
             return;
         }
-        const secFetchDest = req.header('sec-fetch-dest');
         if (secFetchDest === 'empty') {
-            res.status(404).json({ message: 'You are not signed in' });
+            res.status(401).json({ message: 'You are not signed in' });
             return;
         }
-        res.status(404).render('not-signed-in.njk', {
+        res.status(401).render('not-signed-in.njk', {
             insideIframe: secFetchDest === 'iframe',
         });
     }
