@@ -6,6 +6,7 @@ export interface IUser {
     email: string;
     id: string;
     isActive?: boolean;
+    isAdmin?: boolean;
     name: string;
     passwordHash: string;
     personalWorkspaceId: string;
@@ -23,6 +24,11 @@ const userSchema = new Schema<IUser>(
         },
         isActive: {
             default: true,
+            required: false,
+            type: Boolean,
+        },
+        isAdmin: {
+            default: false,
             required: false,
             type: Boolean,
         },

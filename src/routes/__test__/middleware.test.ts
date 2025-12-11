@@ -691,6 +691,146 @@ describe('verifyUser', () => {
     );
 });
 
+describe('verifyAdminUser', () => {
+    let verifyAdminUser: (
+        req: Request & { user?: IUser },
+        res: Response,
+        next: NextFunction
+    ) => Promise<void>;
+    beforeEach(async () => {
+        ({ verifyAdminUser } = await import('../middleware'));
+    });
+
+    it('should attach user to req and res.locals, set span attribute, and call next if user is found, active, and an admin', async () => {
+        getUserByIdMock.mockResolvedValueOnce({ ...user1, isAdmin: true });
+        const req = httpMocks.createRequest({
+            originalUrl: '/some-url',
+            session: { currentUserId: user1.id },
+        });
+        const res = httpMocks.createResponse();
+
+        await verifyAdminUser(req, res, nextFunctionMock);
+
+        expect(req.session.currentUserId).toBe(user1.id);
+        expect(req.user).toEqual({ ...user1, isAdmin: true });
+        expect(res.locals.user).toEqual({ ...user1, isAdmin: true });
+        expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
+            'user.id',
+            user1.id
+        );
+        expect(nextFunctionMock).toHaveBeenCalled();
+    });
+
+    it.each(accountDeactivatedParams)(
+        'should not attach user to req and res.locals, set span attribute, and return 403 if user is found and not active (sec-fetch-dest=%s)',
+        async (secFetchDest, jsonData, renderView, renderData) => {
+            getUserByIdMock.mockResolvedValueOnce({
+                ...user1,
+                isActive: false,
+                isAdmin: true,
+            });
+            const req = httpMocks.createRequest({
+                headers: { 'sec-fetch-dest': secFetchDest },
+                originalUrl: '/some-url',
+                session: { currentUserId: user1.id },
+            });
+            const res = httpMocks.createResponse();
+
+            await verifyAdminUser(req, res, nextFunctionMock);
+
+            expect(res.statusCode).toBe(403);
+            expect(req.session.currentUserId).toBe(user1.id);
+            expect(req.user).toBeUndefined();
+            expect(res.locals.user).toBeUndefined();
+            expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
+                'user.id',
+                user1.id
+            );
+            if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
+            expect(res._getRenderView()).toBe(renderView);
+            expect(res._getRenderData()).toEqual(renderData);
+            expect(nextFunctionMock).not.toHaveBeenCalled();
+        }
+    );
+
+    it.each([
+        ['empty', { message: 'Page not found' }, '', {}],
+        ['iframe', undefined, 'page-not-found.njk', { insideIframe: true }],
+        ['document', undefined, 'page-not-found.njk', { insideIframe: false }],
+    ])(
+        'should not attach user to req and res.locals, set span attribute, and return 404 if user is found and active and not an admin (sec-fetch-dest=%s)',
+        async (secFetchDest, jsonData, renderView, renderData) => {
+            getUserByIdMock.mockResolvedValueOnce({
+                ...user1,
+                isActive: true,
+                isAdmin: false,
+            });
+            const req = httpMocks.createRequest({
+                headers: { 'sec-fetch-dest': secFetchDest },
+                originalUrl: '/some-url',
+                session: { currentUserId: user1.id },
+            });
+            const res = httpMocks.createResponse();
+
+            await verifyAdminUser(req, res, nextFunctionMock);
+
+            expect(res.statusCode).toBe(404);
+            expect(req.session.currentUserId).toBe(user1.id);
+            expect(req.user).toBeUndefined();
+            expect(res.locals.user).toBeUndefined();
+            expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
+                'user.id',
+                user1.id
+            );
+            if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
+            expect(res._getRenderView()).toBe(renderView);
+            expect(res._getRenderData()).toEqual(renderData);
+            expect(nextFunctionMock).not.toHaveBeenCalled();
+        }
+    );
+
+    it('should redirect to sign-in if not logged in and on homepage', async () => {
+        getUserByIdMock.mockResolvedValueOnce(null);
+        const req = httpMocks.createRequest({
+            originalUrl: '/',
+            session: { currentUserId: 'not-a-user' },
+        });
+        const res = httpMocks.createResponse();
+
+        await verifyAdminUser(req, res, nextFunctionMock);
+
+        expect(req.session.currentUserId).toBeUndefined();
+        expect(res.statusCode).toBe(302);
+        expect(res._getRedirectUrl()).toBe('/user/sign-in');
+        expect(nextFunctionMock).not.toHaveBeenCalled();
+    });
+
+    it.each(notSignedInParams)(
+        'should return 401 if not logged in (sec-fetch-dest=%s)',
+        async (secFetchDest, jsonData, renderView, renderData) => {
+            getUserByIdMock.mockResolvedValueOnce(null);
+            const req = httpMocks.createRequest({
+                headers: { 'sec-fetch-dest': secFetchDest },
+                originalUrl: '/other',
+                session: { currentUserId: 'not-a-user' },
+            });
+            const res = httpMocks.createResponse();
+
+            await verifyAdminUser(req, res, nextFunctionMock);
+
+            expect(res.statusCode).toBe(401);
+            expect(req.session.currentUserId).toBeUndefined();
+            expect(req.user).toBeUndefined();
+            expect(res.locals.user).toBeUndefined();
+            expect(activeSpanMock.setAttribute).not.toHaveBeenCalled();
+            if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
+            expect(res._getRenderView()).toBe(renderView);
+            expect(res._getRenderData()).toEqual(renderData);
+            expect(nextFunctionMock).not.toHaveBeenCalled();
+        }
+    );
+});
+
 describe('verifyNotUser', () => {
     let verifyNotUser: (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

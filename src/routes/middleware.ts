@@ -281,6 +281,71 @@ export const verifyUser = async (
 };
 
 /**
+ * Middleware to verify the user and that they're an admin, and attach them to the request and tracing span.
+ */
+export const verifyAdminUser = async (
+    req: Request & { user?: IUser },
+    res: Response,
+    next: NextFunction
+) => {
+    // Try to get the user from the session
+    let user: IUser | undefined;
+    if (req.session.currentUserId) {
+        user = (await getUserById(req.session.currentUserId)) ?? undefined;
+    }
+
+    const secFetchDest = req.header('sec-fetch-dest');
+
+    if (user) {
+        // If the user is found
+        const activeSpan = opentelemetry.trace.getActiveSpan();
+        if (activeSpan && logUserIdInAzureAppInsights)
+            activeSpan.setAttribute('user.id', user.id);
+
+        // Stop if the user is deactivated
+        if (user.isActive === false) {
+            if (secFetchDest === 'empty') {
+                res.status(403).json({
+                    message: 'Your account has been deactivated',
+                });
+                return;
+            }
+            res.status(403).render('account-deactivated.njk', {
+                insideIframe: secFetchDest === 'iframe',
+            });
+            return;
+        } else if (user.isAdmin === true) {
+            req.user = user;
+            res.locals.user = user;
+            next();
+            return;
+        } else {
+            if (secFetchDest === 'empty') {
+                res.status(404).json({ message: 'Page not found' });
+                return;
+            }
+            res.status(404).render('page-not-found.njk', {
+                insideIframe: secFetchDest === 'iframe',
+            });
+        }
+    } else {
+        // If they are not logged in or the user does not exist
+        req.session.currentUserId = undefined;
+        if (req.originalUrl === '/') {
+            res.redirect('/user/sign-in'); // Redirect to sign in if on homepage
+            return;
+        }
+        if (secFetchDest === 'empty') {
+            res.status(401).json({ message: 'You are not signed in' });
+            return;
+        }
+        res.status(401).render('not-signed-in.njk', {
+            insideIframe: secFetchDest === 'iframe',
+        });
+    }
+};
+
+/**
  * Middleware to verify that a user is not already signed in.
  */
 export const verifyNotUser = async (
