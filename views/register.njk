@@ -164,7 +164,7 @@
         // If response is OK, tell the user the account was created successfully
         if (response.ok) {
           successBanner.classList.remove('display-none');
-          successBanner.scrollIntoView();
+          successBanner.scrollIntoView({block: 'nearest'});
           registerForm.reset();
 
         // Otherwise provide the errors
@@ -184,6 +184,7 @@
         }
       }).catch(err => {
         errorSummary.classList.remove('display-none');
+        errorSummary.scrollIntoView({block: 'nearest'});
         errorDescription.textContent = err.message;
         registerButton.disabled = false;
         registerButton.textContent = 'Create account';
