@@ -3,6 +3,18 @@ import { IUser, User } from '../../types/schemas/user-schema';
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserModel {
     /**
+     * Count all users
+     */
+    static async countAll(): Promise<number> {
+        try {
+            return await User.countDocuments({});
+        } catch (error) {
+            console.error('Error counting all users:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Delete a user by ID
      */
     static async deleteById(id: string): Promise<boolean> {
@@ -20,7 +32,7 @@ export class UserModel {
      */
     static async getAll(): Promise<IUser[]> {
         try {
-            return await User.find({});
+            return await User.find({}).sort({ email: 1 });
         } catch (error) {
             console.error('Error getting all users:', error);
             throw error;

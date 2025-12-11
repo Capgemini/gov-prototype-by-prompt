@@ -16,6 +16,7 @@ const workspaceModelCanUserAccess = jest.fn();
 const prototypeModelCountByUserId = jest.fn();
 const prototypeModelCountByUserIdAndWorkspaceId = jest.fn();
 const workspaceModelCountByUserId = jest.fn();
+const userModelCountAll = jest.fn();
 const userModelGetAll = jest.fn();
 const prototypeModelGetPreviousPrototypes = jest.fn();
 const prototypeModelGetById = jest.fn();
@@ -43,6 +44,7 @@ jest.mock('../models', () => ({
         update: prototypeModelUpdate,
     },
     UserModel: {
+        countAll: userModelCountAll,
         getAll: userModelGetAll,
         getByEmail: userModelGetByEmail,
         getById: userModelGetById,
@@ -81,6 +83,14 @@ test('canUserAccessWorkspace calls WorkspaceModel.canUserAccess()', async () => 
     );
 });
 
+test('countAllUsers calls UserModel.countAll()', async () => {
+    const { countAllUsers } = await import('../mongoose-store');
+    userModelCountAll.mockResolvedValue(5);
+    const result = await countAllUsers();
+    expect(result).toBe(5);
+    expect(userModelCountAll).toHaveBeenCalled();
+});
+
 test('countPrototypesByUserId calls PrototypeModel.countByUserId()', async () => {
     const { countPrototypesByUserId } = await import('../mongoose-store');
     prototypeModelCountByUserId.mockResolvedValue(5);
@@ -94,9 +104,8 @@ test('countPrototypesByUserId calls PrototypeModel.countByUserId()', async () =>
 });
 
 test('countPrototypesByUserIdAndWorkspaceId calls PrototypeModel.countByUserIdAndWorkspaceId()', async () => {
-    const { countPrototypesByUserIdAndWorkspaceId } = await import(
-        '../mongoose-store'
-    );
+    const { countPrototypesByUserIdAndWorkspaceId } =
+        await import('../mongoose-store');
     prototypeModelCountByUserIdAndWorkspaceId.mockResolvedValue(3);
     const result = await countPrototypesByUserIdAndWorkspaceId(
         userId,

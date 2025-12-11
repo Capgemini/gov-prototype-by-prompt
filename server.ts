@@ -18,6 +18,7 @@ import {
     isArray,
     isoDateFromDateInput,
 } from './src/filters';
+import { adminRouter } from './src/routes/admin-routes';
 import { helpRouter } from './src/routes/help-routes';
 import {
     attachRequestData,
@@ -179,6 +180,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 // Add the routes
 app.use('/', prototypeRouter);
 app.use('/user', userRouter);
+app.use('/admin', adminRouter);
 app.use('/help', helpRouter);
 
 // Handle 404 errors

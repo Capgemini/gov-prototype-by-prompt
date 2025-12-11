@@ -46,6 +46,21 @@ describe('UserModel', () => {
         });
     });
 
+    describe('countAll', () => {
+        it('should return 1 when counting users', async () => {
+            const newUser = new User(mockUser);
+            await newUser.save();
+            expect(await UserModel.countAll()).toBe(1);
+        });
+
+        it('should throw when error occurs in countAll', async () => {
+            await disconnectFromDatabase();
+            await expect(UserModel.countAll()).rejects.toThrow(
+                'Client must be connected before running operations'
+            );
+        });
+    });
+
     describe('deleteById', () => {
         it('should return false when you delete with a missing id', async () => {
             expect(
@@ -57,9 +72,7 @@ describe('UserModel', () => {
             const newUser = new User(mockUser);
             await newUser.save();
 
-            expect(await UserModel.deleteById(newUser.id)).toEqual(
-                true
-            );
+            expect(await UserModel.deleteById(newUser.id)).toEqual(true);
         });
 
         it('should throw when trying to delete an invalid id', async () => {

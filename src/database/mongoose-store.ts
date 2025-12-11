@@ -30,6 +30,10 @@ export async function canUserAccessWorkspace(
     return await WorkspaceModel.canUserAccess(userId, workspaceId);
 }
 
+export async function countAllUsers(): Promise<number> {
+    return await UserModel.countAll();
+}
+
 /**
  * Counts the number of prototypes that a specific user can access.
  * @param {string} userId The ID of the user who can access the prototypes.

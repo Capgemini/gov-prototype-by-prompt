@@ -430,10 +430,12 @@ export async function renderWorkspacesPage(
                     html: `<a href="/user/workspace/${ws.id}">${ws.name}</a>`,
                 },
                 {
-                    html:
-                        totalPrototypes > 0
-                            ? `<a href="/history?workspaceId=${ws.id}">${totalPrototypesText}</a>`
-                            : totalPrototypesText,
+                    html: String(
+                        await countPrototypesByUserIdAndWorkspaceId(
+                            user.id,
+                            ws.id
+                        )
+                    ),
                 },
                 {
                     html: totalUsers,
