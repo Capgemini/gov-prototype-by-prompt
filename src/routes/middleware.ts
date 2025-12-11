@@ -95,7 +95,7 @@ export const verifyLivePrototype = async (
             activeSpan.setAttribute('user.id', user.id);
         if (user.isActive !== false) {
             req.user = user;
-            res.locals.user = user;
+            res.locals.currentUser = user;
         }
     }
 
@@ -259,7 +259,7 @@ export const verifyUser = async (
             return;
         } else {
             req.user = user;
-            res.locals.user = user;
+            res.locals.currentUser = user;
             next();
             return;
         }
@@ -316,7 +316,7 @@ export const verifyAdminUser = async (
             return;
         } else if (user.isAdmin === true) {
             req.user = user;
-            res.locals.user = user;
+            res.locals.currentUser = user;
             next();
             return;
         } else {

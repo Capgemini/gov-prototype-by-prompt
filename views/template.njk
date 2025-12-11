@@ -54,7 +54,7 @@
     }
   }) }}
   {% set navigation = [] %}
-  {% if user is defined %}
+  {% if currentUser is defined %}
     {% set navigation = navigation.concat([
       {
         text: "Create a prototype",
@@ -72,9 +72,9 @@
         active: "/workspace" in req.originalUrl
       },
       {
-        text: "Manage users" if user.isAdmin === true else "Manage account",
-        href: "/admin/users" if user.isAdmin === true else "/user/manage-account",
-        active: "/admin/users" in req.originalUrl if user.isAdmin === true else "/manage-account" in req.originalUrl
+        text: "Manage users" if currentUser.isAdmin === true else "Manage account",
+        href: "/admin/users" if currentUser.isAdmin === true else "/user/manage-account",
+        active: "/admin/users" in req.originalUrl if currentUser.isAdmin === true else "/manage-account" in req.originalUrl
       },
       {
         text: "Help",

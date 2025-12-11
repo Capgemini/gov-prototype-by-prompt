@@ -639,7 +639,7 @@ describe('logOutUser', () => {
         logOutUser(request, response);
 
         expect(request.session.currentUserId).toBeUndefined();
-        expect(response.locals.user).toBeUndefined();
+        expect(response.locals.currentUser).toBeUndefined();
         expect(request.session.liveData).toEqual({});
         expect(request.session.livePrototypePasswords).toEqual({});
         expect(response.statusCode).toBe(302);

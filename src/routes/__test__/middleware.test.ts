@@ -170,7 +170,7 @@ describe('verifyLivePrototype', () => {
         await verifyLivePrototype(req, res, nextFunctionMock);
 
         expect(req.user).toEqual(user1);
-        expect(res.locals.user).toEqual(user1);
+        expect(res.locals.currentUser).toEqual(user1);
         expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
             'user.id',
             user1.id
@@ -192,7 +192,7 @@ describe('verifyLivePrototype', () => {
         await verifyLivePrototype(req, res, nextFunctionMock);
 
         expect(req.user).toBeUndefined();
-        expect(res.locals.user).toBeUndefined();
+        expect(res.locals.currentUser).toBeUndefined();
         expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
             'user.id',
             user1.id
@@ -215,7 +215,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(401);
             expect(req.session.currentUserId).toBeUndefined();
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).not.toHaveBeenCalled();
             if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
             expect(res._getRenderView()).toBe(renderView);
@@ -244,7 +244,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(403);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -273,7 +273,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(404);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toEqual(user1);
-            expect(res.locals.user).toEqual(user1);
+            expect(res.locals.currentUser).toEqual(user1);
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -430,7 +430,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(401);
             expect(req.session.currentUserId).toBeUndefined();
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).not.toHaveBeenCalled();
             if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
             expect(res._getRenderView()).toBe(renderView);
@@ -459,7 +459,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(403);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -489,7 +489,7 @@ describe('verifyLivePrototype', () => {
             expect(res.statusCode).toBe(404);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toEqual(user1);
-            expect(res.locals.user).toEqual(user1);
+            expect(res.locals.currentUser).toEqual(user1);
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -610,7 +610,7 @@ describe('verifyUser', () => {
 
         expect(req.session.currentUserId).toBe(user1.id);
         expect(req.user).toEqual(user1);
-        expect(res.locals.user).toEqual(user1);
+        expect(res.locals.currentUser).toEqual(user1);
         expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
             'user.id',
             user1.id
@@ -637,7 +637,7 @@ describe('verifyUser', () => {
             expect(res.statusCode).toBe(403);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -681,7 +681,7 @@ describe('verifyUser', () => {
             expect(res.statusCode).toBe(401);
             expect(req.session.currentUserId).toBeUndefined();
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).not.toHaveBeenCalled();
             if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
             expect(res._getRenderView()).toBe(renderView);
@@ -713,7 +713,7 @@ describe('verifyAdminUser', () => {
 
         expect(req.session.currentUserId).toBe(user1.id);
         expect(req.user).toEqual({ ...user1, isAdmin: true });
-        expect(res.locals.user).toEqual({ ...user1, isAdmin: true });
+        expect(res.locals.currentUser).toEqual({ ...user1, isAdmin: true });
         expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
             'user.id',
             user1.id
@@ -741,7 +741,7 @@ describe('verifyAdminUser', () => {
             expect(res.statusCode).toBe(403);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -777,7 +777,7 @@ describe('verifyAdminUser', () => {
             expect(res.statusCode).toBe(404);
             expect(req.session.currentUserId).toBe(user1.id);
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).toHaveBeenCalledWith(
                 'user.id',
                 user1.id
@@ -821,7 +821,7 @@ describe('verifyAdminUser', () => {
             expect(res.statusCode).toBe(401);
             expect(req.session.currentUserId).toBeUndefined();
             expect(req.user).toBeUndefined();
-            expect(res.locals.user).toBeUndefined();
+            expect(res.locals.currentUser).toBeUndefined();
             expect(activeSpanMock.setAttribute).not.toHaveBeenCalled();
             if (jsonData) expect(res._getJSONData()).toEqual(jsonData);
             expect(res._getRenderView()).toBe(renderView);
