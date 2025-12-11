@@ -1,5 +1,6 @@
+import bcrypt from 'bcryptjs';
 import express, { Request, Response } from 'express';
-import { query } from 'express-validator';
+import { body, param, query, ValidationError } from 'express-validator';
 import moment from 'moment';
 
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from '../constants';
@@ -7,10 +8,17 @@ import {
     countAllUsers,
     countPrototypesByUserId,
     getAllUsers,
+    getUserById,
+    updateUser,
 } from '../database/mongoose-store';
+import { APIResponse } from '../types';
 import { IUser } from '../types/schemas/user-schema';
-import { generatePagination, handleValidationErrors } from '../utils';
-import { verifyAdminUser } from './middleware';
+import {
+    generatePagination,
+    handleValidationErrors,
+    validatePasswords,
+} from '../utils';
+import { verifyAdminUser, verifyUser } from './middleware';
 
 // file deepcode ignore NoRateLimitingForExpensiveWebOperation: Main server.ts file contains Rate Limiting configuration for application.
 // Create an Express router
@@ -193,6 +201,121 @@ adminRouter.get(
     '/users',
     [verifyAdminUser, query('*').trim().toLowerCase()],
     renderUsersPage
+);
+
+export async function renderManageUserPage(
+    req: Request<{ id: string }>,
+    res: Response
+) {
+    if (handleValidationErrors(req, res)) return;
+    const selfUser = (req as unknown as Request & { user: IUser }).user;
+
+    const userId = req.params.id;
+    const user = await getUserById(userId);
+
+    // Check the workspace exists and if the user can access it
+    if (!user) {
+        res.status(404).render('user-not-found.njk', {});
+        return;
+    }
+
+    res.render('manage-user.njk', {
+        isSelf: selfUser.id === user.id,
+        user: user,
+    });
+}
+adminRouter.get(
+    '/user/:id',
+    [verifyAdminUser, param('id').trim().notEmpty()],
+    renderManageUserPage
+);
+
+//Updates current user
+export async function handleUpdateUser(
+    req: Request<
+        { id: string },
+        {},
+        {
+            name?: string;
+            password1?: string;
+            password2?: string;
+        }
+    >,
+    res: Response<APIResponse & { name?: string; pageTitle?: string }>
+) {
+    if (handleValidationErrors(req, res)) return;
+    const selfUser = (req as unknown as Request & { user: IUser }).user;
+
+    // Get the user to update and check permissions
+    const user = await getUserById(req.params.id);
+    if (!user || (selfUser.id !== user.id && !selfUser.isAdmin)) {
+        res.status(404).json({
+            message: 'User not found',
+        });
+        return;
+    }
+
+    // Validate the input fields
+    const errors: Partial<ValidationError>[] = [];
+    const { name, password1, password2 } = req.body;
+    if (!name && !password1) {
+        errors.push(
+            { msg: 'Enter a name', path: 'name' },
+            { msg: 'Create new password', path: 'password1' },
+            { msg: 'Confirm new password', path: 'password2' }
+        );
+    }
+    if (name) {
+        if (name.trim().length < 2) {
+            errors.push({
+                msg: 'Name must be at least 2 characters',
+                path: 'name',
+            });
+        }
+    }
+    if (password1) {
+        errors.push(...validatePasswords(password1, password2));
+    }
+
+    // Return any validation errors
+    if (errors.length > 0) {
+        res.status(400).json({
+            errors: errors,
+            message: 'Resolve the errors and try again.',
+        });
+        return;
+    }
+
+    // Apply the updates
+    const updates: Record<string, string> = {};
+    if (name) {
+        updates.name = name.trim();
+    }
+    if (password1) {
+        const hashedPassword = await bcrypt.hash(password1, 10);
+        updates.passwordHash = hashedPassword;
+    }
+    const timestamp = new Date().toISOString();
+    updates.updatedAt = timestamp;
+    const newUser = await updateUser(user.id, updates);
+
+    // Return success
+    res.status(200).json({
+        message: 'User updated successfully',
+        name: newUser?.name ?? user.name,
+        pageTitle: `Manage ${selfUser.id === user.id ? 'your' : (newUser?.name ?? user.name) + "'s"} account`,
+    });
+}
+adminRouter.post(
+    '/user/:id',
+    [
+        body('*').trim(),
+        body('name').optional(),
+        body('password1').optional(),
+        body('password2').optional(),
+    ],
+    [verifyUser, query('*').trim()],
+    handleUpdateUser
 );
 
 export { adminRouter };
