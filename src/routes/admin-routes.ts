@@ -301,6 +301,7 @@ export async function handleUpdateUser(
     }
 
     // Don't allow disabling or demoting the last active admin user
+    // WARNING: possible race condition if the last users are updated simultaneously
     if (
         (isActive === false || isAdmin === false) &&
         user.isActive !== false &&

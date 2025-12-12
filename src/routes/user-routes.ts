@@ -120,6 +120,7 @@ export async function registerUser(
     const hashedPassword = await bcrypt.hash(req.body.password1, 10);
 
     // Create a new user first (without personalWorkspaceId)
+    // WARNING: possible race condition if two registrations happen simultaneously
     const timestamp = new Date().toISOString();
     const newUser = {
         createdAt: timestamp,
