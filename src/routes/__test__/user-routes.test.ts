@@ -187,7 +187,21 @@ describe('renderManageAccountPage', () => {
         ({ renderManageAccountPage } = await import('../user-routes'));
     });
 
-    it('should render the manage-user.njk template for the current user', () => {
+    it('should redirect to the admin user page if the current user is an admin', () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            url: '/manage-account',
+            user: { ...user1, isAdmin: true },
+        });
+        const response = httpMocks.createResponse();
+
+        renderManageAccountPage(request, response);
+
+        expect(response.statusCode).toBe(302);
+        expect(response._getRedirectUrl()).toBe(`/admin/user/${user1.id}`);
+    });
+
+    it('should render the manage-user.njk template for the current non-admin user', () => {
         const request = httpMocks.createRequest({
             method: 'GET',
             url: '/manage-account',

@@ -167,6 +167,12 @@ userRouter.post(
 export function renderManageAccountPage(req: Request, res: Response) {
     const user = (req as unknown as Request & { user: IUser }).user;
 
+    // Redirect to admin user management page if user is an admin
+    if (user.isAdmin === true) {
+        res.redirect(`/admin/user/${user.id}`);
+        return;
+    }
+
     res.render('manage-user.njk', {
         isSelf: true,
         user: user,
