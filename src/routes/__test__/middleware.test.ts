@@ -202,7 +202,6 @@ describe('verifyLivePrototype', () => {
     it.each(notSignedInParams)(
         'should return 401 if prototype does not exist and user is not signed in',
         async (secFetchDest, jsonData, renderView, renderData) => {
-            console.log([secFetchDest, jsonData, renderView, renderData]);
             const req = httpMocks.createRequest({
                 headers: { 'sec-fetch-dest': secFetchDest },
                 method: 'GET',

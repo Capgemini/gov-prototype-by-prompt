@@ -213,14 +213,14 @@
     }
 
     // Add a hidden error element to the fieldset inputs (date, checkbox, radio)
-    labelElements = document.querySelectorAll(
+    const labelElements = document.querySelectorAll(
         '.govuk-label.govuk-radios__label'
     );
     for (const labelElement of labelElements) {
         const inputGroup = labelElement.closest(
             '.govuk-radios'
         );
-        const firstRadio = inputGroup.querySelector('input[type="radio"]')
+        const firstRadio = inputGroup.querySelector('input[type="radio"]');
         if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
             const errorElement = document.createElement('p');
             errorElement.id = `${firstRadio.id}ErrorMessage`;

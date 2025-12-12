@@ -21,4 +21,4 @@ Users cannot be deleted.
 
 ## Deactivated users
 
-Deactivated users can log-in but cannot access any functionality. They will see a message indicating that their account is inactive.
+Deactivated users can log in but cannot access any functionality. They will see a message indicating that their account is inactive.
