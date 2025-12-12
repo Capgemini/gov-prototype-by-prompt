@@ -46,6 +46,38 @@ describe('UserModel', () => {
         });
     });
 
+    describe('countActiveAdminUsers', () => {
+        it.each([
+            [{ isActive: true, isAdmin: true }, 1],
+            [{ isActive: true, isAdmin: false }, 0],
+            [{ isActive: true, isAdmin: undefined }, 0],
+            [{ isActive: false, isAdmin: true }, 0],
+            [{ isActive: false, isAdmin: false }, 0],
+            [{ isActive: false, isAdmin: undefined }, 0],
+            [{ isActive: undefined, isAdmin: true }, 1],
+            [{ isActive: undefined, isAdmin: false }, 0],
+            [{ isActive: undefined, isAdmin: undefined }, 0],
+        ])(
+            'when counting users with status %o should return %i',
+            async (userStatus, expectedCount) => {
+                await new User({
+                    ...mockUser,
+                    ...userStatus,
+                }).save();
+                expect(await UserModel.countActiveAdminUsers()).toBe(
+                    expectedCount
+                );
+            }
+        );
+
+        it('should throw when error occurs in countActiveAdminUsers', async () => {
+            await disconnectFromDatabase();
+            await expect(UserModel.countActiveAdminUsers()).rejects.toThrow(
+                'Client must be connected before running operations'
+            );
+        });
+    });
+
     describe('countAll', () => {
         it('should return 1 when counting users', async () => {
             const newUser = new User(mockUser);

@@ -16,6 +16,7 @@ const workspaceModelCanUserAccess = jest.fn();
 const prototypeModelCountByUserId = jest.fn();
 const prototypeModelCountByUserIdAndWorkspaceId = jest.fn();
 const workspaceModelCountByUserId = jest.fn();
+const userModelCountActiveAdminUsers = jest.fn();
 const userModelCountAll = jest.fn();
 const userModelGetAll = jest.fn();
 const prototypeModelGetPreviousPrototypes = jest.fn();
@@ -44,6 +45,7 @@ jest.mock('../models', () => ({
         update: prototypeModelUpdate,
     },
     UserModel: {
+        countActiveAdminUsers: userModelCountActiveAdminUsers,
         countAll: userModelCountAll,
         getAll: userModelGetAll,
         getByEmail: userModelGetByEmail,
@@ -81,6 +83,14 @@ test('canUserAccessWorkspace calls WorkspaceModel.canUserAccess()', async () => 
         userId,
         workspaceId
     );
+});
+
+test('countActiveAdminUsers calls UserModel.countActiveAdminUsers()', async () => {
+    const { countActiveAdminUsers } = await import('../mongoose-store');
+    userModelCountActiveAdminUsers.mockResolvedValue(10);
+    const result = await countActiveAdminUsers();
+    expect(result).toBe(10);
+    expect(userModelCountActiveAdminUsers).toHaveBeenCalled();
 });
 
 test('countAllUsers calls UserModel.countAll()', async () => {

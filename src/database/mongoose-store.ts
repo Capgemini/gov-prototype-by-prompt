@@ -30,6 +30,10 @@ export async function canUserAccessWorkspace(
     return await WorkspaceModel.canUserAccess(userId, workspaceId);
 }
 
+export async function countActiveAdminUsers(): Promise<number> {
+    return await UserModel.countActiveAdminUsers();
+}
+
 export async function countAllUsers(): Promise<number> {
     return await UserModel.countAll();
 }

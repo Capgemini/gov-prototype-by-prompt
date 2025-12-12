@@ -5,6 +5,7 @@ import moment from 'moment';
 
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from '../constants';
 import {
+    countActiveAdminUsers,
     countAllUsers,
     countPrototypesByUserId,
     getAllUsers,
@@ -234,12 +235,16 @@ export async function handleUpdateUser(
         { id: string },
         {},
         {
+            isActive?: boolean | string;
+            isAdmin?: boolean | string;
             name?: string;
             password1?: string;
             password2?: string;
         }
     >,
-    res: Response<APIResponse & { name?: string; pageTitle?: string }>
+    res: Response<
+        APIResponse & { name?: string; pageTitle?: string; redirect?: string }
+    >
 ) {
     if (handleValidationErrors(req, res)) return;
     const selfUser = (req as unknown as Request & { user: IUser }).user;
@@ -255,8 +260,9 @@ export async function handleUpdateUser(
 
     // Validate the input fields
     const errors: Partial<ValidationError>[] = [];
+    let { isActive, isAdmin } = req.body;
     const { name, password1, password2 } = req.body;
-    if (!name && !password1) {
+    if (!name && !password1 && !isAdmin && !isActive) {
         errors.push(
             { msg: 'Enter a name', path: 'name' },
             { msg: 'Create new password', path: 'password1' },
@@ -275,6 +281,33 @@ export async function handleUpdateUser(
         errors.push(...validatePasswords(password1, password2));
     }
 
+    // Convert isActive and isAdmin to boolean values
+    if (typeof isActive === 'string') {
+        isActive = isActive !== 'false';
+    }
+    if (typeof isAdmin === 'string') {
+        isAdmin = isAdmin === 'true';
+    }
+
+    // Don't allow disabling or demoting the last active admin user
+    if (
+        (isActive === false || isAdmin === false) &&
+        user.isActive !== false &&
+        user.isAdmin === true &&
+        (await countActiveAdminUsers()) <= 1
+    ) {
+        errors.push(
+            {
+                msg: 'There must be at least one active admin user.',
+                path: 'isActive',
+            },
+            {
+                msg: 'There must be at least one active admin user.',
+                path: 'isAdmin',
+            }
+        );
+    }
+
     // Return any validation errors
     if (errors.length > 0) {
         res.status(400).json({
@@ -285,32 +318,53 @@ export async function handleUpdateUser(
     }
 
     // Apply the updates
-    const updates: Record<string, string> = {};
+    const updates: Partial<IUser> = {};
     if (name) {
-        updates.name = name.trim();
+        updates.name = name;
     }
     if (password1) {
         const hashedPassword = await bcrypt.hash(password1, 10);
         updates.passwordHash = hashedPassword;
     }
+    if (isActive !== undefined && selfUser.isAdmin) {
+        updates.isActive = isActive;
+    }
+    if (isAdmin !== undefined && selfUser.isAdmin) {
+        updates.isAdmin = isAdmin;
+    }
     const timestamp = new Date().toISOString();
     updates.updatedAt = timestamp;
     const newUser = await updateUser(user.id, updates);
+
+    // Calculate if a redirect is needed
+    let redirect: string | undefined;
+    if (selfUser.id === user.id) {
+        if (isActive === false) redirect = '/';
+        else if (isAdmin === false) redirect = '/user/manage-account';
+    }
 
     // Return success
     res.status(200).json({
         message: 'User updated successfully',
         name: newUser?.name ?? user.name,
         pageTitle: `Manage ${selfUser.id === user.id ? 'your' : (newUser?.name ?? user.name) + "'s"} account`,
+        redirect: redirect,
     });
 }
 adminRouter.post(
     '/user/:id',
     [
-        body('*').trim(),
-        body('name').optional(),
-        body('password1').optional(),
-        body('password2').optional(),
+        body('isActive')
+            .optional()
+            .isBoolean({ strict: false })
+            .withMessage('User active status must be a boolean value.'),
+        body('isAdmin')
+            .optional()
+            .isBoolean({ strict: false })
+            .withMessage('User admin status must be a boolean value.'),
+        body('name').optional().trim(),
+        body('password1').optional().trim(),
+        body('password2').optional().trim(),
     ],
     [verifyUser, query('*').trim()],
     handleUpdateUser
