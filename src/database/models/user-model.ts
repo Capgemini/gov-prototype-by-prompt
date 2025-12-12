@@ -3,6 +3,40 @@ import { IUser, User } from '../../types/schemas/user-schema';
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class UserModel {
     /**
+     * Count users that are active and admin
+     */
+    static async countActiveAdminUsers(): Promise<number> {
+        try {
+            return await User.countDocuments({
+                $and: [
+                    { isAdmin: true },
+                    {
+                        $or: [
+                            { isActive: true },
+                            { isActive: { $exists: false } },
+                        ],
+                    },
+                ],
+            });
+        } catch (error) {
+            console.error('Error counting active admin users:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Count all users
+     */
+    static async countAll(): Promise<number> {
+        try {
+            return await User.countDocuments({});
+        } catch (error) {
+            console.error('Error counting all users:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Delete a user by ID
      */
     static async deleteById(id: string): Promise<boolean> {
