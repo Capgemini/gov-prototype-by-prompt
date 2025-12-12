@@ -246,7 +246,6 @@ export const verifyUser = async (
 
         // Stop if the user is deactivated
         if (user.isActive === false) {
-            const secFetchDest = req.header('sec-fetch-dest');
             if (secFetchDest === 'empty') {
                 res.status(403).json({
                     message: 'Your account has been deactivated',
