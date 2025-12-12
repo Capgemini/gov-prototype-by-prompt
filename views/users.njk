@@ -159,7 +159,7 @@
           const isActiveSelectValue = document.querySelector('select[name="isActive"]').value;
           const isAdminSelectValue = document.querySelector('select[name="isAdmin"]').value;
           const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked').value;
-          
+
           // Redirect to the same page with the selected filter
           const url = new URL(window.location.href);
           url.searchParams.set('isActive', isActiveSelectValue);
