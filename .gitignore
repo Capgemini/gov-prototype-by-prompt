@@ -144,3 +144,4 @@ dist
 # Project-specific
 data/zip-download/assets/
 data/zip-download/views/
+evals/.tmp/

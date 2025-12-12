@@ -1,8 +1,10 @@
 import opentelemetry from '@opentelemetry/api';
+import * as nunjucks from 'nunjucks';
 import { AzureOpenAI } from 'openai';
 
 import formSchema from '../data/extract-form-questions-schema.json';
 import suggestionsSchema from '../data/generate-form-suggestions-schema.json';
+import judgeSchema from '../data/llm-judge-response-schema.json';
 import {
     EnvironmentVariables,
     PrototypeDesignSystemsType,
@@ -47,30 +49,37 @@ export async function createFormWithOpenAI(
         createSchema.required.push('suggestions');
     }
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getCreateSystemPrompt(designSystem, enableSuggestions),
-                role: 'system',
-            },
-            {
-                content: prompt,
-                role: 'user',
-            },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'create-form-schema',
-                schema: createSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('create-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
+        suggestions: enableSuggestions
+            ? 'You must include three suggestions.'
+            : '',
     });
 
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: systemPrompt,
+                    role: 'system',
+                },
+                {
+                    content: prompt,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'create-form-schema',
+                    schema: createSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
+            },
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
@@ -94,29 +103,89 @@ export async function generateSuggestionsWithOpenAI(
     });
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getGenerateSuggestionsSystemPrompt(
-                    templateData,
-                    designSystem
-                ),
-                role: 'system',
-            },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'generate-form-suggestions-schema',
-                schema: suggestionsSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('suggestions-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
     });
 
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: systemPrompt,
+                    role: 'system',
+                },
+                {
+                    content: JSON.stringify(templateData),
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'generate-form-suggestions-schema',
+                    schema: suggestionsSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
+            },
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
+}
+
+/**
+ * Prompts the OpenAI API to judge a form and returns the response.
+ * @param {EnvironmentVariables} envVars The environment variables containing OpenAI API configuration.
+ * @param {string} prompt The user prompt to create the form.
+ * @param {TemplateData} templateData The form data to judge.
+ * @param {string} criteria The criteria to judge the form against.
+ * @returns {Promise<string>} The response from the OpenAI API.
+ * @throws an error if the API call fails.
+ */
+export async function judgeFormWithOpenAI(
+    envVars: EnvironmentVariables,
+    prompt: string,
+    templateData: TemplateData,
+    criteria: string
+): Promise<string> {
+    const client = new AzureOpenAI({
+        apiKey: envVars.AZURE_OPENAI_API_KEY,
+        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
+        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
+        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    });
+
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('judge-prompt.njk');
+
+    // Prepare the user prompt
+    const userMessage = `User Prompt: "${prompt}"
+JSON Form: ${JSON.stringify(templateData, null, 2)}
+Criteria: "${criteria}"`;
+
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: systemPrompt,
+                    role: 'system',
+                },
+                {
+                    content: userMessage,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'judge-form-schema',
+                    schema: judgeSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
+            },
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
@@ -163,83 +232,37 @@ export async function updateFormWithOpenAI(
         templateData = { ...templateData, suggestions: [] };
     }
 
-    const response = await client.chat.completions.create({
-        messages: [
-            {
-                content: getUpdateSystemPrompt(
-                    templateData,
-                    designSystem,
-                    enableSuggestions
-                ),
-                role: 'system',
-            },
-            {
-                content: prompt,
-                role: 'user',
-            },
-        ],
-        model: envVars.AZURE_OPENAI_MODEL_NAME,
-        response_format: {
-            json_schema: {
-                name: 'update-form-schema',
-                schema: updateSchema,
-                strict: true,
-            },
-            type: 'json_schema',
-        },
+    // Prepare the system prompt
+    const systemPrompt = nunjucks.render('update-prompt.njk', {
+        orgFor: getOrgFor(designSystem),
+        suggestions: enableSuggestions
+            ? 'You must include three brand-new suggestions.'
+            : '',
     });
 
-    const responseText = response.choices[0].message.content;
-    return responseText ?? '{}';
-}
-
-/**
- * Gets the system prompt to generate a form in JSON format.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @param {boolean} enableSuggestions Whether to include suggestions in the system prompt.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getCreateSystemPrompt(
-    designSystem: PrototypeDesignSystemsType,
-    enableSuggestions: boolean
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to generate a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey.
-
-Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
-
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. ${enableSuggestions ? 'You must include three suggestions. ' : ''}No other data should be included in your response.`;
-}
-
-/**
- * Gets the system prompt to generate suggestions for a form.
- * @param {TemplateData} templateData The existing form data to update.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getGenerateSuggestionsSystemPrompt(
-    templateData: TemplateData,
-    designSystem: PrototypeDesignSystemsType
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to generate suggestions for how to update a JSON representation of a form${orgFor}.
-
-Each suggestion must be a specific and direct instruction. Suggestions must be to add, update, or remove a question, or to update the form. Suggestions should be phrased as direct instructions, such as 'Add a question about the user's preferred contact method' or 'Ensure the user is at least 18 years old in question 5.'
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. No other data should be included in your response.
-
-The form${orgFor} to generate suggestions for is as follows:
-${JSON.stringify(templateData, null, 2)}`;
+    return client.chat.completions
+        .create({
+            messages: [
+                {
+                    content: systemPrompt,
+                    role: 'system',
+                },
+                {
+                    content: `TEMPLATE DATA:\n${JSON.stringify(templateData, null, 2)}\n\nPROMPT: ${prompt}`,
+                    role: 'user',
+                },
+            ],
+            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            response_format: {
+                json_schema: {
+                    name: 'update-form-schema',
+                    schema: updateSchema,
+                    strict: true,
+                },
+                type: 'json_schema',
+            },
+        })
+        .then((response) => response.choices[0].message.content ?? '{}');
 }
 
 /**
@@ -249,36 +272,7 @@ ${JSON.stringify(templateData, null, 2)}`;
  */
 function getOrgFor(designSystem: PrototypeDesignSystemsType): string {
     if (designSystem === 'HMRC') {
-        return ' for HMRC';
+        return 'for HMRC';
     }
-    return ' for the UK Government';
-}
-
-/**
- * Gets the system prompt to update a form in JSON format.
- * @param {TemplateData} templateData The existing form data to update.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the form.
- * @param {boolean} enableSuggestions Whether to include suggestions in the system prompt.
- * @returns {string} A system prompt for the LLM that defines its role and the expected output format.
- */
-function getUpdateSystemPrompt(
-    templateData: TemplateData,
-    designSystem: PrototypeDesignSystemsType,
-    enableSuggestions: boolean
-): string {
-    const orgFor = getOrgFor(designSystem);
-    return `You are a specialised AI assistant that helps UK government workers create online forms${orgFor}.
-
-Your task is to update a JSON representation of a form${orgFor} based on user input. The form should include all necessary questions and be ordered in a logical sequence. The question flow must be clear and logical with next_question_values, and make the most sense for the user's journey. Only make the changes specified by the user, do not make any other changes.
-
-Questions in the form are sequential depending on their next_question_value. Branching choice questions allow for different next_question_values depending on the answer selected. Example: To ask "Have you lost your licence?" and only ask "What date was it lost?" if the answer is "Yes", use a 'branching_choice' question with options_branching set accordingly.
-
-Do not include any redundant or duplicate questions. Eligibility requirements or pre-requisites should not be included as questions. They should be stated before the user starts.
-
-Text should be in British English and follow the UK Government Digital Service (GDS) style guide. Do not use technical jargon or the word "please". Use plain, direct language that is easy to understand.
-
-Your response must only be valid JSON that adheres to the schema. The explanation should only describe the changes made to the form. ${enableSuggestions ? 'You must include three brand-new suggestions; do not reuse the existing suggestions. ' : ''}No other data should be included in your response.
-
-The form${orgFor} to update is as follows:
-${JSON.stringify(templateData, null, 2)}`;
+    return 'for the UK Government';
 }

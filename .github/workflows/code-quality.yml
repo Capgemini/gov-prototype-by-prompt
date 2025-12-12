@@ -1,116 +1,116 @@
 name: Code quality checks
 
 permissions:
-  contents: read
+    contents: read
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    workflow_dispatch:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-        with:
-          node-version-file: .nvmrc
-      - name: Upgrade npm to v11
-        run: npm install -g "npm@>=11.6.1 <12"
-      - name: Log npm version
-        run: npm --version
-      - name: Install dependencies
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
+    setup:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@>=11.6.4 <12"
+            - name: Log npm version
+              run: npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
 
-  eslint:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-        with:
-          node-version-file: .nvmrc
-      - name: Upgrade npm to v11
-        run: npm install -g "npm@>=11.6.1 <12"
-      - name: Log npm version
-        run: npm --version
-      - name: Install dependencies
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
+    eslint:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@>=11.6.4 <12"
+            - name: Log npm version
+              run: npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
 
-      - name: Run ESLint
-        run: npm run lint -- --max-warnings=0
+            - name: Run ESLint
+              run: npm run lint -- --max-warnings=0
 
-  npm-audit:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-        with:
-          node-version-file: .nvmrc
-      - name: Upgrade npm to v11
-        run: npm install -g "npm@>=11.6.1 <12"
-      - name: Log npm version
-        run: npm --version
-      - name: Install dependencies
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
+    npm-audit:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@>=11.6.4 <12"
+            - name: Log npm version
+              run: npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
 
-      - name: Run npm audit with moderate threshold
-        run: npm audit --audit-level=moderate
+            - name: Run npm audit with moderate threshold
+              run: npm audit --audit-level=moderate
 
-  jest-unit-tests:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Set up Node.js
-        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-        with:
-          node-version-file: .nvmrc
-      - name: Upgrade npm to v11
-        run: npm install -g "npm@>=11.6.1 <12"
-      - name: Log npm version
-        run: npm --version
-      - name: Install dependencies
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
+    jest-unit-tests:
+        needs: setup
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+              with:
+                  node-version-file: .nvmrc
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@>=11.6.4 <12"
+            - name: Log npm version
+              run: npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
 
-      - name: Run tests with coverage
-        run: npm run test -- --coverage --silent --maxWorkers=1
+            - name: Run tests with coverage
+              run: npm run test -- --coverage --silent --maxWorkers=1

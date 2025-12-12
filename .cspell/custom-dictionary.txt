@@ -3,6 +3,7 @@ __MONGOINSTANCE
 bday
 deepcode
 endcall
+evals
 govuk
 HMRC
 hmrc

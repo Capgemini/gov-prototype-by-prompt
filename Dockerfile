@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Update npm to the latest version and install dependencies
-RUN npm install -g "npm@>=11.6.1 <12" \
+RUN npm install -g "npm@>=11.6.4 <12" \
     && npm --version \
     && npm ci --ignore-scripts --omit=dev
 

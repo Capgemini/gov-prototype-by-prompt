@@ -25,9 +25,9 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 ## Technology stack
 
-The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests use the Jest testing framework.
+The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
 
-It connects to an OpenAI LLM running in Azure; we have been using GPT-4o-mini.
+It connects to an OpenAI LLM running in Azure; we have been using GPT-4.1-mini.
 
 It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL database.
 
@@ -94,6 +94,7 @@ The project is structured as follows:
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
 - [`docs/`](docs/) – Project documentation and a user help guide.
+- [`evals/`](evals/) – Automated tests for evaluating the LLM's output against expected form structures.
 - [`jest/`](jest/) – Jest configuration and setup files for testing.
 - [`public/`](public/) – Static assets not provided by third-parties.
 - [`src/`](src/) – Application source code (Express routes, utilities, business logic, data models).

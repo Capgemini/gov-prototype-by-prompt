@@ -365,10 +365,10 @@ export function validateTemplateDataText(
         throwAll: true,
     });
 
-    // Parse the JSON again and remove any null values
+    // Parse the JSON and transform null values to undefined
     templateData = JSON.parse(responseText, (key, value) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        if (value !== null) return value;
+        return value ?? undefined;
     }) as TemplateData;
 
     // Collate further validation errors
