@@ -31,6 +31,10 @@
         {
             "filename": "manage-your-workspaces",
             "title": "Manage your workspaces"
+        },
+        {
+            "filename": "manage-your-account-and-other-users",
+            "title": "Manage your account and other users"
         }
     ]
 }
