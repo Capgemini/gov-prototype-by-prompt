@@ -995,28 +995,6 @@ describe('handlePrototypeSubmitQuestion', () => {
         }
     );
 
-    it.each([
-        ['question-1', '/question-2'],
-        ['question-2', '/check-answers'],
-    ])(
-        'for a question without next_question_value and page %s, should redirect to %s',
-        (page, urlEndsWith) => {
-            const request = httpMocks.createRequest({
-                ...defaultRequest,
-                params: { id: prototypeData1.id, page: page },
-                prototypeData: prototypeData1,
-            });
-            const response = httpMocks.createResponse();
-
-            handlePrototypeSubmitQuestion(request, response);
-
-            expect(response.statusCode).toBe(302);
-            expect(response._getRedirectUrl()).toBe(
-                `/prototype/${prototypeData1.id}${urlEndsWith}`
-            );
-        }
-    );
-
     it.each(['question-1', 'question-2'])(
         'for a question with the check answers referrer and page %s, should redirect to /check-answers',
         (page) => {

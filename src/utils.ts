@@ -444,8 +444,9 @@ export function validateTemplateDataText(
 
         // Throw an error if the next_question_value for non-branching questions is invalid
         if (
-            question.next_question_value !== undefined &&
-            !validNextQuestionValues.has(question.next_question_value)
+            question.answer_type !== 'branching_choice' &&
+            (question.next_question_value === undefined ||
+                !validNextQuestionValues.has(question.next_question_value))
         ) {
             validationErrors.push({
                 argument: undefined,

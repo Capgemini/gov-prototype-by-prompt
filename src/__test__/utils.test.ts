@@ -296,11 +296,13 @@ describe('validateTemplateDataText', () => {
                     answer_type: 'text',
                     date_of_birth_maximum_age: 65,
                     date_of_birth_minimum_age: 18,
+                    next_question_value: 2,
                 },
                 {
                     answer_type: 'date_of_birth',
                     date_of_birth_maximum_age: 65,
                     date_of_birth_minimum_age: 18,
+                    next_question_value: -1,
                 },
             ],
         });
@@ -316,6 +318,7 @@ describe('validateTemplateDataText', () => {
             questions: [
                 {
                     answer_type: 'text',
+                    next_question_value: 2,
                     options: ['Option 1', 'Option 2'],
                     options_branching: [
                         { next_question_value: 2, text_value: 'Option 1' },
@@ -332,6 +335,7 @@ describe('validateTemplateDataText', () => {
                 },
                 {
                     answer_type: 'single_choice',
+                    next_question_value: 4,
                     options: ['Option 1', 'Option 2'],
                     options_branching: [
                         { next_question_value: 4, text_value: 'Option 1' },
@@ -340,6 +344,7 @@ describe('validateTemplateDataText', () => {
                 },
                 {
                     answer_type: 'multiple_choice',
+                    next_question_value: -1,
                     options: ['Option 1', 'Option 2'],
                     options_branching: [
                         { next_question_value: -1, text_value: 'Option 1' },
@@ -391,15 +396,18 @@ describe('validateTemplateDataText', () => {
             questions: [
                 {
                     answer_type: 'address',
+                    next_question_value: 2,
                     required: true,
                 },
                 {
                     answer_type: 'text',
+                    next_question_value: 3,
                     required: false,
                     required_error_text: 'This should be removed',
                 },
                 {
                     answer_type: 'text',
+                    next_question_value: -1,
                     required: true,
                     required_error_text: 'Bespoke error text for question 3',
                 },
@@ -420,6 +428,7 @@ describe('validateTemplateDataText', () => {
             [
                 {
                     answer_type: 'text',
+                    next_question_value: 2,
                 },
                 {
                     answer_type: 'branching_choice',
@@ -430,10 +439,12 @@ describe('validateTemplateDataText', () => {
                 },
                 {
                     answer_type: 'single_choice',
+                    next_question_value: 4,
                     options: ['Option 1', 'Option 2'],
                 },
                 {
                     answer_type: 'multiple_choice',
+                    next_question_value: -1,
                     options: ['Option 1', 'Option 2'],
                 },
             ],
@@ -452,6 +463,7 @@ describe('validateTemplateDataText', () => {
             [
                 {
                     answer_type: 'single_choice',
+                    next_question_value: -1,
                     options_branching: [],
                 },
             ],
@@ -461,6 +473,7 @@ describe('validateTemplateDataText', () => {
             [
                 {
                     answer_type: 'multiple_choice',
+                    next_question_value: -1,
                 },
             ],
             true,
@@ -496,6 +509,17 @@ describe('validateTemplateDataText', () => {
                 },
             ],
             false,
+        ],
+        [
+            [
+                {
+                    answer_type: 'text',
+                },
+                {
+                    answer_type: 'text',
+                },
+            ],
+            true,
         ],
         [
             [

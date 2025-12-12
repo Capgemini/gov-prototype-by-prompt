@@ -24,18 +24,33 @@ export interface ITemplateDetailedExplanation {
     question_title: string;
 }
 
-export interface ITemplateField {
+export type ITemplateField =
+    | ITemplateFieldBranchingChoice
+    | ITemplateFieldNonBranching;
+
+export interface ITemplateFieldBase {
     answer_type: string;
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     detailed_explanation?: ITemplateDetailedExplanation;
     hint_text?: string;
-    next_question_value?: number;
     options?: string[];
     options_branching?: IBranchingOptions[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
+}
+
+// For "branching_choice", next_question_value is always undefined
+export interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
+    answer_type: 'branching_choice';
+    next_question_value: undefined;
+}
+
+// For all other answer_types, next_question_value is required
+export interface ITemplateFieldNonBranching extends ITemplateFieldBase {
+    answer_type: Exclude<string, 'branching_choice'>;
+    next_question_value: number;
 }
 
 export const PrototypeDesignSystems = ['GOV.UK', 'HMRC'] as const;
@@ -111,7 +126,17 @@ const templateFieldSchema = new Schema<ITemplateField>(
             type: templateDetailedExplanationSchema,
         },
         hint_text: String,
-        next_question_value: Number,
+        // next_question_value is only present if answer_type !== 'branching_choice'
+        next_question_value: {
+            required: function (this: ITemplateField) {
+                return this.answer_type !== 'branching_choice';
+            },
+            // Only include the field if answer_type !== 'branching_choice'
+            select: function (this: ITemplateField) {
+                return this.answer_type !== 'branching_choice';
+            },
+            type: Number,
+        },
         options: {
             default: undefined,
             required: false,

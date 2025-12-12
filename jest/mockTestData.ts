@@ -53,11 +53,13 @@ const prototypeData1: IPrototypeData = {
         questions: [
             {
                 answer_type: 'text',
+                next_question_value: 2,
                 question_text: 'What is your name?',
                 required: true,
             },
             {
                 answer_type: 'text',
+                next_question_value: -1,
                 question_text: 'What is your job role?',
                 required: true,
             },
