@@ -69,14 +69,14 @@ export async function renderUsersPage(
     // Get and filter the users
     let users = await getAllUsers();
     if (isAdmin === 'true') {
-        users = users.filter((u) => u.isAdmin);
+        users = users.filter((u) => u.isAdmin === true);
     } else if (isAdmin === 'false') {
-        users = users.filter((u) => !u.isAdmin);
+        users = users.filter((u) => u.isAdmin !== true);
     }
     if (isActive === 'true') {
-        users = users.filter((u) => u.isActive);
+        users = users.filter((u) => u.isActive !== false);
     } else if (isActive === 'false') {
-        users = users.filter((u) => !u.isActive);
+        users = users.filter((u) => u.isActive === false);
     }
 
     // Validate the pagination parameters against the total
@@ -212,7 +212,7 @@ export async function renderManageUserPage(
     const userId = req.params.id;
     const user = await getUserById(userId);
 
-    // Check the workspace exists and if the user can access it
+    // Check the user exists
     if (!user) {
         res.status(404).render('user-not-found.njk', {});
         return;
@@ -251,21 +251,40 @@ export async function handleUpdateUser(
 
     // Get the user to update and check permissions
     const user = await getUserById(req.params.id);
-    if (!user || (selfUser.id !== user.id && !selfUser.isAdmin)) {
+    if (!user || (selfUser.id !== user.id && selfUser.isAdmin !== true)) {
         res.status(404).json({
             message: 'User not found',
         });
         return;
     }
 
-    // Validate the input fields
-    const errors: Partial<ValidationError>[] = [];
+    // Parse the input fields
     let { isActive, isAdmin } = req.body;
     const { name, password1, password2 } = req.body;
-    if (!name && !password1 && !isAdmin && !isActive) {
+
+    // Convert isActive and isAdmin to boolean values
+    if (typeof isActive === 'string') {
+        isActive = isActive !== 'false';
+    }
+    if (typeof isAdmin === 'string') {
+        isAdmin = isAdmin === 'true';
+    }
+    if (selfUser.isAdmin !== true) {
+        isActive = undefined;
+        isAdmin = undefined;
+    }
+
+    // Validate the input fields
+    const errors: Partial<ValidationError>[] = [];
+    if (
+        !name &&
+        !password1 &&
+        isAdmin === undefined &&
+        isActive === undefined
+    ) {
         errors.push(
             { msg: 'Enter a name', path: 'name' },
-            { msg: 'Create new password', path: 'password1' },
+            { msg: 'Create a password', path: 'password1' },
             { msg: 'Confirm new password', path: 'password2' }
         );
     }
@@ -279,14 +298,6 @@ export async function handleUpdateUser(
     }
     if (password1) {
         errors.push(...validatePasswords(password1, password2));
-    }
-
-    // Convert isActive and isAdmin to boolean values
-    if (typeof isActive === 'string') {
-        isActive = isActive !== 'false';
-    }
-    if (typeof isAdmin === 'string') {
-        isAdmin = isAdmin === 'true';
     }
 
     // Don't allow disabling or demoting the last active admin user
@@ -326,10 +337,10 @@ export async function handleUpdateUser(
         const hashedPassword = await bcrypt.hash(password1, 10);
         updates.passwordHash = hashedPassword;
     }
-    if (isActive !== undefined && selfUser.isAdmin) {
+    if (isActive !== undefined && selfUser.isAdmin === true) {
         updates.isActive = isActive;
     }
-    if (isAdmin !== undefined && selfUser.isAdmin) {
+    if (isAdmin !== undefined && selfUser.isAdmin === true) {
         updates.isAdmin = isAdmin;
     }
     const timestamp = new Date().toISOString();

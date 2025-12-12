@@ -187,7 +187,7 @@ describe('renderManageAccountPage', () => {
         ({ renderManageAccountPage } = await import('../user-routes'));
     });
 
-    it('should redirect permanently to manage account page', () => {
+    it('should render the manage-user.njk template for the current user', () => {
         const request = httpMocks.createRequest({
             method: 'GET',
             url: '/manage-account',
@@ -199,6 +199,10 @@ describe('renderManageAccountPage', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response._getRenderView()).toBe('manage-user.njk');
+        expect(response._getRenderData()).toEqual({
+            isSelf: true,
+            user: user1,
+        });
     });
 });
 
