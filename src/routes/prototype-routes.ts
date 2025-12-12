@@ -478,7 +478,7 @@ export async function handleSuggestions(
             message: 'Suggestions generated successfully',
             suggestions: (
                 JSON.parse(suggestions, (key: string, value: null | string) => {
-                    if (value !== null) return value;
+                    return value ?? undefined;
                 }) as { suggestions: string[] }
             ).suggestions,
         });

@@ -80,14 +80,15 @@ app.use(compression());
 // Configure Nunjucks with the correct paths
 export const nunjucksEnv = nunjucks.configure(
     [
-        path.join(__dirname, 'views'),
+        path.join(__dirname, 'data/prompts/'),
         path.join(__dirname, 'node_modules/hmrc-frontend/'),
         path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
+        path.join(__dirname, 'views/'),
     ],
     {
         autoescape: true,
         express: app,
-        noCache: true,
+        noCache: nodeEnv !== 'production',
     }
 );
 

@@ -1,0 +1,26 @@
+[
+    {
+        "prompt": "Create a driving licence application form. Ask for name, email, date of birth, preferred contact methods, automatic or manual, and to explain any health problems. Tell them they must be a UK resident and over 17 years old before they start."
+    },
+    {
+        "prompt": "Create a form to apply for a replacement library card from Devon County Council. Ask for their name, address, email address, whether they know their previous card number, and if so what the number is."
+    },
+    {
+        "prompt": "Create a form to register a PAYE employer. Ask for employer name, number of employees, if they have a company registration number and if so what that is, and if they provide taxable employee benefits and if so to describe what they are."
+    },
+    {
+        "prompt": "Create a form to request a tax refund. Ask for name, address, NI number, which year the refund is for (give a list of five), if they know the amount they're owed, and if so the amount"
+    },
+    {
+        "prompt": "Create a form to register to vote. Ask for name, date of birth, if they're a UK, qualifying EU, or qualifying commonwealth citizen, their main address. Check if they're a student with a term-time address, and if so ask what that address is too. Check if they want to register anonymously, and if so ask them to explain why and upload supporting evidence."
+    },
+    {
+        "prompt": "Create a form for a school to order a framed photo of King Charles III. Ask for school name, contact name, contact email address (explain that it must be an individual school email, not a generic mailbox), and school address. Tell them at the start that each school can only order one photo, and once submitted that after approval it will arrive within 10 days."
+    },
+    {
+        "prompt": "Create a form to apply for a train ticket refund. Ask for name, email, address, date of travel, ticket cost, if it is a single or return. Ask if it's a physical or digital ticket. If digital then ask them to enter the ticket number under the QR code, if physical then ask to upload a photo."
+    },
+    {
+        "prompt": "Apply for a British emergency travel document in Germany for someone who has lost their passport. Ask for name, email address, mobile number, date of birth, if they know their previous passport number (and if so, what that was), and which embassy you can attend (dusseldorf, munich, berlin). Once submitted they will receive an email within 24 hours with an appointment date and time."
+    }
+]

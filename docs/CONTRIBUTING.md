@@ -18,9 +18,11 @@ If you are using Visual Studio Code, the `.vscode` folder contains configuration
 
 GitHub Actions pipelines exist to run the unit tests, check linting and formatting, check for dependency vulnerabilities, and assess code quality & security.
 
-### Running tests
+### Running tests and LLM evaluations
 
-Run the command `npm test` to run the Jest test suite. We are using an in-memory MongoDB database for the tests without mocking, to try to be as close to the deployed solution as possible.
+Run the command `npm run test` to run the Jest test suite. We are using an in-memory MongoDB database for the tests without mocking, to try to be as close to the deployed solution as possible.
+
+Run the command `npm run evals` to run the LLM evaluations in the `evals/` folder. These tests generate form data using the LLM and assess its validity and correctness against several criteria.
 
 ### Linting and formatting
 
