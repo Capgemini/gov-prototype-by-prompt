@@ -1,0 +1,23 @@
+{% extends "template.njk" %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block pageTitle %}
+  User not found – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">User not found</h1>
+        {% if not insideIframe %}
+          <p class="govuk-body">
+            If you typed the web address, check it is correct.
+          </p>
+          <p class="govuk-body">
+            If you pasted the web address, check you copied the entire address.
+          </p>
+        {% endif %}
+    </div>
+  </div>
+{% endblock %}

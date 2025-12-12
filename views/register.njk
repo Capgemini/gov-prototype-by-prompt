@@ -92,9 +92,10 @@
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
     window.addEventListener("pageshow", function(event) {
-      const historyTraversal = event.persisted || 
-                            (typeof window.performance != "undefined" && 
-                            window.performance.navigation.type === 2);
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
       if (historyTraversal) {
         window.location.reload();
       }
@@ -164,7 +165,7 @@
         // If response is OK, tell the user the account was created successfully
         if (response.ok) {
           successBanner.classList.remove('display-none');
-          successBanner.scrollIntoView();
+          successBanner.scrollIntoView({block: 'nearest'});
           registerForm.reset();
 
         // Otherwise provide the errors
@@ -184,6 +185,7 @@
         }
       }).catch(err => {
         errorSummary.classList.remove('display-none');
+        errorSummary.scrollIntoView({block: 'nearest'});
         errorDescription.textContent = err.message;
         registerButton.disabled = false;
         registerButton.textContent = 'Create account';

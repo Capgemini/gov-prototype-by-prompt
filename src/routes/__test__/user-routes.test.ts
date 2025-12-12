@@ -17,6 +17,7 @@ import { IUser, IWorkspace } from '../../types';
 let bcryptCompareMock: jest.Mock;
 let getEnvironmentVariablesMock: jest.Mock;
 let canUserAccessWorkspaceMock: jest.Mock;
+let countActiveAdminUsersMock: jest.Mock;
 let countPrototypesByUserIdAndWorkspaceIdMock: jest.Mock;
 let countWorkspacesByUserIdMock: jest.Mock;
 let getAllUsersMock: jest.Mock;
@@ -35,6 +36,7 @@ beforeEach(() => {
         .fn()
         .mockReturnValue({ SUGGESTIONS_ENABLED: true });
     canUserAccessWorkspaceMock = jest.fn().mockResolvedValue(true);
+    countActiveAdminUsersMock = jest.fn().mockResolvedValue(5);
     countPrototypesByUserIdAndWorkspaceIdMock = jest
         .fn()
         .mockImplementation((userId: string, wsId: string) => {
@@ -110,6 +112,7 @@ beforeEach(() => {
     }));
     jest.doMock('../../database/mongoose-store', () => ({
         canUserAccessWorkspace: canUserAccessWorkspaceMock,
+        countActiveAdminUsers: countActiveAdminUsersMock,
         countPrototypesByUserIdAndWorkspaceId:
             countPrototypesByUserIdAndWorkspaceIdMock,
         countWorkspacesByUserId: countWorkspacesByUserIdMock,
@@ -184,7 +187,21 @@ describe('renderManageAccountPage', () => {
         ({ renderManageAccountPage } = await import('../user-routes'));
     });
 
-    it('should redirect permanently to manage account page', () => {
+    it('should redirect to the admin user page if the current user is an admin', () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            url: '/manage-account',
+            user: { ...user1, isAdmin: true },
+        });
+        const response = httpMocks.createResponse();
+
+        renderManageAccountPage(request, response);
+
+        expect(response.statusCode).toBe(302);
+        expect(response._getRedirectUrl()).toBe(`/admin/user/${user1.id}`);
+    });
+
+    it('should render the manage-user.njk template for the current non-admin user', () => {
         const request = httpMocks.createRequest({
             method: 'GET',
             url: '/manage-account',
@@ -195,127 +212,11 @@ describe('renderManageAccountPage', () => {
         renderManageAccountPage(request, response);
 
         expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('manage-account.njk');
-    });
-});
-
-describe('handleUpdateUser', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let handleUpdateUser: (req: any, res: any) => Promise<void>;
-    beforeEach(async () => {
-        ({ handleUpdateUser } = await import('../user-routes'));
-    });
-
-    it.each([
-        [{ name: '', password1: '', password2: '' }, 'Enter your name'],
-        [{ name: '', password1: '', password2: '' }, 'Create new password'],
-        [
-            { name: 'A', password1: '', password2: '' },
-            'Name must be at least 2 characters',
-        ],
-        [
-            {
-                name: '',
-                password1: 'abc',
-                password2: 'def',
-            },
-            'The passwords must match',
-        ],
-        [
-            {
-                name: '',
-                password1: 'short',
-                password2: 'short',
-            },
-            'The password must be at least 12 characters long',
-        ],
-        [
-            {
-                name: '',
-                password1: 'tyrannosaurus',
-                password2: 'tyrannosaurus',
-            },
-            'The password must contain at least one letter, one number, and one symbol',
-        ],
-    ])(
-        'should validate input and return error: %s',
-        async (body, expectedError) => {
-            const request = httpMocks.createRequest({
-                body,
-                method: 'POST',
-                user: user1,
-            });
-            const response = httpMocks.createResponse();
-            await handleUpdateUser(request, response);
-            expect(response.statusCode).toBe(400);
-            expect(JSON.stringify(response._getJSONData())).toContain(
-                expectedError
-            );
-            expect(updateUserMock).not.toHaveBeenCalled();
-        }
-    );
-
-    it('should update user name successfully', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                name: 'Test',
-                password1: '',
-                password2: '',
-            },
-            method: 'POST',
+        expect(response._getRenderView()).toBe('manage-user.njk');
+        expect(response._getRenderData()).toEqual({
+            isSelf: true,
             user: user1,
         });
-        const response = httpMocks.createResponse();
-        await handleUpdateUser(request, response);
-        expect(response.statusCode).toBe(200);
-        expect(JSON.stringify(response._getJSONData())).toContain(
-            'User updated successfully'
-        );
-        expect(updateUserMock).toHaveBeenCalled();
-    });
-
-    it('should update user password successfully', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                name: '',
-                password1: 'Password123!',
-                password2: 'Password123!',
-            },
-            method: 'POST',
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
-        await handleUpdateUser(request, response);
-        expect(response.statusCode).toBe(200);
-        expect(JSON.stringify(response._getJSONData())).toContain(
-            'User updated successfully'
-        );
-        expect(updateUserMock).toHaveBeenCalled();
-    });
-
-    it('should reject common passwords', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                name: '',
-                password1: 'Password@123',
-                password2: 'Password@123',
-            },
-            method: 'POST',
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
-        await handleUpdateUser(request, response);
-        expect(response.statusCode).toBe(400);
-        expect(
-            (response._getJSONData() as { errors: Record<string, string>[] })
-                .errors
-        ).toContainEqual(
-            expect.objectContaining({
-                msg: 'This password is too common',
-                path: 'password1',
-            })
-        );
-        expect(updateUserMock).not.toHaveBeenCalled();
     });
 });
 
@@ -449,25 +350,42 @@ describe('registerUser', () => {
         expect(storeWorkspaceMock).not.toHaveBeenCalled();
     });
 
-    it('should register user successfully', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                email: 'newuser@example.com',
-                name: 'Test',
-                password1: 'Password123!',
-                password2: 'Password123!',
-            },
-            method: 'POST',
-        });
-        const response = httpMocks.createResponse();
-        await registerUser(request, response);
-        expect(response.statusCode).toBe(201);
-        expect(JSON.stringify(response._getJSONData())).toContain(
-            'User registered successfully'
-        );
-        expect(storeUserMock).toHaveBeenCalled();
-        expect(storeWorkspaceMock).toHaveBeenCalled();
-    });
+    it.each([
+        [true, 0],
+        [false, 1],
+        [false, 5],
+    ])(
+        'should register regular user successfully (isAdmin=%s)',
+        async (isAdmin, countActiveAdminUsers) => {
+            countActiveAdminUsersMock.mockResolvedValueOnce(
+                countActiveAdminUsers
+            );
+            const request = httpMocks.createRequest({
+                body: {
+                    email: 'newuser@example.com',
+                    name: 'Test',
+                    password1: 'Password123!',
+                    password2: 'Password123!',
+                },
+                method: 'POST',
+            });
+            const response = httpMocks.createResponse();
+            await registerUser(request, response);
+            expect(response.statusCode).toBe(201);
+            expect(JSON.stringify(response._getJSONData())).toContain(
+                'User registered successfully'
+            );
+            expect(storeUserMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    email: 'newuser@example.com',
+                    isActive: true,
+                    isAdmin: isAdmin,
+                    name: 'Test',
+                })
+            );
+            expect(storeWorkspaceMock).toHaveBeenCalled();
+        }
+    );
 
     it('should reject common passwords', async () => {
         const request = httpMocks.createRequest({
@@ -639,7 +557,7 @@ describe('logOutUser', () => {
         logOutUser(request, response);
 
         expect(request.session.currentUserId).toBeUndefined();
-        expect(response.locals.user).toBeUndefined();
+        expect(response.locals.currentUser).toBeUndefined();
         expect(request.session.liveData).toEqual({});
         expect(request.session.livePrototypePasswords).toEqual({});
         expect(response.statusCode).toBe(302);

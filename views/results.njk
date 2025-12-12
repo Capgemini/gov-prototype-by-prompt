@@ -493,9 +493,10 @@
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
     window.addEventListener("pageshow", function(event) {
-      const historyTraversal = event.persisted || 
-                            (typeof window.performance != "undefined" && 
-                            window.performance.navigation.type === 2);
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
       if (historyTraversal) {
         window.location.reload();
       }
@@ -603,7 +604,7 @@
       }).catch(err => {
         errorSummary.classList.remove('display-none');
         errorDescription.innerHTML = `${err.message}`;
-        errorSummary.scrollIntoView();
+        errorSummary.scrollIntoView({block: 'nearest'});
         startButton.disabled = false;
         startButton.textContent = 'Update prototype';
         switchPromptTypeButton.disabled = false;
