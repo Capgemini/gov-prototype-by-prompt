@@ -96,12 +96,12 @@
               {
                 value: "GOV.UK",
                 text: "GOV.UK",
-                selected: designSystem == "GOV.UK"
+                selected: designSystem === "GOV.UK"
               },
               {
                 value: "HMRC",
                 text: "HMRC",
-                selected: designSystem == "HMRC"
+                selected: designSystem === "HMRC"
               }
             ]
           }) }}
@@ -166,7 +166,7 @@
                 <li>
                   <a class="change-preview-page" href="#" data-preview-page="question-{{ loop.index }}"><strong>{{ question.answer_type }}</strong></a>: {{ question.question_text }} 
                   
-                  {% if question.answer_type == 'branching_choice' and question.options_branching %}
+                  {% if question.answer_type === 'branching_choice' and question.options_branching %}
                     <ul>
                       {% for option in question.options_branching %}
                         <li>
@@ -183,7 +183,7 @@
 
                   {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
                     <ul>
-                      <li>&rarr; {{ 'finish' if question.next_question_value == -1 else 'question ' ~ question.next_question_value }}</li>
+                      <li>&rarr; {{ 'finish' if question.next_question_value === -1 else 'question ' ~ question.next_question_value }}</li>
                     </ul>
                   {% endif %}
 
@@ -194,10 +194,10 @@
                       {% endfor %}
                     </ul>
                   {% endif %}
-                  {% if question.answer_type == "date_of_birth" and question.date_of_birth_minimum_age %}
+                  {% if question.answer_type === "date_of_birth" and question.date_of_birth_minimum_age %}
                     <ul><li>Minimum age: {{ question.date_of_birth_minimum_age }} years</li></ul>
                   {% endif %}
-                  {% if question.answer_type == "date_of_birth" and question.date_of_birth_maximum_age %}
+                  {% if question.answer_type === "date_of_birth" and question.date_of_birth_maximum_age %}
                     <ul><li>Maximum age: {{ question.date_of_birth_maximum_age }} years</li></ul>
                   {% endif %}
               {% endfor %}
@@ -208,7 +208,7 @@
             {% for question in json["questions"] %}
                 {% set parentLoop = loop %}
                 Q{{ parentLoop.index }}["{{ question.question_text | escape }}"]
-                {% if question.answer_type == 'branching_choice' and question.options_branching %}
+                {% if question.answer_type === 'branching_choice' and question.options_branching %}
                     {% for option in question.options_branching %}
                         Q{{ parentLoop.index }} -->|{{ option.text_value | escape }}| {% if option.next_question_value and option.next_question_value > 0 %}Q{{ option.next_question_value }}{% else %}Finish{% endif %}
                     {% endfor %}

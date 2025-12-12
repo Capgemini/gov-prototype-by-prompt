@@ -9,9 +9,9 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">Your prototypes</h1>
       <p class="govuk-body">
-        {% if totalPrototypes == 0 %}
+        {% if totalPrototypes === 0 %}
           There are no prototypes.
-        {% elif totalPrototypes == countPrototypes %}
+        {% elif totalPrototypes === countPrototypes %}
           Showing all {{ totalPrototypes }} prototype{{ 's' if totalPrototypes != 1 else '' }}.
         {% else %}
           Showing {{ countPrototypes }} prototype{{ 's' if countPrototypes != 1 else '' }} out of {{ totalPrototypes }}.
