@@ -25,7 +25,7 @@ describe('WorkspaceModel', () => {
             expect(
                 await WorkspaceModel.canUserAccess(
                     mockUserId.toString(),
-                    newWorkspace.id as string
+                    newWorkspace.id
                 )
             ).toBe(true);
         });
@@ -68,7 +68,7 @@ describe('WorkspaceModel', () => {
             const newWorkspace = new Workspace(mockWorkspace);
             await newWorkspace.save();
             expect(
-                await WorkspaceModel.deleteById(newWorkspace.id as string)
+                await WorkspaceModel.deleteById(newWorkspace.id)
             ).toBe(true);
         });
 
@@ -148,7 +148,7 @@ describe('WorkspaceModel', () => {
             const newWorkspace = new Workspace(mockWorkspace);
             await newWorkspace.save();
             const updatedWorkspace = await WorkspaceModel.update(
-                newWorkspace.id as string,
+                newWorkspace.id,
                 {
                     name: updatedName,
                 }
