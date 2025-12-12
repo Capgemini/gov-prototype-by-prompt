@@ -9,10 +9,10 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">Your workspaces</h1>
       <p class="govuk-body">
-        {% if totalWorkspaces != 0 %}
-          There {{ 'are' if totalWorkspaces != 1 else 'is' }} {{ totalWorkspaces }} workspace{{ 's' if totalWorkspaces != 1 else '' }}.
-        {% else %}
+        {% if totalWorkspaces == 0 %}
           There are no workspaces.
+        {% else %}
+          There are {{ totalWorkspaces }} workspace{{ 's' if totalWorkspaces != 1 else '' }}.
         {% endif %}
       </p>
       {{ govukButton({
