@@ -350,17 +350,16 @@ export async function renderWorkspacesPage(
             } else if (ws.userIds.length === 1) {
                 totalUsers = 'Just you';
             }
+            const totalPrototypes = await countPrototypesByUserIdAndWorkspaceId(
+                user.id,
+                ws.id
+            );
             return [
                 {
                     html: `<a href="/user/workspace/${ws.id}">${ws.name}</a>`,
                 },
                 {
-                    html: String(
-                        await countPrototypesByUserIdAndWorkspaceId(
-                            user.id,
-                            ws.id
-                        )
-                    ),
+                    html: `<a href="/history?workspaceId=${ws.id}">${String(totalPrototypes)}</a>`,
                 },
                 {
                     html: totalUsers,
