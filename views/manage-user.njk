@@ -89,14 +89,14 @@
             {
               value: "true",
               text: "Yes",
-              checked: user.isActive === true,
-              disabled: currentUser.isAdmin === false
+              checked: user.isActive == true,
+              disabled: currentUser.isAdmin == false
             },
             {
               value: "false",
               text: "No",
-              checked: user.isActive === false,
-              disabled: currentUser.isAdmin === false
+              checked: user.isActive == false,
+              disabled: currentUser.isAdmin == false
             }
           ]
         }) }}
@@ -112,14 +112,14 @@
             {
               value: "true",
               text: "Yes",
-              checked: user.isAdmin === true,
-              disabled: currentUser.isAdmin === false
+              checked: user.isAdmin == true,
+              disabled: currentUser.isAdmin == false
             },
             {
               value: "false",
               text: "No",
-              checked: user.isAdmin === false,
-              disabled: currentUser.isAdmin === false
+              checked: user.isAdmin == false,
+              disabled: currentUser.isAdmin == false
             }
           ]
         }) }}

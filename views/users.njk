@@ -9,9 +9,9 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">Users</h1>
       <p class="govuk-body">
-        {% if totalUsers === 0 %}
+        {% if totalUsers == 0 %}
           There are no users.
-        {% elif totalUsers === countUsers %}
+        {% elif totalUsers == countUsers %}
           Showing all {{ totalUsers }} user{{ 's' if totalUsers != 1 else '' }}.
         {% else %}
           Showing {{ countUsers }} user{{ 's' if countUsers != 1 else '' }} out of {{ totalUsers }}.
