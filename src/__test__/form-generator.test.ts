@@ -374,6 +374,7 @@ describe('generateQuestionPage', () => {
                 },
                 { question_text: 'Q3' },
             ],
+            show_progress_indicators: true,
             title: 'Test Form',
         } as TemplateData;
 

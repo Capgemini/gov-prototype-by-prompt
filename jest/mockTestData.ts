@@ -67,6 +67,7 @@ const prototypeData1: IPrototypeData = {
         suggestions: ['Add a question', 'Change the title'],
         title: 'Test Prototype 1',
         what_happens_next: 'You will see a confirmation page.',
+        show_progress_indicators: true,
     },
     livePrototypePublic: false,
     livePrototypePublicPassword: '',
