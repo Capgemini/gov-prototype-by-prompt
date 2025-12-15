@@ -123,6 +123,8 @@ export async function registerUser(
     const newUser = {
         createdAt: timestamp,
         email: req.body.email,
+        isActive: true,
+        isAdmin: false,
         name: req.body.name,
         passwordHash: hashedPassword,
         updatedAt: timestamp,
