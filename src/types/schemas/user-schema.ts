@@ -2,7 +2,7 @@ import { model, ObjectId, Schema } from 'mongoose';
 
 export interface IUser {
     _id: ObjectId;
-    createdAt: string;
+    createdAt: Date;
     email: string;
     id: string;
     isActive: boolean;
@@ -10,7 +10,7 @@ export interface IUser {
     name: string;
     passwordHash: string;
     personalWorkspaceId: string;
-    updatedAt: string;
+    updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>(

@@ -17,7 +17,7 @@ const prototypeId4 = new mongoose.Types.ObjectId();
 // Users
 const user1: IUser = {
     _id: userId1 as unknown as mongoose.Schema.Types.ObjectId,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     email: 'test1@example.com',
     id: userId1.toString(),
     isActive: true,
@@ -25,7 +25,7 @@ const user1: IUser = {
     name: 'Test User 1',
     passwordHash: 'hashed-password',
     personalWorkspaceId: user1PersonalWorkspaceId.toString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date(),
 };
 const user2 = {
     ...user1,
@@ -161,11 +161,11 @@ const prototypeData4: IPrototypeData = {
 // Workspaces
 const user1PersonalWorkspace: IWorkspace = {
     _id: user1PersonalWorkspaceId as unknown as mongoose.Schema.Types.ObjectId,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     id: user1PersonalWorkspaceId.toString(),
     isPersonalWorkspace: true,
     name: 'Test User 1 Personal Workspace',
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date(),
     userIds: [user1.id],
 };
 const user2PersonalWorkspace: IWorkspace = {
@@ -177,11 +177,11 @@ const user2PersonalWorkspace: IWorkspace = {
 };
 const workspace3: IWorkspace = {
     _id: workspaceId3 as unknown as mongoose.Schema.Types.ObjectId,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     id: workspaceId3.toString(),
     isPersonalWorkspace: false,
     name: 'Workspace Three',
-    updatedAt: new Date().toISOString(),
+    updatedAt: new Date(),
     userIds: [user1.id, new mongoose.Types.ObjectId().toString()],
 };
 const workspace4: IWorkspace = {
