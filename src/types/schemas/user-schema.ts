@@ -5,6 +5,8 @@ export interface IUser {
     createdAt: string;
     email: string;
     id: string;
+    isActive?: boolean;
+    isAdmin?: boolean;
     name: string;
     passwordHash: string;
     personalWorkspaceId: string;
@@ -19,6 +21,16 @@ const userSchema = new Schema<IUser>(
             trim: true,
             type: String,
             unique: true,
+        },
+        isActive: {
+            default: true,
+            required: false,
+            type: Boolean,
+        },
+        isAdmin: {
+            default: false,
+            required: false,
+            type: Boolean,
         },
         name: {
             required: true,

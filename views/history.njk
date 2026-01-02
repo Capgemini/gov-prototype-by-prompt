@@ -9,10 +9,12 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">Your prototypes</h1>
       <p class="govuk-body">
-        {% if totalPrototypes != 0 %}
-          There {{ 'are' if countPrototypes != 1 else 'is' }} {{ countPrototypes }} prototype{{ 's' if countPrototypes != 1 else '' }} out of {{ totalPrototypes }}.
-        {% else %}
+        {% if totalPrototypes == 0 %}
           There are no prototypes.
+        {% elif totalPrototypes == countPrototypes %}
+          Showing all {{ totalPrototypes }} prototype{{ 's' if totalPrototypes != 1 else '' }}.
+        {% else %}
+          Showing {{ countPrototypes }} prototype{{ 's' if countPrototypes != 1 else '' }} out of {{ totalPrototypes }}.
         {% endif %}
       </p>
       <div class="govuk-button-group">
@@ -177,9 +179,10 @@
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
     window.addEventListener("pageshow", function(event) {
-      const historyTraversal = event.persisted || 
-                            (typeof window.performance != "undefined" && 
-                            window.performance.navigation.type === 2);
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
       if (historyTraversal) {
         window.location.reload();
       }

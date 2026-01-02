@@ -1,0 +1,25 @@
+{% extends "template.njk" %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block pageTitle %}
+  Your account has been deactivated – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">Your account has been deactivated</h1>
+      <p class="govuk-body">Contact an admin user for assistance.</p>
+      {% if not insideIframe %}
+        {{ govukButton({
+          text: "Log out",
+          classes: "govuk-button--secondary",
+          type: "submit",
+          href: "/user/log-out",
+          preventDoubleClick: true
+        }) }}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

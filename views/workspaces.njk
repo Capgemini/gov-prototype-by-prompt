@@ -9,10 +9,10 @@
     <div class="govuk-grid-column-full">
       <h1 class="govuk-heading-l">Your workspaces</h1>
       <p class="govuk-body">
-        {% if totalWorkspaces != 0 %}
-          There {{ 'are' if totalWorkspaces != 1 else 'is' }} {{ totalWorkspaces }} workspace{{ 's' if totalWorkspaces != 1 else '' }}.
-        {% else %}
+        {% if totalWorkspaces == 0 %}
           There are no workspaces.
+        {% else %}
+          There are {{ totalWorkspaces }} workspace{{ 's' if totalWorkspaces != 1 else '' }}.
         {% endif %}
       </p>
       {{ govukButton({
@@ -61,9 +61,10 @@
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
     window.addEventListener("pageshow", function(event) {
-      const historyTraversal = event.persisted || 
-                            (typeof window.performance != "undefined" && 
-                            window.performance.navigation.type === 2);
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
       if (historyTraversal) {
         window.location.reload();
       }
