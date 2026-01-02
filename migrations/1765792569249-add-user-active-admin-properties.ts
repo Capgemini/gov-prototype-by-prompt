@@ -13,7 +13,7 @@ export async function up(): Promise<void> {
         user.isActive ??= true;
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         user.isAdmin ??= false;
-        await user.save({ timestamps: false });
+        await user.save({ timestamps: false, validateBeforeSave: false });
     }
 
     // Make sure there is at least one admin user
@@ -22,7 +22,10 @@ export async function up(): Promise<void> {
         const firstUser = await User.findOne({});
         if (firstUser) {
             firstUser.isAdmin = true;
-            await firstUser.save({ timestamps: false });
+            await firstUser.save({
+                timestamps: false,
+                validateBeforeSave: false,
+            });
             console.log(
                 `No admin user found. Set user with email ${firstUser.email} as admin.`
             );
@@ -30,7 +33,9 @@ export async function up(): Promise<void> {
             console.warn('No users found in the database to set as admin.');
         }
     } else {
-        console.log(`Admin user count: ${String(adminUserCount)}`);
+        console.log(
+            `There's already ${String(adminUserCount)} admin user${adminUserCount === 1 ? '' : 's'} in the database.`
+        );
     }
 }
 

@@ -43,6 +43,7 @@ export async function up(): Promise<void> {
         // Save the updated prototype without modifying timestamps
         await prototype.save({
             timestamps: false,
+            validateBeforeSave: false,
         });
     }
 }

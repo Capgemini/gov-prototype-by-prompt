@@ -7,6 +7,9 @@ export function down(): Promise<void> {
 
 export async function up(): Promise<void> {
     void initializeDatabase();
+    // Update prototypes where show_progress_indicators is not set
+    // Set show_progress_indicators to true unless the prototype has
+    // question of type 'branching_choice' in its json.questions array
     await Prototype.updateMany(
         { 'json.show_progress_indicators': { $exists: false } },
         [

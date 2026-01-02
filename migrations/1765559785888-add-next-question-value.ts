@@ -10,6 +10,7 @@ export async function up(): Promise<void> {
     const prototypes = await Prototype.find({});
     for (const prototype of prototypes) {
         for (let i = 0; i < prototype.json.questions.length; i++) {
+            // Set next_question_value for non-branching_choice questions
             const question = prototype.json.questions[i];
             if (
                 question.answer_type !== 'branching_choice' &&
@@ -21,7 +22,7 @@ export async function up(): Promise<void> {
                     i === prototype.json.questions.length - 1 ? -1 : i + 2;
             }
         }
-        await prototype.save({ timestamps: false });
+        await prototype.save({ timestamps: false, validateBeforeSave: false });
     }
 }
 
