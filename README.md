@@ -85,6 +85,16 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 - `SESSION_SECRET` - the secret used to sign session cookies.
 - `SUGGESTIONS_ENABLED` - either `true` or `false`. Whether to suggest follow-up prompts to the user to modify their prototype.
 
+### Mongoose database migrations
+
+Database migrations are managed using [ts-migrate-mongoose](https://www.npmjs.com/package/ts-migrate-mongoose). Migration scripts are located in the [`migrations/`](migrations/) folder.
+
+Run `npx migrate up` to run all pending migrations.
+
+Migrations that have already been applied are tracked in the `migrations` collection in the MongoDB database.
+
+Migrations cannot be rolled back; please backup your database before running migrations if necessary.
+
 ### Project structure
 
 The project is structured as follows:
@@ -96,6 +106,7 @@ The project is structured as follows:
 - [`docs/`](docs/) – Project documentation and a user help guide.
 - [`evals/`](evals/) – Automated tests for evaluating the LLM's output against expected form structures.
 - [`jest/`](jest/) – Jest configuration and setup files for testing.
+- [`migrations/`](migrations/) – Mongoose database migration scripts.
 - [`public/`](public/) – Static assets not provided by third-parties.
 - [`src/`](src/) – Application source code (Express routes, utilities, business logic, data models).
   - Tests are in a `__tests__` folder within each source folder.
