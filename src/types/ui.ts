@@ -26,7 +26,6 @@ export interface ResultsTemplatePayload {
     prototypeTitle: string;
     sharedWithUsers: IUser[];
     showJsonPrompt: boolean;
-    timestamp: string;
     totalCountPreviousPrototypes: number;
     workspace: IWorkspace;
 }

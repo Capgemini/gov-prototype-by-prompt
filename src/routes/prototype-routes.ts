@@ -301,7 +301,7 @@ export async function renderHistoryPage(
                     html: `<a href="/prototype/${prototype.id}">${prototype.json.title}</a>`,
                 },
                 {
-                    html: moment(prototype.timestamp).format(
+                    html: moment(prototype.createdAt).format(
                         'ddd D MMM YYYY [at&nbsp;]HH:mm:ss'
                     ),
                 },
@@ -863,7 +863,10 @@ export async function renderResultsPage(
     const totalCountPreviousPrototypes = allPreviousPrototypes.length;
     const additionalCountPreviousPrototypes =
         totalCountPreviousPrototypes - previousPrototypes.length;
-    const parseByAndWhen = async (userId: string, timestamp: string) => {
+    const parseByAndWhen = async (
+        userId: string,
+        timestamp: moment.MomentInput
+    ) => {
         const creator =
             userId === user.id
                 ? 'you'
@@ -874,14 +877,14 @@ export async function renderResultsPage(
         previousPrototypes.map(async (prototype) => {
             return [
                 {
-                    html: `<a href="/prototype/${prototype.id}">${prototype.changesMade}</a> by&nbsp;${await parseByAndWhen(prototype.creatorUserId, prototype.timestamp)}.`,
+                    html: `<a href="/prototype/${prototype.id}">${prototype.changesMade}</a> by&nbsp;${await parseByAndWhen(prototype.creatorUserId, prototype.createdAt)}.`,
                 },
             ];
         })
     );
     previousPrototypesRows.unshift([
         {
-            html: `${prototypeData.changesMade} by&nbsp;${await parseByAndWhen(prototypeData.creatorUserId, prototypeData.timestamp)} (this&nbsp;version).`,
+            html: `${prototypeData.changesMade} by&nbsp;${await parseByAndWhen(prototypeData.creatorUserId, prototypeData.createdAt)} (this&nbsp;version).`,
         },
     ]);
 
@@ -960,7 +963,6 @@ export async function renderResultsPage(
         prototypeTitle: prototypeData.json.title,
         sharedWithUsers: sharedWithUsers,
         showJsonPrompt: prototypeData.generatedFrom === 'json',
-        timestamp: prototypeData.timestamp,
         totalCountPreviousPrototypes: totalCountPreviousPrototypes,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         workspace: (await getWorkspaceById(prototypeData.workspaceId))!,
@@ -1045,9 +1047,6 @@ export async function handleUpdatePrototype(
         workspaceId = user.personalWorkspaceId;
     }
 
-    // Store both the JSON and template code
-    const timestamp = new Date().toISOString();
-
     // Create new prototype
     const prototype = await storePrototype({
         changesMade: templateData.changes_made ?? 'Updated prototype',
@@ -1061,7 +1060,6 @@ export async function handleUpdatePrototype(
         previousId: oldPrototypeId,
         prompt: prompt,
         sharedWithUserIds: [...new Set(oldPrototypeData.sharedWithUserIds)],
-        timestamp: timestamp,
         workspaceId: workspaceId,
     });
     res.status(201).json({
@@ -1147,8 +1145,7 @@ export async function handleCreatePrototype(
             workspaceId = user.personalWorkspaceId;
         }
 
-        // Store both the JSON and template code
-        const timestamp = new Date().toISOString();
+        // Store the new prototype
         const prototype = await storePrototype({
             changesMade:
                 promptType === 'text'
@@ -1166,7 +1163,6 @@ export async function handleCreatePrototype(
             sharedWithUserIds: oldPrototypeData
                 ? [...new Set(oldPrototypeData.sharedWithUserIds)]
                 : [],
-            timestamp: timestamp,
             workspaceId: workspaceId,
         });
         res.status(201).json({

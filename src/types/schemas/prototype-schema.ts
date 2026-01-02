@@ -72,6 +72,7 @@ export interface PrototypeQuery {
 interface IPrototypeDataBase {
     _id: ObjectId;
     changesMade: string;
+    createdAt: Date;
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
@@ -82,7 +83,7 @@ interface IPrototypeDataBase {
     livePrototypePublicPassword: string;
     previousId?: string;
     sharedWithUserIds: string[];
-    timestamp: string;
+    updatedAt: Date;
     workspaceId: string;
 }
 
@@ -266,10 +267,6 @@ const prototypeSchema = new Schema<IPrototypeData>(
             type: String,
         },
         sharedWithUserIds: [String],
-        timestamp: {
-            required: true,
-            type: String,
-        },
         workspaceId: {
             required: true,
             type: String,
@@ -280,11 +277,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
     }
 );
 
-prototypeSchema.index({ creatorUserId: 1, timestamp: -1 });
-prototypeSchema.index({ sharedWithUserIds: 1, timestamp: -1 });
-prototypeSchema.index({ timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ creatorUserId: 1, timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ sharedWithUserIds: 1, timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ previousId: 1, timestamp: -1 });
-
+prototypeSchema.index({ createdAt: -1, creatorUserId: 1 });
+prototypeSchema.index({ createdAt: -1, sharedWithUserIds: 1 });
+prototypeSchema.index({ createdAt: -1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, creatorUserId: 1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, sharedWithUserIds: 1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, previousId: 1 });
 export const Prototype = model<IPrototypeData>('Prototype', prototypeSchema);

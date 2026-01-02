@@ -40,6 +40,7 @@ const user2 = {
 const prototypeData1: IPrototypeData = {
     _id: prototypeId1 as unknown as mongoose.Schema.Types.ObjectId,
     changesMade: 'Updated JSON',
+    createdAt: new Date(),
     creatorUserId: user1.id,
     designSystem: 'GOV.UK',
     firstPrompt: 'Describe your form',
@@ -76,7 +77,7 @@ const prototypeData1: IPrototypeData = {
     previousId: undefined,
     prompt: 'Create a form to ask for a name',
     sharedWithUserIds: [],
-    timestamp: new Date().toISOString(),
+    updatedAt: new Date(),
     workspaceId: user1PersonalWorkspaceId.toString(),
 };
 const prototypeData2: IPrototypeData = {

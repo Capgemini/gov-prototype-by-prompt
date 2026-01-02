@@ -114,7 +114,7 @@ export class PrototypeModel {
         try {
             const query = await this.buildUserAccessQuery(userId, onlyCreated);
             const prototypes = await Prototype.find(query).sort({
-                timestamp: -1,
+                createdAt: -1,
             });
             return prototypes;
         } catch (error) {
@@ -151,7 +151,7 @@ export class PrototypeModel {
                 query.previousId = { $exists: false };
             }
 
-            return await Prototype.find(query).sort({ timestamp: -1 });
+            return await Prototype.find(query).sort({ createdAt: -1 });
         } catch (error) {
             console.error('Error getting prototypes by workspace ID:', error);
             throw error;
@@ -211,7 +211,7 @@ export class PrototypeModel {
 
             const previousPrototypes = await Prototype.find({
                 _id: { $in: previousIds },
-            }).sort({ timestamp: -1 });
+            }).sort({ createdAt: -1 });
 
             return previousPrototypes;
         } catch (error) {
