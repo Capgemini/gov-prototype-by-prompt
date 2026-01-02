@@ -28,7 +28,7 @@ export type ITemplateField =
     | ITemplateFieldBranchingChoice
     | ITemplateFieldNonBranching;
 
-export interface ITemplateFieldBase {
+interface ITemplateFieldBase {
     answer_type: string;
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
@@ -42,13 +42,13 @@ export interface ITemplateFieldBase {
 }
 
 // For "branching_choice", next_question_value is always undefined
-export interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
+interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
     answer_type: 'branching_choice';
     next_question_value: undefined;
 }
 
 // For all other answer_types, next_question_value is required
-export interface ITemplateFieldNonBranching extends ITemplateFieldBase {
+interface ITemplateFieldNonBranching extends ITemplateFieldBase {
     answer_type: Exclude<string, 'branching_choice'>;
     next_question_value: number;
 }
@@ -59,7 +59,17 @@ export type PrototypeDesignSystemsType =
 export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
     'GOV.UK';
 
-export interface IPrototypeData {
+export type IPrototypeData = IPrototypeDataJson | IPrototypeDataText;
+
+export interface PrototypeQuery {
+    $or: {
+        sharedWithUserIds?: { $in: string[] };
+        workspaceId?: { $in: Schema.Types.ObjectId[] };
+    }[];
+    previousId?: { $exists: false };
+}
+
+interface IPrototypeDataBase {
     _id: ObjectId;
     changesMade: string;
     creatorUserId: string;
@@ -71,18 +81,19 @@ export interface IPrototypeData {
     livePrototypePublic: boolean;
     livePrototypePublicPassword: string;
     previousId?: string;
-    prompt?: string;
     sharedWithUserIds: string[];
     timestamp: string;
     workspaceId: string;
 }
 
-export interface PrototypeQuery {
-    $or: {
-        sharedWithUserIds?: { $in: string[] };
-        workspaceId?: { $in: Schema.Types.ObjectId[] };
-    }[];
-    previousId?: { $exists: false };
+interface IPrototypeDataJson extends IPrototypeDataBase {
+    generatedFrom: 'json';
+    prompt: undefined;
+}
+
+interface IPrototypeDataText extends IPrototypeDataBase {
+    generatedFrom: 'text';
+    prompt: string;
 }
 
 const branchingOptionsSchema = new Schema<IBranchingOptions>(
@@ -248,7 +259,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
         },
         previousId: String,
         prompt: {
-            default: undefined,
+            // Only required if generatedFrom is 'text'
+            required: function (this: IPrototypeData) {
+                return this.generatedFrom === 'text';
+            },
             type: String,
         },
         sharedWithUserIds: [String],
