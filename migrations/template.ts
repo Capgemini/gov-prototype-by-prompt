@@ -6,16 +6,6 @@ export function down(): Promise<void> {
 }
 
 export async function up(): Promise<void> {
-    void initializeDatabase();
+    await connectToDatabase();
     // Write migration here
-}
-
-async function initializeDatabase() {
-    try {
-        await connectToDatabase();
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
-    }
 }

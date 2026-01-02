@@ -6,7 +6,7 @@ export function down(): void {
 }
 
 export async function up(): Promise<void> {
-    void initializeDatabase();
+    await connectToDatabase();
     const prototypes = await Prototype.find({});
     for (const prototype of prototypes) {
         for (let i = 0; i < prototype.json.questions.length; i++) {
@@ -23,15 +23,5 @@ export async function up(): Promise<void> {
             }
         }
         await prototype.save({ timestamps: false, validateBeforeSave: false });
-    }
-}
-
-async function initializeDatabase() {
-    try {
-        await connectToDatabase();
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
     }
 }

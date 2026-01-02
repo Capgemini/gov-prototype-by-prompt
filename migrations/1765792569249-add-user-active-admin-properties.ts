@@ -6,7 +6,7 @@ export function down(): Promise<void> {
 }
 
 export async function up(): Promise<void> {
-    void initializeDatabase();
+    await connectToDatabase();
     const users = await User.find({});
     for (const user of users) {
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -36,15 +36,5 @@ export async function up(): Promise<void> {
         console.log(
             `There's already ${String(adminUserCount)} admin user${adminUserCount === 1 ? '' : 's'} in the database.`
         );
-    }
-}
-
-async function initializeDatabase() {
-    try {
-        await connectToDatabase();
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
     }
 }

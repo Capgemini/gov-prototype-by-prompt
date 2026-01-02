@@ -6,7 +6,7 @@ export function down(): Promise<void> {
 }
 
 export async function up(): Promise<void> {
-    void initializeDatabase();
+    await connectToDatabase();
     const prototypes = await Prototype.find({});
     const placeholderPrompt = 'Prompt not found.';
     for (const prototype of prototypes) {
@@ -45,15 +45,5 @@ export async function up(): Promise<void> {
             timestamps: false,
             validateBeforeSave: false,
         });
-    }
-}
-
-async function initializeDatabase() {
-    try {
-        await connectToDatabase();
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
     }
 }

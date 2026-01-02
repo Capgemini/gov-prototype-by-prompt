@@ -6,7 +6,7 @@ export function down(): Promise<void> {
 }
 
 export async function up(): Promise<void> {
-    void initializeDatabase();
+    await connectToDatabase();
     // Update prototypes where show_progress_indicators is not set
     // Set show_progress_indicators to true unless the prototype has
     // question of type 'branching_choice' in its json.questions array
@@ -34,14 +34,4 @@ export async function up(): Promise<void> {
         ],
         { timestamps: false, updatePipeline: true }
     );
-}
-
-async function initializeDatabase() {
-    try {
-        await connectToDatabase();
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Failed to initialize database:', error);
-        process.exit(1);
-    }
 }
