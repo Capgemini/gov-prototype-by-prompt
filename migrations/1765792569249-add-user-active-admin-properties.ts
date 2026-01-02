@@ -7,14 +7,23 @@ export function down(): Promise<void> {
 
 export async function up(): Promise<void> {
     await connectToDatabase();
-    const users = await User.find({});
-    for (const user of users) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        user.isActive ??= true;
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        user.isAdmin ??= false;
-        await user.save({ timestamps: false, validateBeforeSave: false });
-    }
+    await User.updateMany(
+        {
+            $or: [
+                { isActive: { $exists: false } },
+                { isAdmin: { $exists: false } },
+            ],
+        },
+        [
+            {
+                $set: {
+                    isActive: { $ifNull: ['$isActive', true] },
+                    isAdmin: { $ifNull: ['$isAdmin', false] },
+                },
+            },
+        ],
+        { timestamps: false, updatePipeline: true }
+    );
 
     // Make sure there is at least one admin user
     const adminUserCount = await User.countDocuments({ isAdmin: true });
