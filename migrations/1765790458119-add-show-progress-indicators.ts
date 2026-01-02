@@ -1,5 +1,5 @@
 import { connectToDatabase } from '../src/database';
-import { Prototype, TemplateField } from '../src/types/schemas/index';
+import { Prototype } from '../src/types/schemas/index';
 
 export function down(): Promise<void> {
     throw new Error('Not implemented');
@@ -7,16 +7,30 @@ export function down(): Promise<void> {
 
 export async function up(): Promise<void> {
     void initializeDatabase();
-    const prototypes = await Prototype.find({});
-    for (const prototype of prototypes) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (prototype.json.show_progress_indicators !== undefined) continue;
-        prototype.json.show_progress_indicators =
-            !prototype.json.questions.some(
-                (q: TemplateField) => q.answer_type === 'branching_choice'
-            );
-        await prototype.save({ timestamps: false });
-    }
+    await Prototype.updateMany(
+        { 'json.show_progress_indicators': { $exists: false } },
+        [
+            {
+                $set: {
+                    'json.show_progress_indicators': {
+                        $not: {
+                            $in: [
+                                'branching_choice',
+                                {
+                                    $map: {
+                                        as: 'q',
+                                        in: '$$q.answer_type',
+                                        input: '$json.questions',
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                },
+            },
+        ],
+        { timestamps: false, updatePipeline: true }
+    );
 }
 
 async function initializeDatabase() {
