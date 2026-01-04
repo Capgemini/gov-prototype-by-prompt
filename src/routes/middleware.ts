@@ -93,7 +93,7 @@ export const verifyLivePrototype = async (
         const activeSpan = opentelemetry.trace.getActiveSpan();
         if (activeSpan && logUserIdInAzureAppInsights)
             activeSpan.setAttribute('user.id', user.id);
-        if (user.isActive !== false) {
+        if (user.isActive) {
             req.user = user;
             res.locals.currentUser = user;
         }
@@ -115,14 +115,14 @@ export const verifyLivePrototype = async (
             status = 401;
             message = 'You are not signed in';
             render = 'not-signed-in.njk';
-        } else if (user.isActive === false) {
-            status = 403;
-            message = 'Your account has been deactivated';
-            render = 'account-deactivated.njk';
-        } else {
+        } else if (user.isActive) {
             status = 404;
             message = 'Prototype not found';
             render = 'prototype-not-found.njk';
+        } else {
+            status = 403;
+            message = 'Your account has been deactivated';
+            render = 'account-deactivated.njk';
         }
 
         // Send the response
@@ -169,7 +169,7 @@ export const verifyLivePrototype = async (
         status = 401;
         message = 'You are not signed in';
         render = 'not-signed-in.njk';
-    } else if (user.isActive === false) {
+    } else if (!user.isActive) {
         status = 403;
         message = 'Your account has been deactivated';
         render = 'account-deactivated.njk';
@@ -244,8 +244,13 @@ export const verifyUser = async (
         if (activeSpan && logUserIdInAzureAppInsights)
             activeSpan.setAttribute('user.id', user.id);
 
-        // Stop if the user is deactivated
-        if (user.isActive === false) {
+        // Only continue if the user is active
+        if (user.isActive) {
+            req.user = user;
+            res.locals.currentUser = user;
+            next();
+            return;
+        } else {
             if (secFetchDest === 'empty') {
                 res.status(403).json({
                     message: 'Your account has been deactivated',
@@ -255,11 +260,6 @@ export const verifyUser = async (
             res.status(403).render('account-deactivated.njk', {
                 insideIframe: secFetchDest === 'iframe',
             });
-            return;
-        } else {
-            req.user = user;
-            res.locals.currentUser = user;
-            next();
             return;
         }
     } else {
@@ -302,7 +302,7 @@ export const verifyAdminUser = async (
             activeSpan.setAttribute('user.id', user.id);
 
         // Stop if the user is deactivated
-        if (user.isActive === false) {
+        if (!user.isActive) {
             if (secFetchDest === 'empty') {
                 res.status(403).json({
                     message: 'Your account has been deactivated',
@@ -313,7 +313,7 @@ export const verifyAdminUser = async (
                 insideIframe: secFetchDest === 'iframe',
             });
             return;
-        } else if (user.isAdmin === true) {
+        } else if (user.isAdmin) {
             req.user = user;
             res.locals.currentUser = user;
             next();

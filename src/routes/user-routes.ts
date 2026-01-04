@@ -166,7 +166,7 @@ export function renderManageAccountPage(req: Request, res: Response) {
     const user = (req as unknown as Request & { user: IUser }).user;
 
     // Redirect to admin user management page if user is an admin
-    if (user.isAdmin === true) {
+    if (user.isAdmin) {
         res.redirect(`/admin/user/${user.id}`);
         return;
     }

@@ -206,14 +206,14 @@ describe('renderUsersPage', () => {
         async (isActive, isAdmin, countUsers) => {
             getAllUsersMock.mockResolvedValueOnce([
                 { ...user1, isActive: true, isAdmin: true },
+                { ...user1, isActive: true, isAdmin: true },
                 { ...user2, isActive: true, isAdmin: false },
-                { ...user1, isActive: true, isAdmin: undefined },
+                { ...user2, isActive: true, isAdmin: false },
+                { ...user1, isActive: true, isAdmin: false },
+                { ...user1, isActive: true, isAdmin: false },
                 { ...user2, isActive: false, isAdmin: true },
                 { ...user1, isActive: false, isAdmin: false },
-                { ...user2, isActive: false, isAdmin: undefined },
-                { ...user1, isActive: undefined, isAdmin: true },
-                { ...user2, isActive: undefined, isAdmin: false },
-                { ...user1, isActive: undefined, isAdmin: undefined },
+                { ...user2, isActive: false, isAdmin: false },
             ]);
             const request = httpMocks.createRequest({
                 method: 'GET',
@@ -442,8 +442,6 @@ describe('handleUpdateUser', () => {
         });
         expect(updateUserMock).toHaveBeenCalledWith(user1.id, {
             name: 'New Name',
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            updatedAt: expect.any(String),
         });
     });
 
@@ -473,8 +471,6 @@ describe('handleUpdateUser', () => {
             isActive: true,
             isAdmin: true,
             name: 'New Name',
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            updatedAt: expect.any(String),
         });
     });
 
@@ -508,8 +504,6 @@ describe('handleUpdateUser', () => {
             expect(updateUserMock).toHaveBeenCalledWith(user1.id, {
                 isActive: isActive,
                 isAdmin: isAdmin,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                updatedAt: expect.any(String),
             });
         }
     );
@@ -534,8 +528,6 @@ describe('handleUpdateUser', () => {
         expect(updateUserMock).toHaveBeenCalledWith(user1.id, {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             passwordHash: expect.any(String),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            updatedAt: expect.any(String),
         });
     });
 
@@ -588,7 +580,7 @@ describe('handleUpdateUser', () => {
                 },
                 method: 'POST',
                 params: { id: user1.id },
-                user: { isAdmin: true, ...user1 },
+                user: { ...user1, isAdmin: true },
             });
             const response = httpMocks.createResponse();
             await handleUpdateUser(request, response);

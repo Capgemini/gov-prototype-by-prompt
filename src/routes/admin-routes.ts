@@ -69,14 +69,14 @@ export async function renderUsersPage(
     // Get and filter the users
     let users = await getAllUsers();
     if (isAdmin === 'true') {
-        users = users.filter((u) => u.isAdmin === true);
+        users = users.filter((u) => u.isAdmin);
     } else if (isAdmin === 'false') {
-        users = users.filter((u) => u.isAdmin !== true);
+        users = users.filter((u) => !u.isAdmin);
     }
     if (isActive === 'true') {
-        users = users.filter((u) => u.isActive !== false);
+        users = users.filter((u) => u.isActive);
     } else if (isActive === 'false') {
-        users = users.filter((u) => u.isActive === false);
+        users = users.filter((u) => !u.isActive);
     }
 
     // Validate the pagination parameters against the total
@@ -251,7 +251,7 @@ export async function handleUpdateUser(
 
     // Get the user to update and check permissions
     const user = await getUserById(req.params.id);
-    if (!user || (selfUser.id !== user.id && selfUser.isAdmin !== true)) {
+    if (!user || (selfUser.id !== user.id && !selfUser.isAdmin)) {
         res.status(404).json({
             message: 'User not found',
         });
@@ -263,13 +263,14 @@ export async function handleUpdateUser(
     const { name, password1, password2 } = req.body;
 
     // Convert isActive and isAdmin to boolean values
+    // Fall back on true for isActive and false for isAdmin
     if (typeof isActive === 'string') {
         isActive = isActive !== 'false';
     }
     if (typeof isAdmin === 'string') {
         isAdmin = isAdmin === 'true';
     }
-    if (selfUser.isAdmin !== true) {
+    if (!selfUser.isAdmin) {
         isActive = undefined;
         isAdmin = undefined;
     }
@@ -304,8 +305,8 @@ export async function handleUpdateUser(
     // WARNING: possible race condition if the last users are updated simultaneously
     if (
         (isActive === false || isAdmin === false) &&
-        user.isActive !== false &&
-        user.isAdmin === true &&
+        user.isActive &&
+        user.isAdmin &&
         (await countActiveAdminUsers()) <= 1
     ) {
         errors.push(
@@ -338,14 +339,12 @@ export async function handleUpdateUser(
         const hashedPassword = await bcrypt.hash(password1, 10);
         updates.passwordHash = hashedPassword;
     }
-    if (isActive !== undefined && selfUser.isAdmin === true) {
+    if (isActive !== undefined && selfUser.isAdmin) {
         updates.isActive = isActive;
     }
-    if (isAdmin !== undefined && selfUser.isAdmin === true) {
+    if (isAdmin !== undefined && selfUser.isAdmin) {
         updates.isAdmin = isAdmin;
     }
-    const timestamp = new Date().toISOString();
-    updates.updatedAt = timestamp;
     const newUser = await updateUser(user.id, updates);
 
     // Calculate if a redirect is needed
