@@ -7,9 +7,15 @@ export function down(): Promise<void> {
 
 export async function up(): Promise<void> {
     await connectToDatabase();
-    const prototypes = await Prototype.find({});
     const placeholderPrompt = 'Prompt not found.';
-    for (const prototype of prototypes) {
+
+    // Iterate through all prototypes using a cursor to avoid memory issues
+    const cursor = Prototype.find({}).cursor();
+    for (
+        let prototype = await cursor.next();
+        prototype != null;
+        prototype = await cursor.next()
+    ) {
         // If the prototype was generated from text and doesn't have a prompt yet
         if (
             prototype.generatedFrom === 'text' &&

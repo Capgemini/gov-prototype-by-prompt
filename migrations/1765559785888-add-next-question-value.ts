@@ -7,8 +7,14 @@ export function down(): void {
 
 export async function up(): Promise<void> {
     await connectToDatabase();
-    const prototypes = await Prototype.find({});
-    for (const prototype of prototypes) {
+
+    // Iterate through all prototypes using a cursor to avoid memory issues
+    const cursor = Prototype.find({}).cursor();
+    for (
+        let prototype = await cursor.next();
+        prototype != null;
+        prototype = await cursor.next()
+    ) {
         for (let i = 0; i < prototype.json.questions.length; i++) {
             // Set next_question_value for non-branching_choice questions
             const question = prototype.json.questions[i];
