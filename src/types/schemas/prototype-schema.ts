@@ -29,7 +29,6 @@ export type ITemplateField =
     | ITemplateFieldNonBranching;
 
 interface ITemplateFieldBase {
-    answer_type: string;
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     detailed_explanation?: ITemplateDetailedExplanation;
