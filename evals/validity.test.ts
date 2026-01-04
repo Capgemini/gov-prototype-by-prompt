@@ -13,7 +13,7 @@ describe('Form validity', () => {
                 question_index,
                 question,
             ] of actual.questions.entries()) {
-                if (question.next_question_value !== undefined) {
+                if (question.answer_type !== 'branching_choice') {
                     const validNextQuestionValues = new Set<number>([
                         -1,
                         ...Array.from(
@@ -26,6 +26,7 @@ describe('Form validity', () => {
                             (_, i) => question_index + 2 + i
                         ),
                     ]);
+                    expect(question.next_question_value).toBeDefined();
                     expect(validNextQuestionValues).toContain(
                         question.next_question_value
                     );
