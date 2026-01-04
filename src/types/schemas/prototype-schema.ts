@@ -61,14 +61,6 @@ export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
 
 export type IPrototypeData = IPrototypeDataJson | IPrototypeDataText;
 
-export interface PrototypeQuery {
-    $or: {
-        sharedWithUserIds?: { $in: string[] };
-        workspaceId?: { $in: Schema.Types.ObjectId[] };
-    }[];
-    previousId?: { $exists: false };
-}
-
 interface IPrototypeDataBase {
     _id: ObjectId;
     changesMade: string;
