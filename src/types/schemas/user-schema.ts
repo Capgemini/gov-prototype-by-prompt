@@ -2,15 +2,15 @@ import { model, ObjectId, Schema } from 'mongoose';
 
 export interface IUser {
     _id: ObjectId;
-    createdAt: string;
+    createdAt: Date;
     email: string;
     id: string;
-    isActive?: boolean;
-    isAdmin?: boolean;
+    isActive: boolean;
+    isAdmin: boolean;
     name: string;
     passwordHash: string;
     personalWorkspaceId: string;
-    updatedAt: string;
+    updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -23,13 +23,11 @@ const userSchema = new Schema<IUser>(
             unique: true,
         },
         isActive: {
-            default: true,
-            required: false,
+            required: true,
             type: Boolean,
         },
         isAdmin: {
-            default: false,
-            required: false,
+            required: true,
             type: Boolean,
         },
         name: {

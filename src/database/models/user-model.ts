@@ -8,15 +8,7 @@ export class UserModel {
     static async countActiveAdminUsers(): Promise<number> {
         try {
             return await User.countDocuments({
-                $and: [
-                    { isAdmin: true },
-                    {
-                        $or: [
-                            { isActive: true },
-                            { isActive: { $exists: false } },
-                        ],
-                    },
-                ],
+                $and: [{ isAdmin: true }, { isActive: true }],
             });
         } catch (error) {
             console.error('Error counting active admin users:', error);

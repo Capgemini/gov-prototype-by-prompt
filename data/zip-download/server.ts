@@ -152,18 +152,13 @@ app.post(
                     )}`
                 );
             }
-        } else if (
-            sendToCheckAnswers ||
-            question.next_question_value === -1 ||
-            (question.next_question_value === undefined &&
-                questionNumber === questions.length)
-        ) {
+        } else if (sendToCheckAnswers || question.next_question_value === -1) {
             // Send to check answers if they came from there, or if this is the last question
             res.redirect(`/your-prototype/check-answers`);
         } else {
             // Send to the next question in sequence
             res.redirect(
-                `/your-prototype/question-${String(question.next_question_value ?? questionNumber + 1)}`
+                `/your-prototype/question-${String(question.next_question_value)}`
             );
         }
     }

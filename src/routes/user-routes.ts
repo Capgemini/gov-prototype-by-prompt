@@ -121,15 +121,12 @@ export async function registerUser(
 
     // Create a new user first (without personalWorkspaceId)
     // WARNING: possible race condition if two registrations happen simultaneously
-    const timestamp = new Date().toISOString();
     const newUser = {
-        createdAt: timestamp,
         email: req.body.email,
         isActive: true,
         isAdmin: (await countActiveAdminUsers()) < 1,
         name: req.body.name,
         passwordHash: hashedPassword,
-        updatedAt: timestamp,
     };
 
     const user = await storeUser(newUser);

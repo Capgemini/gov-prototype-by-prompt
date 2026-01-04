@@ -13,7 +13,7 @@ export interface ITemplateData {
     explanation?: string;
     form_type: string;
     questions: ITemplateField[];
-    show_progress_indicators?: boolean;
+    show_progress_indicators: boolean;
     suggestions?: string[];
     title: string;
     what_happens_next: string;
@@ -24,18 +24,32 @@ export interface ITemplateDetailedExplanation {
     question_title: string;
 }
 
-export interface ITemplateField {
-    answer_type: string;
+export type ITemplateField =
+    | ITemplateFieldBranchingChoice
+    | ITemplateFieldNonBranching;
+
+interface ITemplateFieldBase {
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
     detailed_explanation?: ITemplateDetailedExplanation;
     hint_text?: string;
-    next_question_value?: number;
     options?: string[];
     options_branching?: IBranchingOptions[];
     question_text: string;
     required: boolean;
     required_error_text?: string;
+}
+
+// For "branching_choice", next_question_value is always undefined
+interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
+    answer_type: 'branching_choice';
+    next_question_value: undefined;
+}
+
+// For all other answer_types, next_question_value is required
+interface ITemplateFieldNonBranching extends ITemplateFieldBase {
+    answer_type: Exclude<string, 'branching_choice'>;
+    next_question_value: number;
 }
 
 export const PrototypeDesignSystems = ['GOV.UK', 'HMRC'] as const;
@@ -44,30 +58,33 @@ export type PrototypeDesignSystemsType =
 export const DefaultPrototypeDesignSystem: PrototypeDesignSystemsType =
     'GOV.UK';
 
-export interface IPrototypeData {
+export type IPrototypeData = IPrototypeDataJson | IPrototypeDataText;
+
+interface IPrototypeDataBase {
     _id: ObjectId;
     changesMade: string;
+    createdAt: Date;
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
-    generatedFrom: 'json' | 'text';
     id: string;
     json: ITemplateData;
     livePrototypePublic: boolean;
     livePrototypePublicPassword: string;
     previousId?: string;
-    prompt?: string;
     sharedWithUserIds: string[];
-    timestamp: string;
+    updatedAt: Date;
     workspaceId: string;
 }
 
-export interface PrototypeQuery {
-    $or: {
-        sharedWithUserIds?: { $in: string[] };
-        workspaceId?: { $in: Schema.Types.ObjectId[] };
-    }[];
-    previousId?: { $exists: false };
+interface IPrototypeDataJson extends IPrototypeDataBase {
+    generatedFrom: 'json';
+    prompt: undefined;
+}
+
+interface IPrototypeDataText extends IPrototypeDataBase {
+    generatedFrom: 'text';
+    prompt: string;
 }
 
 const branchingOptionsSchema = new Schema<IBranchingOptions>(
@@ -111,7 +128,17 @@ const templateFieldSchema = new Schema<ITemplateField>(
             type: templateDetailedExplanationSchema,
         },
         hint_text: String,
-        next_question_value: Number,
+        // next_question_value is only present if answer_type !== 'branching_choice'
+        next_question_value: {
+            required: function (this: ITemplateField) {
+                return this.answer_type !== 'branching_choice';
+            },
+            // Only include the field if answer_type !== 'branching_choice'
+            select: function (this: ITemplateField) {
+                return this.answer_type !== 'branching_choice';
+            },
+            type: Number,
+        },
         options: {
             default: undefined,
             required: false,
@@ -162,7 +189,7 @@ const templateDataSchema = new Schema<ITemplateData>(
         },
         questions: [templateFieldSchema],
         show_progress_indicators: {
-            default: true,
+            required: true,
             type: Boolean,
         },
         suggestions: {
@@ -223,14 +250,13 @@ const prototypeSchema = new Schema<IPrototypeData>(
         },
         previousId: String,
         prompt: {
-            default: undefined,
+            // Only required if generatedFrom is 'text'
+            required: function (this: IPrototypeData) {
+                return this.generatedFrom === 'text';
+            },
             type: String,
         },
         sharedWithUserIds: [String],
-        timestamp: {
-            required: true,
-            type: String,
-        },
         workspaceId: {
             required: true,
             type: String,
@@ -241,11 +267,10 @@ const prototypeSchema = new Schema<IPrototypeData>(
     }
 );
 
-prototypeSchema.index({ creatorUserId: 1, timestamp: -1 });
-prototypeSchema.index({ sharedWithUserIds: 1, timestamp: -1 });
-prototypeSchema.index({ timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ creatorUserId: 1, timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ sharedWithUserIds: 1, timestamp: -1, workspaceId: 1 });
-prototypeSchema.index({ previousId: 1, timestamp: -1 });
-
+prototypeSchema.index({ createdAt: -1, creatorUserId: 1 });
+prototypeSchema.index({ createdAt: -1, sharedWithUserIds: 1 });
+prototypeSchema.index({ createdAt: -1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, creatorUserId: 1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, sharedWithUserIds: 1, workspaceId: 1 });
+prototypeSchema.index({ createdAt: -1, previousId: 1 });
 export const Prototype = model<IPrototypeData>('Prototype', prototypeSchema);

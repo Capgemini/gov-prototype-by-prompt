@@ -103,7 +103,7 @@ export async function getPrototypeById(
  * This function retrieves the prototypes that a user can access, sorted by their creation timestamp in descending order.
  * @param {string} userId The ID of the user who can access the prototypes.
  * @param {boolean} onlyCreated If true, excludes prototypes that have a previous prototype ID.
- * @returns {IPrototypeData[]} An array of prototypes owned by the user, sorted by timestamp in descending order.
+ * @returns {IPrototypeData[]} An array of prototypes owned by the user, sorted by createdAt in descending order.
  */
 export async function getPrototypesByUserId(
     userId: string,
