@@ -6,6 +6,7 @@ import moment from 'moment';
 import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from '../constants';
 import {
     canUserAccessWorkspace,
+    countActiveAdminUsers,
     countPrototypesByUserIdAndWorkspaceId,
     countWorkspacesByUserId,
     getAllUsers,
@@ -119,13 +120,13 @@ export async function registerUser(
     const hashedPassword = await bcrypt.hash(req.body.password1, 10);
 
     // Create a new user first (without personalWorkspaceId)
-    const timestamp = new Date().toISOString();
+    // WARNING: possible race condition if two registrations happen simultaneously
     const newUser = {
-        createdAt: timestamp,
         email: req.body.email,
+        isActive: true,
+        isAdmin: (await countActiveAdminUsers()) < 1,
         name: req.body.name,
         passwordHash: hashedPassword,
-        updatedAt: timestamp,
     };
 
     const user = await storeUser(newUser);
@@ -228,8 +229,6 @@ export async function handleUpdateUser(
         const hashedPassword = await bcrypt.hash(password1, 10);
         updates.passwordHash = hashedPassword;
     }
-    const timestamp = new Date().toISOString();
-    updates.updatedAt = timestamp;
 
     await updateUser(userId, updates);
 

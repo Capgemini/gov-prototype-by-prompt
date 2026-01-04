@@ -30,6 +30,14 @@ export async function canUserAccessWorkspace(
     return await WorkspaceModel.canUserAccess(userId, workspaceId);
 }
 
+export async function countActiveAdminUsers(): Promise<number> {
+    return await UserModel.countActiveAdminUsers();
+}
+
+export async function countAllUsers(): Promise<number> {
+    return await UserModel.countAll();
+}
+
 /**
  * Counts the number of prototypes that a specific user can access.
  * @param {string} userId The ID of the user who can access the prototypes.
@@ -95,7 +103,7 @@ export async function getPrototypeById(
  * This function retrieves the prototypes that a user can access, sorted by their creation timestamp in descending order.
  * @param {string} userId The ID of the user who can access the prototypes.
  * @param {boolean} onlyCreated If true, excludes prototypes that have a previous prototype ID.
- * @returns {IPrototypeData[]} An array of prototypes owned by the user, sorted by timestamp in descending order.
+ * @returns {IPrototypeData[]} An array of prototypes owned by the user, sorted by createdAt in descending order.
  */
 export async function getPrototypesByUserId(
     userId: string,

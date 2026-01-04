@@ -2,11 +2,11 @@ import { model, ObjectId, Schema } from 'mongoose';
 
 export interface IWorkspace {
     _id: ObjectId;
-    createdAt: string;
+    createdAt: Date;
     id: string;
     isPersonalWorkspace: boolean;
     name: string;
-    updatedAt: string;
+    updatedAt: Date;
     userIds: string[];
 }
 

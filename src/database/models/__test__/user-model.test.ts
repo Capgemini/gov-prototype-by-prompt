@@ -46,6 +46,48 @@ describe('UserModel', () => {
         });
     });
 
+    describe('countActiveAdminUsers', () => {
+        it.each([
+            [{ isActive: true, isAdmin: true }, 1],
+            [{ isActive: true, isAdmin: false }, 0],
+            [{ isActive: false, isAdmin: true }, 0],
+            [{ isActive: false, isAdmin: false }, 0],
+        ])(
+            'when counting users with status %o should return %i',
+            async (userStatus, expectedCount) => {
+                await new User({
+                    ...mockUser,
+                    ...userStatus,
+                }).save();
+                expect(await UserModel.countActiveAdminUsers()).toBe(
+                    expectedCount
+                );
+            }
+        );
+
+        it('should throw when error occurs in countActiveAdminUsers', async () => {
+            await disconnectFromDatabase();
+            await expect(UserModel.countActiveAdminUsers()).rejects.toThrow(
+                'Client must be connected before running operations'
+            );
+        });
+    });
+
+    describe('countAll', () => {
+        it('should return 1 when counting users', async () => {
+            const newUser = new User(mockUser);
+            await newUser.save();
+            expect(await UserModel.countAll()).toBe(1);
+        });
+
+        it('should throw when error occurs in countAll', async () => {
+            await disconnectFromDatabase();
+            await expect(UserModel.countAll()).rejects.toThrow(
+                'Client must be connected before running operations'
+            );
+        });
+    });
+
     describe('deleteById', () => {
         it('should return false when you delete with a missing id', async () => {
             expect(
@@ -57,9 +99,7 @@ describe('UserModel', () => {
             const newUser = new User(mockUser);
             await newUser.save();
 
-            expect(await UserModel.deleteById(newUser.id)).toEqual(
-                true
-            );
+            expect(await UserModel.deleteById(newUser.id)).toEqual(true);
         });
 
         it('should throw when trying to delete an invalid id', async () => {

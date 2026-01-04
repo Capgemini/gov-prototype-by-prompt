@@ -17,6 +17,7 @@ import { IUser, IWorkspace } from '../../types';
 let bcryptCompareMock: jest.Mock;
 let getEnvironmentVariablesMock: jest.Mock;
 let canUserAccessWorkspaceMock: jest.Mock;
+let countActiveAdminUsersMock: jest.Mock;
 let countPrototypesByUserIdAndWorkspaceIdMock: jest.Mock;
 let countWorkspacesByUserIdMock: jest.Mock;
 let getAllUsersMock: jest.Mock;
@@ -35,6 +36,7 @@ beforeEach(() => {
         .fn()
         .mockReturnValue({ SUGGESTIONS_ENABLED: true });
     canUserAccessWorkspaceMock = jest.fn().mockResolvedValue(true);
+    countActiveAdminUsersMock = jest.fn().mockResolvedValue(5);
     countPrototypesByUserIdAndWorkspaceIdMock = jest
         .fn()
         .mockImplementation((userId: string, wsId: string) => {
@@ -110,6 +112,7 @@ beforeEach(() => {
     }));
     jest.doMock('../../database/mongoose-store', () => ({
         canUserAccessWorkspace: canUserAccessWorkspaceMock,
+        countActiveAdminUsers: countActiveAdminUsersMock,
         countPrototypesByUserIdAndWorkspaceId:
             countPrototypesByUserIdAndWorkspaceIdMock,
         countWorkspacesByUserId: countWorkspacesByUserIdMock,
@@ -449,25 +452,42 @@ describe('registerUser', () => {
         expect(storeWorkspaceMock).not.toHaveBeenCalled();
     });
 
-    it('should register user successfully', async () => {
-        const request = httpMocks.createRequest({
-            body: {
-                email: 'newuser@example.com',
-                name: 'Test',
-                password1: 'Password123!',
-                password2: 'Password123!',
-            },
-            method: 'POST',
-        });
-        const response = httpMocks.createResponse();
-        await registerUser(request, response);
-        expect(response.statusCode).toBe(201);
-        expect(JSON.stringify(response._getJSONData())).toContain(
-            'User registered successfully'
-        );
-        expect(storeUserMock).toHaveBeenCalled();
-        expect(storeWorkspaceMock).toHaveBeenCalled();
-    });
+    it.each([
+        [true, 0],
+        [false, 1],
+        [false, 5],
+    ])(
+        'should register regular user successfully (isAdmin=%s)',
+        async (isAdmin, countActiveAdminUsers) => {
+            countActiveAdminUsersMock.mockResolvedValueOnce(
+                countActiveAdminUsers
+            );
+            const request = httpMocks.createRequest({
+                body: {
+                    email: 'newuser@example.com',
+                    name: 'Test',
+                    password1: 'Password123!',
+                    password2: 'Password123!',
+                },
+                method: 'POST',
+            });
+            const response = httpMocks.createResponse();
+            await registerUser(request, response);
+            expect(response.statusCode).toBe(201);
+            expect(JSON.stringify(response._getJSONData())).toContain(
+                'User registered successfully'
+            );
+            expect(storeUserMock).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    email: 'newuser@example.com',
+                    isActive: true,
+                    isAdmin: isAdmin,
+                    name: 'Test',
+                })
+            );
+            expect(storeWorkspaceMock).toHaveBeenCalled();
+        }
+    );
 
     it('should reject common passwords', async () => {
         const request = httpMocks.createRequest({

@@ -1,5 +1,6 @@
 # Custom Dictionary Words
 __MONGOINSTANCE
+autosync
 bday
 deepcode
 endcall
