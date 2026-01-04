@@ -67,7 +67,6 @@ interface IPrototypeDataBase {
     creatorUserId: string;
     designSystem: PrototypeDesignSystemsType;
     firstPrompt: string;
-    generatedFrom: 'json' | 'text';
     id: string;
     json: ITemplateData;
     livePrototypePublic: boolean;
