@@ -1,0 +1,341 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  Manage {{ 'your' if isSelf else user.name ~ "\'s" }} account – Gov Prototype by Prompt
+{% endblock %}
+
+{% block beforeContent %}
+  {% if not isSelf %}
+    {{ govukBreadcrumbs({
+      items: [
+        {
+          text: "Home",
+          href: "/"
+        },
+        {
+          text: "Users",
+          href: "/admin/user"
+        }
+      ],
+      labelText: "Breadcrumb-main"
+    }) }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <h1 class="govuk-heading-l page-title">Manage {{ 'your' if isSelf else user.name ~ "\'s" }} account</h1>
+    <div class="govuk-grid-column-one-half">
+      {% set successHtml %} 
+        <h3 class="govuk-notification-banner__heading">
+          Account updated successfully
+        </h3>
+      {% endset %}
+      {{ govukNotificationBanner({
+        html: successHtml,
+        type: "success",
+        classes: "success-banner display-none"
+      }) }}
+
+      {{ govukErrorSummary({
+        classes: "govuk-!-margin-bottom-7 display-none",
+        titleText: "There was a problem",
+        descriptionHtml: "Check the form."
+      }) }}
+      
+      <h2 class="govuk-heading-2">Account details</h2>
+      
+      <p class="govuk-body"><strong>Name</strong></p>
+      <p class="govuk-body user-name">{{user.name}}</p>
+      <p class="govuk-body"><strong>Email</strong></p>
+      <p class="govuk-body">{{user.email}}</p>
+
+      {% if isSelf %}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Log out",
+            classes: "govuk-button--secondary",
+            type: "submit",
+            href: "/user/log-out",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      {% endif %}
+    </div>
+    <div class="govuk-grid-column-one-half">
+      
+      <h2 class="govuk-heading-2">Update account details</h2>
+
+      <form id="updateDetailsForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        {{ govukInput({
+          classes: "govuk-input--width-20 user-name",
+          label: {
+              text: "Name"
+          },
+          name: "name",
+          id: "name",
+          spellcheck: false,
+          autocomplete: "name"
+        }) }}
+        {{ govukRadios({
+          name: "isActive",
+          id: "isActive",
+          fieldset: {
+            legend: {
+              text: "User is active?"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Yes",
+              checked: user.isActive == true,
+              disabled: currentUser.isAdmin == false
+            },
+            {
+              value: "false",
+              text: "No",
+              checked: user.isActive == false,
+              disabled: currentUser.isAdmin == false
+            }
+          ]
+        }) }}
+        {{ govukRadios({
+          name: "isAdmin",
+          id: "isAdmin",
+          fieldset: {
+            legend: {
+              text: "User is an admin?"
+            }
+          },
+          items: [
+            {
+              value: "true",
+              text: "Yes",
+              checked: user.isAdmin == true,
+              disabled: currentUser.isAdmin == false
+            },
+            {
+              value: "false",
+              text: "No",
+              checked: user.isAdmin == false,
+              disabled: currentUser.isAdmin == false
+            }
+          ]
+        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'updateDetailsButton',
+            text: "Save",
+            type: "submit",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      </form>
+      <h2 class="govuk-heading-2">Update account password</h2>
+
+      <form id="updatePasswordForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "New password"
+          },
+          name: "password1",
+          id: "password1",
+          autocomplete: "new-password"
+        }) }}
+        {{ govukPasswordInput({
+          classes: "govuk-input--width-20",
+          label: {
+              text: "Confirm new password"
+          },
+          name: "password2",
+          id: "password2",
+          autocomplete: "new-password"
+        }) }}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            id: 'updatePasswordButton',
+            text: "Save password",
+            type: "submit",
+            preventDoubleClick: true
+          }) }}
+        </div>
+      </form>
+      
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  {{ super() }}
+  <script>
+    // Reload the page if the user navigates back
+    window.addEventListener("pageshow", function(event) {
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
+      if (historyTraversal) {
+        window.location.reload();
+      }
+    });
+
+    const updateDetailsForm = document.getElementById('updateDetailsForm');
+    const updateDetailsButton = document.getElementById('updateDetailsButton');
+
+    const updatePasswordForm = document.getElementById('updatePasswordForm');
+    const updatePasswordButton = document.getElementById('updatePasswordButton');
+
+    const updateButtons = [updateDetailsButton, updatePasswordButton];
+
+    const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+    const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+    const successBanner = document.querySelector('.success-banner');
+
+    // Add a hidden error element to the non-fieldset inputs
+    for (const input of document.querySelectorAll('input[type="text"], input[type="password"], select')) {
+      const errorElement = document.createElement('p');
+      errorElement.id = `${input.id}ErrorMessage`;
+      errorElement.className = 'govuk-error-message';
+      errorElement.style.display = 'none';
+      if (input.type === 'password') {
+        input.parentNode.parentNode.insertBefore(
+          errorElement,
+          input.parentNode
+        );
+      } else {
+        input.parentNode.insertBefore(
+          errorElement,
+          input
+        );
+      }
+    }
+
+    // Add a hidden error element to the fieldset inputs (date, checkbox, radio)
+    const labelElements = document.querySelectorAll(
+        '.govuk-label.govuk-radios__label'
+    );
+    for (const labelElement of labelElements) {
+        const inputGroup = labelElement.closest(
+            '.govuk-radios'
+        );
+        const firstRadio = inputGroup.querySelector('input[type="radio"]');
+        if (!inputGroup.parentNode.querySelector('.govuk-error-message')) {
+            const errorElement = document.createElement('p');
+            errorElement.id = `${firstRadio.id}ErrorMessage`;
+            errorElement.className = 'govuk-error-message';
+            errorElement.style.display = 'none';
+            inputGroup.parentNode.insertBefore(
+                errorElement,
+                inputGroup.previousSibling
+            );
+        }
+    }
+
+    // Disable the buttons while processing
+    function disableButtons() {
+      for (const button of updateButtons) {
+        button.disabled = true;
+        button.textContent = 'Processing...';
+      }
+    }
+
+    // Enable the buttons after processing
+    function enableButtons() {
+      for (const button of updateButtons) {
+        button.disabled = false;
+        button.textContent = button.id === 'updateDetailsButton' ? 'Save' : 'Save password';
+      }
+    }
+
+    // Handle updating user details or password
+    function updateUser(event) {
+      event.preventDefault();
+      const form = event.target;
+
+      disableButtons();
+      const data = new URLSearchParams();
+      for (const pair of new FormData(form)) {
+          data.append(pair[0], pair[1]);
+      }
+      fetch('/admin/user/{{ user.id }}', {
+        method: 'POST',
+        body: data,
+        credentials: 'include'
+      }).then(async response => {
+        const responseJson = await response.json();
+
+        enableButtons();
+
+        form.querySelectorAll('input, select').forEach((input) => {
+          input.classList.remove('govuk-input--error');
+        });
+        form.querySelectorAll('.govuk-error-message').forEach((el) => {
+          el.style.display = 'none'; 
+          el.parentNode.classList.remove('govuk-form-group--error');
+        });
+        form.querySelectorAll('.govuk-form-group').forEach((el) => {
+          el.classList.remove('govuk-form-group--error');
+        });
+        errorSummary.classList.add('display-none');
+
+        if (response.ok) {
+          if (responseJson.redirect) {
+            window.location.href = responseJson.redirect;
+            return;
+          }
+          successBanner.classList.remove('display-none');
+          successBanner.scrollIntoView({block: 'nearest'});
+          form.querySelectorAll('input:not([type="radio"])').forEach(input => input.value = '');
+          if (responseJson.name) {
+            const nameElements = document.querySelectorAll('.user-name');
+            nameElements.forEach((el) => {
+              el.textContent = responseJson.name;
+            });
+          }
+          if (responseJson.pageTitle) {
+            const pageTitle = document.querySelectorAll('.page-title');
+            pageTitle.forEach((el) => {
+              el.textContent = responseJson.pageTitle;
+            });
+            document.title = `${responseJson.pageTitle} – Gov Prototype by Prompt`;
+          }
+        } else {
+          successBanner.classList.add('display-none');
+          for (const error of responseJson.errors ?? []) {
+            const input = document.getElementById(error.path);
+            if (input) {
+              input.classList.add('govuk-input--error');
+              const formGroup = input.closest('.govuk-form-group');
+              if (formGroup) {
+                formGroup.classList.add('govuk-form-group--error');
+              }
+              const errorElement = document.getElementById(`${error.path}ErrorMessage`);
+              if (errorElement) {
+                errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> ${error.msg}`;
+                errorElement.style.display = '';
+                errorElement.parentNode.classList.add('govuk-form-group--error');
+              }
+            }
+          }
+          throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+        }
+      }).catch(err => {
+        errorSummary.classList.remove('display-none');
+        errorSummary.scrollIntoView({block: 'nearest'});
+        errorDescription.textContent = err.message;
+        enableButtons();
+      });
+    }
+
+    updateDetailsForm.addEventListener('submit', async function (event) {
+      updateUser(event);
+    });
+    updatePasswordForm.addEventListener('submit', async function (event) {
+      updateUser(event);
+    });
+
+  </script>
+{% endblock %}

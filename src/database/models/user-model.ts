@@ -46,7 +46,7 @@ export class UserModel {
      */
     static async getAll(): Promise<IUser[]> {
         try {
-            return await User.find({});
+            return await User.find({}).sort({ email: 1 });
         } catch (error) {
             console.error('Error getting all users:', error);
             throw error;

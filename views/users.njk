@@ -1,0 +1,174 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  Users – Gov Prototype by Prompt
+{% endblock %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-l">Users</h1>
+      <p class="govuk-body">
+        {% if totalUsers == 0 %}
+          There are no users.
+        {% elif totalUsers == countUsers %}
+          Showing all {{ totalUsers }} user{{ 's' if totalUsers != 1 else '' }}.
+        {% else %}
+          Showing {{ countUsers }} user{{ 's' if countUsers != 1 else '' }} out of {{ totalUsers }}.
+        {% endif %}
+      </p>
+      {% if totalUsers > 0 %}
+        <div class="govuk-button-group">
+          {{ govukButton({
+            text: "Log out",
+            classes: "govuk-button--secondary",
+            type: "submit",
+            href: "/user/log-out",
+            preventDoubleClick: true
+          }) }}
+          {{ govukButton({
+            text: "Reset filters",
+            href: "/admin/user",
+            classes: "govuk-button--secondary"
+          }) }}
+        </div>
+        <div class="govuk-grid-row">
+          <div class="govuk-grid-column-one-half">
+            {{ govukSelect({
+              id: "isActive",
+              name: "isActive",
+              label: {
+                text: "Filter by active status",
+                isPageHeading: false
+              },
+              classes: "govuk-!-width-full",
+              items: [
+                {
+                  value: "all",
+                  text: "All users",
+                  selected: isActive === "all"
+                },
+                {
+                  value: "true",
+                  text: "Active users only",
+                  selected: isActive === "true"
+                },
+                {
+                  value: "false",
+                  text: "Deactivated users only",
+                  selected: isActive === "false"
+                }
+              ]
+            }) }}
+          </div>
+          <div class="govuk-grid-column-one-half">
+            {{ govukSelect({
+              id: "isAdmin",
+              name: "isAdmin",
+              label: {
+                text: "Filter by admin status",
+                isPageHeading: false
+              },
+              classes: "govuk-!-width-full",
+              items: [
+                {
+                  value: "all",
+                  text: "All users",
+                  selected: isAdmin === "all"
+                },
+                {
+                  value: "true",
+                  text: "Admin users only",
+                  selected: isAdmin === "true"
+                },
+                {
+                  value: "false",
+                  text: "Non-admin users only",
+                  selected: isAdmin === "false"
+                }
+              ]
+            }) }}
+          </div>
+        </div>
+        {{ govukTable({
+          firstCellIsHeader: false,
+          head: header,
+          rows: userRows
+        }) }}
+        {% if showPagination %}
+          {{ govukPagination({
+            classes: "justify-self-center",
+            previous: {
+              href: paginationPreviousHref
+            },
+            next: {
+              href: paginationNextHref
+            },
+            items: paginationItems
+          }) }}
+        {% endif %}
+        {{ govukRadios({
+          classes: "govuk-radios--inline govuk-radios--small",
+          id: "itemsPerPage",
+          name: "itemsPerPage",
+          fieldset: {
+            legend: {
+              text: "Items per page",
+              isPageHeading: false
+            }
+          },
+          items: perPageItems
+        }) }}
+      {% else %}
+        {{ govukButton({
+          text: "Log out",
+          classes: "govuk-button--secondary",
+          type: "submit",
+          href: "/user/log-out",
+          preventDoubleClick: true
+        }) }}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  {{ super() }}
+  <script>
+    // Reload the page if the user navigates back
+    // This makes sure the submit button is re-enabled
+    window.addEventListener("pageshow", function(event) {
+      const historyTraversal = event.persisted ||
+        (typeof window.performance !== "undefined" &&
+          window.performance.getEntriesByType('navigation').length > 0 &&
+          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
+      if (historyTraversal) {
+        window.location.reload();
+      }
+    });
+
+    {% if totalUsers > 0 %}
+      const formInputs = document.querySelectorAll('input[name="itemsPerPage"], select');
+
+      // Handle the click event for the itemsPerPage radio input
+      formInputs.forEach(input => {
+        input.addEventListener('change', function(event) {
+
+          // Get the value
+          const isActiveSelectValue = document.querySelector('select[name="isActive"]').value;
+          const isAdminSelectValue = document.querySelector('select[name="isAdmin"]').value;
+          const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked').value;
+
+          // Redirect to the same page with the selected filter
+          const url = new URL(window.location.href);
+          url.searchParams.set('isActive', isActiveSelectValue);
+          url.searchParams.set('isAdmin', isAdminSelectValue);
+          url.searchParams.set('page', '1'); // Reset to the first page
+          url.searchParams.set('perPage', itemsPerPageRadioValue);
+          window.location.href = url.toString();
+        });
+      });
+    {% endif %}
+  </script>
+{% endblock %}
