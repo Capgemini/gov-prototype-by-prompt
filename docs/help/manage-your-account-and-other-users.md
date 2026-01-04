@@ -8,7 +8,7 @@ If you are an admin user, you can view all users on the ["Manage users" page](/a
 
 Filters are available to:
 
-- Filter by whether the user is active or inactive.
+- Filter by active status.
 - Filter by admin status.
 
 You can click on a user's name to view and update them. You can:
@@ -21,4 +21,4 @@ Users cannot be deleted.
 
 ## Deactivated users
 
-Deactivated users can log in but cannot access any functionality. They will see a message indicating that their account is inactive.
+Deactivated users can log in but cannot access any functionality. They will see a message telling them that their account has been deactivated.

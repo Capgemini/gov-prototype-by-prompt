@@ -229,7 +229,7 @@ adminRouter.get(
     renderManageUserPage
 );
 
-//Updates current user
+// Updates the specified user (by ID), applying appropriate permission checks.
 export async function handleUpdateUser(
     req: Request<
         { id: string },
