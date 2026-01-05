@@ -1,6 +1,6 @@
 {
     "name": "gov-prototype-by-prompt",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "description": "Rapidly create, test, and refine GOV.UK Design System form prototypes from a simple description using GenAI.",
     "keywords": [
         "express",
