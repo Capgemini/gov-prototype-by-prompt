@@ -22,13 +22,17 @@ jobs:
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+                  lookup-only: true
             - name: Set up Node.js
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
               uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
               run: npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
               run: node --version && npm --version
             - name: Install dependencies
               if: steps.cache-nodemodules.outputs.cache-hit != 'true'

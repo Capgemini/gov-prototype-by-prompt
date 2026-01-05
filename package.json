@@ -89,6 +89,7 @@
         "mongoose": "~9.1.1",
         "nunjucks": "~3.2.4",
         "openai": "~6.15.0",
+        "tsx": "~4.21.0",
         "ts-migrate-mongoose": "~4.2.0",
         "uuid": "~13.0.0",
         "zod": "~3.25.76"
@@ -119,7 +120,6 @@
         "supertest": "~7.1.4",
         "ts-jest": "~29.4.6",
         "ts-node": "~10.9.2",
-        "tsx": "~4.21.0",
         "typescript": "~5.9.3",
         "typescript-eslint": "~8.51.0"
     },
