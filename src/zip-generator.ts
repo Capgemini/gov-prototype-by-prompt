@@ -65,10 +65,6 @@ function generateZipOfApp(
             name: '.gitignore',
         },
         {
-            input: fs.readFileSync('./data/zip-download/.nvmrc'),
-            name: '.nvmrc',
-        },
-        {
             input: fs.readFileSync('./src/filters.ts'),
             name: 'filters.ts',
         },
