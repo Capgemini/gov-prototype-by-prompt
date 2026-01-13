@@ -71,7 +71,7 @@ app.use(
 );
 
 // Parse JSON and URL-encoded bodies
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Compress everything
