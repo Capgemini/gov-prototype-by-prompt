@@ -17,7 +17,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 ## How does it work?
 
 1. The user describes the form they want in plain English.
-2. A GenAI LLM takes this and [a JSON schema](data/extract-form-questions-schema.json), and uses them to generate a JSON representation of form's structure that adheres to the schema ([see example](data/example-llm-response.json)).
+2. A GenAI LLM takes this and [a JSON schema](data/extract-form-questions-schema.json), and uses them to generate a JSON representation of the form's structure that adheres to the schema ([see example](data/example-llm-response.json)).
 3. The JSON structure of the form is then used to generate Nunjucks template files of the prototype.
 4. The generated template files are then rendered live for the user to try out, or can be downloaded in a ZIP file to run locally or incorporate into an existing project.
 
@@ -33,36 +33,42 @@ It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL
 
 ## Setup
 
-Before you can run the application, you need to set up a MongoDB database.
+To run the application you can either:
 
-### Setup MongoDB Atlas CLI for local development
+- Install MongoDB and Node.js manually and run the application locally.
+- Use Docker Compose to run the application with MongoDB.
 
-1. Install [Docker](https://www.docker.com/), which is required to create a local MongoDB Atlas deployment.
+In both cases, you'll need to setup environment variables and deploy an OpenAI LLM in Azure as described below.
+
+You can access the running application at <http://localhost:3001>.
+
+You can access the MongoDB database through [MongoDB Compass](https://www.mongodb.com/products/tools/compass) or another MongoDB client using the `mongodb://admin:password123@localhost:27017/?directConnection=true` connection string.
+
+### Manual setup
+
+#### Setup a local MongoDB database
+
+1. Install [Docker Desktop](https://www.docker.com/get-started/), which is required to create a local MongoDB Atlas deployment.
 2. Install the [MongoDB Atlas CLI](https://www.mongodb.com/docs/atlas/cli/current/install-atlas-cli/).
 3. Run `atlas auth login` to authenticate with Atlas.
 4. Run `atlas deployments setup gpbp --type LOCAL --mdbVersion 8.0 --port 27017 --username admin --password password123` to create a local MongoDB v8 deployment.
-5. Connect to the deployment and switch to the `gpbp` database to create the collections:
+5. You should be able to see the MongoDB deployment container running in Docker Desktop.
 
-      ```shell
-      atlas deployments connect gpbp --connectWith mongosh
-      use gpbp
-      db.createCollection('users')
-      db.createCollection('workspaces')
-      db.createCollection('prototypes')
-      exit
-      ```
-
-6. The connection string for your `.env` file in the next stage should be:  
-  `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin`
-
-### Setup the application
+#### Setup the application
 
 1. Install [Node version manager (nvm)](https://github.com/nvm-sh/nvm).
 2. Install the latest version of Node.js v20 with `nvm install 20` and switch to it with `nvm use 20`.
 3. Check Node JS is ready with the right version using `node --version`.
-4. Copy the example environment file with `cp .env.example .env` and fill out your environment variables (including the MongoDB connection string from above; [see below](#environment-variables) for details).
+4. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
 5. Run `npm install --ignore-scripts` to install the dependencies safely.
 6. Run the application with `npm run start` and visit <http://localhost:3001>.
+
+### Docker Compose setup
+
+1. [Install Docker Compose](https://docs.docker.com/compose/install/), likely as part of Docker Desktop.
+2. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
+3. Run `docker compose up --build` to build and start the application and MongoDB containers.
+4. Visit <http://localhost:3001>.
 
 ### Environment variables
 
@@ -78,6 +84,8 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 - `EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL` - either `true` or `false`. If set to `true`, the allowed domain will be revealed to users when they sign up. If set to `false`, the allowed domain will not be revealed. This has no effect if `EMAIL_ADDRESS_ALLOWED_DOMAIN` is not set.
 - `LOG_USER_ID_IN_AZURE_APP_INSIGHTS` - either `true` or `false`. Whether to log the user ID in Azure Application Insights.
 - `MONGODB_URI` - the connection string for MongoDB.
+- `MONGO_INITDB_ROOT_USERNAME` - the root username for MongoDB, for Docker Compose setups.
+- `MONGO_INITDB_ROOT_PASSWORD` - the root password for MongoDB, for Docker Compose setups.
 - `NODE_ENV` - either `development` or `production`, default `production`. When in production, the OpenTelemetry Instrumentation with Azure App Insights is enabled, the HSTS header is enabled, and the rate limiting headers are disabled.
 - `RATE_LIMITER_ENABLED` - either `true` or `false`. Whether to enable rate limiting.
 - `RATE_LIMITER_MAX_REQUESTS` - the maximum number of requests allowed per user in the rate limit window.
@@ -85,17 +93,13 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 - `SESSION_SECRET` - the secret used to sign session cookies.
 - `SUGGESTIONS_ENABLED` - either `true` or `false`. Whether to suggest follow-up prompts to the user to modify their prototype.
 
-### Mongoose database migrations
+### Deploying an OpenAI LLM in Azure
 
-Database migrations are managed using [ts-migrate-mongoose](https://www.npmjs.com/package/ts-migrate-mongoose). Migration scripts are located in the [`migrations/`](migrations/) folder.
+The application uses an OpenAI LLM running in Azure. The configuration for the model must be provided in the `.env` file, which includes the API key, endpoint, and model name.
 
-Run `npx migrate up` to run all pending migrations.
+Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource) for more information on how to set up an OpenAI model in Azure.
 
-Migrations that have already been applied are tracked in the `migrations` collection in the MongoDB database.
-
-Migrations cannot be rolled back; please backup your database before running migrations if necessary.
-
-### Project structure
+## Project structure
 
 The project is structured as follows:
 
@@ -116,15 +120,21 @@ The entry point for the application is [`server.ts`](/server.ts), which sets up 
 
 ## DevOps
 
-### Deploying an OpenAI LLM in Azure
+### Mongoose database migrations
 
-The application uses an OpenAI LLM running in Azure. The configuration for the model must be provided in the `.env` file, which includes the API key, endpoint, and model name.
+Database migrations are managed using [ts-migrate-mongoose](https://www.npmjs.com/package/ts-migrate-mongoose). Migration scripts are located in the [`migrations/`](migrations/) folder.
 
-Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource) for more information on how to set up an OpenAI model in Azure.
+To allow migrations to connect to the MongoDB database within Docker Compose, update the `MONGODB_URI` in your `.env` file to `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin`, then run `docker compose up mongodb` to start the MongoDB container only.
 
-### Deploying the application
+Run `npx migrate up` to run all pending migrations.
 
-A Dockerfile is provided to build the application into a Docker image. You may need to [enable host networking in Docker Desktop settings](https://docs.docker.com/engine/network/drivers/host/#docker-desktop).
+Migrations that have already been applied are tracked in the `migrations` collection in the MongoDB database.
+
+Migrations cannot be rolled back; please backup your database before running migrations if necessary.
+
+### Running the Dockerfile directly
+
+A Dockerfile is provided to build the application into a Docker image. You may need to [enable host networking in Docker Desktop settings](https://docs.docker.com/engine/network/drivers/host/#docker-desktop) to run this directly, so it can connect to the MongoDB container.
 
 You can build and run the image with the following commands:
 

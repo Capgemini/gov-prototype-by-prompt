@@ -7,6 +7,7 @@
         "bierner.markdown-mermaid",
         "heltonricardo.heltonricardo-vscode-organize-and-format",
         "mongodb.mongodb-vscode",
-        "dbaeumer.vscode-eslint"
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-containers"
     ]
 }
