@@ -124,7 +124,9 @@ Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/a
 
 ### Deploying the application
 
-A Dockerfile is provided to build the application into a Docker image. You can build and run the image with the following commands:
+A Dockerfile is provided to build the application into a Docker image. You may need to [enable host networking in Docker Desktop settings](https://docs.docker.com/engine/network/drivers/host/#docker-desktop).
+
+You can build and run the image with the following commands:
 
 ```bash
 # Build the Docker image
