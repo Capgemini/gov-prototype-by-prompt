@@ -21,7 +21,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 3. The JSON structure of the form is then used to generate Nunjucks template files of the prototype.
 4. The generated template files are then rendered live for the user to try out, or can be downloaded in a ZIP file to run locally or incorporate into an existing project.
 
-<https://github.com/user-attachments/assets/51bd61f6-e57e-45a8-8776-46f26871878c>
+[Watch a video demonstration](https://github.com/user-attachments/assets/b587e33f-3c61-4cb4-b6c7-e2b4e4b581d5)
 
 ## Technology stack
 
