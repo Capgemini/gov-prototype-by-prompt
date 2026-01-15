@@ -1,6 +1,6 @@
 import opentelemetry from '@opentelemetry/api';
 import * as nunjucks from 'nunjucks';
-import { AzureOpenAI } from 'openai';
+import { OpenAI } from 'openai';
 
 import formSchema from '../data/extract-form-questions-schema.json';
 import suggestionsSchema from '../data/generate-form-suggestions-schema.json';
@@ -27,11 +27,9 @@ export async function createFormWithOpenAI(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new AzureOpenAI({
-        apiKey: envVars.AZURE_OPENAI_API_KEY,
-        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
-        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
-        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    const client = new OpenAI({
+        apiKey: envVars.OPENAI_API_KEY,
+        baseURL: envVars.OPENAI_BASE_URL,
     });
 
     if (activeSpan) activeSpan.setAttribute('openai.prompt', prompt);
@@ -69,7 +67,7 @@ export async function createFormWithOpenAI(
                     role: 'user',
                 },
             ],
-            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            model: envVars.OPENAI_MODEL_ID,
             response_format: {
                 json_schema: {
                     name: 'create-form-schema',
@@ -95,11 +93,9 @@ export async function generateSuggestionsWithOpenAI(
     templateData: TemplateData,
     designSystem: PrototypeDesignSystemsType
 ): Promise<string> {
-    const client = new AzureOpenAI({
-        apiKey: envVars.AZURE_OPENAI_API_KEY,
-        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
-        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
-        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    const client = new OpenAI({
+        apiKey: envVars.OPENAI_API_KEY,
+        baseURL: envVars.OPENAI_BASE_URL,
     });
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
@@ -120,7 +116,7 @@ export async function generateSuggestionsWithOpenAI(
                     role: 'user',
                 },
             ],
-            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            model: envVars.OPENAI_MODEL_ID,
             response_format: {
                 json_schema: {
                     name: 'generate-form-suggestions-schema',
@@ -148,11 +144,9 @@ export async function judgeFormWithOpenAI(
     templateData: TemplateData,
     criteria: string
 ): Promise<string> {
-    const client = new AzureOpenAI({
-        apiKey: envVars.AZURE_OPENAI_API_KEY,
-        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
-        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
-        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    const client = new OpenAI({
+        apiKey: envVars.OPENAI_API_KEY,
+        baseURL: envVars.OPENAI_BASE_URL,
     });
 
     // Prepare the system prompt
@@ -175,7 +169,7 @@ Criteria: "${criteria}"`;
                     role: 'user',
                 },
             ],
-            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            model: envVars.OPENAI_MODEL_ID,
             response_format: {
                 json_schema: {
                     name: 'judge-form-schema',
@@ -206,11 +200,9 @@ export async function updateFormWithOpenAI(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new AzureOpenAI({
-        apiKey: envVars.AZURE_OPENAI_API_KEY,
-        apiVersion: envVars.AZURE_OPENAI_API_VERSION,
-        deployment: envVars.AZURE_OPENAI_DEPLOYMENT_NAME,
-        endpoint: envVars.AZURE_OPENAI_ENDPOINT,
+    const client = new OpenAI({
+        apiKey: envVars.OPENAI_API_KEY,
+        baseURL: envVars.OPENAI_BASE_URL,
     });
 
     if (activeSpan) activeSpan.setAttribute('openai.prompt', prompt);
@@ -252,7 +244,7 @@ export async function updateFormWithOpenAI(
                     role: 'user',
                 },
             ],
-            model: envVars.AZURE_OPENAI_MODEL_NAME,
+            model: envVars.OPENAI_MODEL_ID,
             response_format: {
                 json_schema: {
                     name: 'update-form-schema',
