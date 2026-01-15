@@ -7,7 +7,7 @@ describe('envVarSchema', () => {
 
     it('fails if required string fields are missing', () => {
         const invalid = { ...exampleEnvVars } as Record<string, unknown>;
-        delete invalid.AZURE_OPENAI_API_KEY;
+        delete invalid.OPENAI_API_KEY;
         expect(() => envVarSchema.parse(invalid)).toThrow();
     });
 

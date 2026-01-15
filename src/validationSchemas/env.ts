@@ -15,11 +15,6 @@ const trueFalseString = z
 export const envVarSchema = z
     .object({
         APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().optional(),
-        AZURE_OPENAI_API_KEY: z.string(),
-        AZURE_OPENAI_API_VERSION: z.string(),
-        AZURE_OPENAI_DEPLOYMENT_NAME: z.string(),
-        AZURE_OPENAI_ENDPOINT: z.string(),
-        AZURE_OPENAI_MODEL_NAME: z.string(),
         EMAIL_ADDRESS_ALLOWED_DOMAIN: z.string().optional(),
         EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: trueFalseString.transform(
             (value) => value.trim().toLowerCase() === 'true'
@@ -32,6 +27,9 @@ export const envVarSchema = z
             (value) => (ENVS.includes(String(value)) ? value : 'production'),
             z.enum(ENVS)
         ),
+        OPENAI_API_KEY: z.string(),
+        OPENAI_BASE_URL: z.string(),
+        OPENAI_MODEL_ID: z.string(),
         RATE_LIMITER_ENABLED: trueFalseString.transform(
             (value) => value.trim().toLowerCase() === 'true'
         ),
@@ -80,16 +78,14 @@ export const envVarSchema = z
 export const exampleEnvVars = {
     APPLICATIONINSIGHTS_CONNECTION_STRING:
         'application-insights-connection-string',
-    AZURE_OPENAI_API_KEY: 'key',
-    AZURE_OPENAI_API_VERSION: '2000-01-01',
-    AZURE_OPENAI_DEPLOYMENT_NAME: 'deployment',
-    AZURE_OPENAI_ENDPOINT: 'https://example.com',
-    AZURE_OPENAI_MODEL_NAME: 'model',
     EMAIL_ADDRESS_ALLOWED_DOMAIN: 'example.com',
     EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: 'false',
     LOG_USER_ID_IN_AZURE_APP_INSIGHTS: 'false',
     MONGODB_URI: 'mongodb://localhost',
     NODE_ENV: 'production',
+    OPENAI_API_KEY: 'key',
+    OPENAI_BASE_URL: 'https://example.com',
+    OPENAI_MODEL_ID: 'model',
     RATE_LIMITER_ENABLED: 'true',
     RATE_LIMITER_MAX_REQUESTS: '200',
     RATE_LIMITER_WINDOW_MINUTES: '15',

@@ -27,7 +27,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
 
-It connects to an OpenAI LLM running in Azure; we have been using GPT-4.1-mini.
+It connects to an OpenAI LLM; we have been using GPT-4.1-mini running in Azure.
 
 It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL database.
 
@@ -69,16 +69,14 @@ Before you can run the application, you need to set up a MongoDB database.
 The following environment variables are expected in `.env`, copied from [.env.example](.env.example):
 
 - `APPLICATIONINSIGHTS_CONNECTION_STRING` - the connection string for Azure Application Insights, can be left empty to disable.
-- `AZURE_OPENAI_API_KEY` - the API key to access the OpenAI API.
-- `AZURE_OPENAI_API_VERSION` - the API version for the OpenAI API.
-- `AZURE_OPENAI_DEPLOYMENT_NAME` - the OpenAI model deployment.
-- `AZURE_OPENAI_ENDPOINT` - the base URL for the OpenAI API.
-- `AZURE_OPENAI_MODEL_NAME` - the OpenAI model ID to query.
 - `EMAIL_ADDRESS_ALLOWED_DOMAIN` - the domain to allow for email addresses, e.g. `example.com`. If set, only email addresses with this domain will be allowed.
 - `EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL` - either `true` or `false`. If set to `true`, the allowed domain will be revealed to users when they sign up. If set to `false`, the allowed domain will not be revealed. This has no effect if `EMAIL_ADDRESS_ALLOWED_DOMAIN` is not set.
 - `LOG_USER_ID_IN_AZURE_APP_INSIGHTS` - either `true` or `false`. Whether to log the user ID in Azure Application Insights.
 - `MONGODB_URI` - the connection string for MongoDB.
 - `NODE_ENV` - either `development` or `production`, default `production`. When in production, the OpenTelemetry Instrumentation with Azure App Insights is enabled, the HSTS header is enabled, and the rate limiting headers are disabled.
+- `OPENAI_API_KEY` - the API key to access the OpenAI API.
+- `OPENAI_BASE_URL` - the base URL for the OpenAI API.
+- `OPENAI_MODEL_ID` - the OpenAI model ID to query.
 - `RATE_LIMITER_ENABLED` - either `true` or `false`. Whether to enable rate limiting.
 - `RATE_LIMITER_MAX_REQUESTS` - the maximum number of requests allowed per user in the rate limit window.
 - `RATE_LIMITER_WINDOW_MINUTES` - the time window in minutes for the rate limit.
@@ -116,9 +114,9 @@ The entry point for the application is [`server.ts`](/server.ts), which sets up 
 
 ## DevOps
 
-### Deploying an OpenAI LLM in Azure
+### Deploying an OpenAI LLM
 
-The application uses an OpenAI LLM running in Azure. The configuration for the model must be provided in the `.env` file, which includes the API key, endpoint, and model name.
+The application uses an OpenAI LLM. The configuration for the model must be provided in the `.env` file, which includes the API key, endpoint, and model name.
 
 Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource) for more information on how to set up an OpenAI model in Azure.
 

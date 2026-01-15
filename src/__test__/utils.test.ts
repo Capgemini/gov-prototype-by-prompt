@@ -42,7 +42,7 @@ describe('getEnvironmentVariables', () => {
     });
 
     it('throws an error if a required variable is missing', () => {
-        setEnv({ AZURE_OPENAI_API_KEY: undefined, MONGODB_URI: undefined });
+        setEnv({ MONGODB_URI: undefined, OPENAI_API_KEY: undefined });
         try {
             getEnvironmentVariables();
             fail('Expected ZodError to be thrown');
@@ -53,14 +53,14 @@ describe('getEnvironmentVariables', () => {
                     code: 'invalid_type',
                     expected: 'string',
                     message: 'Required',
-                    path: ['AZURE_OPENAI_API_KEY'],
+                    path: ['MONGODB_URI'],
                     received: 'undefined',
                 },
                 {
                     code: 'invalid_type',
                     expected: 'string',
                     message: 'Required',
-                    path: ['MONGODB_URI'],
+                    path: ['OPENAI_API_KEY'],
                     received: 'undefined',
                 },
             ]);
