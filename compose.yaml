@@ -6,6 +6,10 @@ services:
     env_file: ".env"
     depends_on:
       - mongodb
+    models:
+      llm:
+        endpoint_var: OPENAI_BASE_URL
+        model_var: OPENAI_MODEL_ID
 
   mongodb:
     image: mongo:8.0
@@ -15,6 +19,10 @@ services:
     restart: unless-stopped
     volumes:
       - mongodb-data:/data/db
+
+models:
+  llm:
+    model: ai/gpt-oss
 
 volumes:
   mongodb-data:
