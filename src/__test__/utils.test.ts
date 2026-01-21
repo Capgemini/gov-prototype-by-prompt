@@ -564,7 +564,19 @@ describe('validateTemplateDataText', () => {
                     ],
                 },
             ],
-            true,
+            false,
+        ],
+        [
+            [
+                {
+                    answer_type: 'text',
+                    next_question_value: 2,
+                },
+                {
+                    answer_type: 'text',
+                },
+            ],
+            false,
         ],
     ])(
         'throws an error if next_question_value is not valid',
