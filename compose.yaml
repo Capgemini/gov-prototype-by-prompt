@@ -6,6 +6,7 @@ services:
     env_file: ".env"
     depends_on:
       - mongodb
+    # Comment out this 'models' section to use an external OpenAI LLM
     models:
       llm:
         endpoint_var: OPENAI_BASE_URL

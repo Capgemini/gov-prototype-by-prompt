@@ -27,7 +27,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
 
-It connects to an OpenAI LLM; we have been using GPT-4.1-mini running in Azure. Alternatively, you can use a [local LLM](https://hub.docker.com/search?type=model) when running the application with Docker Compose. Make sure your device has sufficient resources to run the model.
+It connects to an OpenAI LLM; we have been using GPT-4.1-mini running in Azure. Alternatively, you can use a [local LLM](https://hub.docker.com/search?type=model) when running the application with Docker Compose. Note that testing so far has shown that local LLMs struggle to generate a valid JSON representation of the form structure.
 
 It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL database.
 
@@ -35,10 +35,10 @@ It uses MongoDB to store data about users, prototypes, and workspaces in a NoSQL
 
 To run the application you can either:
 
-- Install MongoDB and Node.js manually and run the application locally.
-- Use Docker Compose to run the application with MongoDB and a local LLM.
+- Install MongoDB and Node.js manually, deploy an OpenAI LLM, and run the application locally.
+- Use Docker Compose to run the application with MongoDB and optionally a local LLM.
 
-In both cases, you'll need to setup environment variables and deploy an OpenAI LLM as described below.
+In both cases you'll need to setup environment variables as described below.
 
 You can access the running application at <http://localhost:3001>.
 

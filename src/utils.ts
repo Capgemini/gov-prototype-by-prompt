@@ -356,6 +356,7 @@ export function validateTemplateDataText(
     schema: object
 ): TemplateData {
     // Parse the JSON
+    console.log(responseText);
     let templateData = JSON.parse(responseText) as TemplateData;
 
     // Validate the JSON against the schema
@@ -364,6 +365,8 @@ export function validateTemplateDataText(
         required: true,
         throwAll: true,
     });
+
+    console.log(JSON.stringify(templateData, null, 2));
 
     // Parse the JSON and transform null values to undefined
     templateData = JSON.parse(responseText, (key, value) => {
