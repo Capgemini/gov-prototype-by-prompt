@@ -84,7 +84,7 @@ export const exampleEnvVars = {
     MONGODB_URI: 'mongodb://localhost',
     NODE_ENV: 'production',
     OPENAI_API_KEY: 'key',
-    OPENAI_BASE_URL: 'https://example.com',
+    OPENAI_BASE_URL: 'https://example.com/v1/',
     OPENAI_MODEL_ID: 'model',
     RATE_LIMITER_ENABLED: 'true',
     RATE_LIMITER_MAX_REQUESTS: '200',
