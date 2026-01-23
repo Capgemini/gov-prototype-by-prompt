@@ -95,7 +95,7 @@ The following environment variables are expected in `.env`, copied from [.env.ex
 
 The application uses an OpenAI LLM. The configuration for the model must be provided in the `.env` file, which includes the API key, endpoint, and model name.
 
-Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource) for more information on how to set up an OpenAI model in Azure.
+Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/create-resource) for more information on how to set up an OpenAI model in Azure. Alternatively, a model hosted elsewhere that is compatible with the OpenAI API can be used.
 
 ## Project structure
 
