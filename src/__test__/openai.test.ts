@@ -4,10 +4,10 @@ import { PrototypeDesignSystemsType, TemplateData } from '../types';
 import { envVarSchema, exampleEnvVars } from '../validationSchemas/env';
 
 // Define constants for testing
-const modelName = 'model-name';
+const modelId = 'model-name';
 const envVars = {
     ...envVarSchema.parse(exampleEnvVars),
-    AZURE_OPENAI_MODEL_NAME: modelName,
+    OPENAI_MODEL_ID: modelId,
 };
 
 interface ChatCreateMockType {
@@ -32,7 +32,7 @@ beforeEach(() => {
         })
     );
     jest.doMock('openai', () => ({
-        AzureOpenAI: jest.fn().mockImplementation(() => ({
+        OpenAI: jest.fn().mockImplementation(() => ({
             chat: {
                 completions: {
                     create: chatCreateMock,
@@ -102,7 +102,7 @@ describe('createFormWithOpenAI', () => {
             );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
-            expect(data.model).toBe(modelName);
+            expect(data.model).toBe(modelId);
             expect(data.messages[0].content).toContain('rendered-prompt');
             expect(data.messages[1].content).toBe(prompt);
             expect(data.response_format.json_schema.name).toBe(
@@ -203,7 +203,7 @@ describe('updateFormWithOpenAI', () => {
             );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
-            expect(data.model).toBe(modelName);
+            expect(data.model).toBe(modelId);
             expect(data.messages[0].content).toContain('rendered-prompt');
             expect(data.messages[1].content).toContain(prompt);
             expect(data.response_format.json_schema.name).toBe(
@@ -310,7 +310,7 @@ describe('generateSuggestionsWithOpenAI', () => {
             );
             expect(chatCreateMock).toHaveBeenCalled();
             const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
-            expect(data.model).toBe(modelName);
+            expect(data.model).toBe(modelId);
             expect(data.messages[0].content).toContain('rendered-prompt');
             expect(data.response_format.json_schema.name).toBe(
                 'generate-form-suggestions-schema'
@@ -366,7 +366,7 @@ describe('judgeFormWithOpenAI', () => {
         expect(nunjucksRenderMock).toHaveBeenCalledWith('judge-prompt.njk');
         expect(chatCreateMock).toHaveBeenCalled();
         const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
-        expect(data.model).toBe(modelName);
+        expect(data.model).toBe(modelId);
         expect(data.messages[0].content).toContain('rendered-prompt');
         expect(data.response_format.json_schema.name).toBe('judge-form-schema');
 
