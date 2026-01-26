@@ -442,6 +442,18 @@ export function validateTemplateDataText(
             ),
         ]);
 
+        // If there's only one valid value for next_question_value, set it automatically
+        if (validNextQuestionValues.size === 1) {
+            const validValue = Array.from(validNextQuestionValues)[0];
+            if (question.answer_type === 'branching_choice') {
+                for (const option of question.options_branching ?? []) {
+                    option.next_question_value = validValue;
+                }
+            } else {
+                question.next_question_value = validValue;
+            }
+        }
+
         // Throw an error if the next_question_value for non-branching questions is invalid
         if (
             question.answer_type !== 'branching_choice' &&
