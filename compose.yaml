@@ -21,6 +21,7 @@ services:
     volumes:
       - mongodb-data:/data/db
 
+# Comment out this 'models' section to use an external OpenAI LLM
 models:
   llm:
     model: ai/gpt-oss

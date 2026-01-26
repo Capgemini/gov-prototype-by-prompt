@@ -65,10 +65,20 @@ You can access the MongoDB database through [MongoDB Compass](https://www.mongod
 
 ### Docker Compose setup
 
+To run with the local LLM model:
+
 1. [Install Docker Compose](https://docs.docker.com/compose/install/), likely as part of Docker Desktop.
-2. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
-3. Run `docker compose up --build` to build and start the application and MongoDB containers.
-4. Visit <http://localhost:3001>.
+2. Enable Docker Model Runner as described in the [Docker docs](https://docs.docker.com/ai/model-runner/get-started/#enable-docker-model-runner).
+3. Consider allocating more resources to Docker Desktop in the Docker Desktop settings.
+4. Consider pulling the model image beforehand with `docker model pull ai/gpt-oss`.
+
+To run without the local LLM model, remove the `models` section under the `app` service and the top-level `models` service, both in [`compose.yaml`](compose.yaml).
+
+To run the application with Docker Compose:
+
+1. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@mongodb/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
+2. Run `docker compose up --build` to build and start the application and MongoDB containers.
+3. Visit <http://localhost:3001>.
 
 ### Environment variables
 
