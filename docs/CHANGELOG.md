@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-01-27
+
+* Fix issues parsing form data and downloading the prototype ZIP by @cmenon12 in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/151>
+* Bump github/codeql-action from 4.31.9 to 4.31.10 in the gh-actions-minor-and-patch-updates group by @dependabot[bot] in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/149>
+* BREAKING CHANGE: Allow any OpenAI LLM, containerise with Docker Compose, improve prototype validation by @cmenon12 in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/152>
+* Bump lodash from 4.17.21 to 4.17.23, update overrides and .gitignore by @dependabot[bot] in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/153>
+* Bump the npm-minor-and-patch-updates group across 2 directories with 19 updates by @dependabot[bot] in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/155>
+
+**Full Changelog**: <https://github.com/Capgemini/gov-prototype-by-prompt/compare/v2.0.0...v3.0.0>
+
 ## [2.0.0] - 2026-01-05
 
 * Update npm in the Dockerfile, combine RUN commands by @cmenon12 in <https://github.com/Capgemini/gov-prototype-by-prompt/pull/104>
@@ -94,6 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 This is the first public release of the project.
 
+[3.0.0]: https://github.com/Capgemini/gov-prototype-by-prompt/releases/tag/v3.0.0
 [2.0.0]: https://github.com/Capgemini/gov-prototype-by-prompt/releases/tag/v2.0.0
 [1.2.0]: https://github.com/Capgemini/gov-prototype-by-prompt/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Capgemini/gov-prototype-by-prompt/releases/tag/v1.1.0
