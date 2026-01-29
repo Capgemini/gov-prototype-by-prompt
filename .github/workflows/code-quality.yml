@@ -95,28 +95,25 @@ jobs:
 
     npm-audit:
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version-file:
+                    ['package.json', './data/zip-download/package.json']
+                working-directory: ['.', './data/zip-download']
         steps:
             - name: Checkout repository
               uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-            - name: Cache node modules
-              id: cache-nodemodules
-              uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
               uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
               with:
-                  node-version-file: package.json
+                  node-version-file: ${{ matrix.node-version-file }}
             - name: Upgrade npm to v11
               run: npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               run: node --version && npm --version
-            - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-              run: npm ci --ignore-scripts
 
             - name: Run npm audit with moderate threshold
+              working-directory: ${{ matrix.working-directory }}
               run: npm audit --audit-level=moderate
 
     snyk-scan:
