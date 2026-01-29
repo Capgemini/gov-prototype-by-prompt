@@ -143,6 +143,6 @@ jobs:
                   args: --file=${{ matrix.target-file }} --project-name=${{ matrix.target-file }} --sarif-file-output=snyk.sarif
                   command: test
             - name: Upload result to GitHub Code Scanning
-              uses: github/codeql-action/upload-sarif@439137e1b50c27ba9e2f9befc93e43091b449c34 # v3.32.0
+              uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 # v4.32.0
               with:
                   sarif_file: snyk.sarif
