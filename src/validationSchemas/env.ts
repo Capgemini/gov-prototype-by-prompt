@@ -15,7 +15,7 @@ const trueFalseString = z
 export const envVarSchema = z
     .object({
         APPLICATIONINSIGHTS_CONNECTION_STRING: z.string().optional(),
-        EMAIL_ADDRESS_ALLOWED_DOMAIN: z.string().optional(),
+        EMAIL_ADDRESS_ALLOWED_DOMAIN: z.string().trim().optional(),
         EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: trueFalseString.transform(
             (value) => value.trim().toLowerCase() === 'true'
         ),
