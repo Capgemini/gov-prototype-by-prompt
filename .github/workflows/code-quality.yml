@@ -66,33 +66,6 @@ jobs:
             - name: Run ESLint
               run: npm run lint -- --max-warnings=0
 
-    npm-audit:
-        needs: setup
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-            - name: Cache node modules
-              id: cache-nodemodules
-              uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-            - name: Set up Node.js
-              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
-              with:
-                  node-version-file: package.json
-            - name: Upgrade npm to v11
-              run: npm install -g "npm@>=11.6.4 <12"
-            - name: Log node versions
-              run: node --version && npm --version
-            - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-              run: npm ci --ignore-scripts
-
-            - name: Run npm audit with moderate threshold
-              run: npm audit --audit-level=moderate
-
     jest-unit-tests:
         needs: setup
         runs-on: ubuntu-latest
@@ -119,6 +92,32 @@ jobs:
 
             - name: Run tests with coverage
               run: npm run test -- --coverage --silent --maxWorkers=1
+
+    npm-audit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+              with:
+                  node-version-file: package.json
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@>=11.6.4 <12"
+            - name: Log node versions
+              run: node --version && npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
+
+            - name: Run npm audit with moderate threshold
+              run: npm audit --audit-level=moderate
 
     snyk-scan:
         runs-on: ubuntu-latest
