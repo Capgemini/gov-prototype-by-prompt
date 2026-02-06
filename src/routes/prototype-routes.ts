@@ -61,6 +61,7 @@ import {
 } from '../utils';
 import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
+import { buildStructureVM } from './presenters/prototype-structure.presenter';
 
 // Create an Express router
 const prototypeRouter = express.Router();
@@ -837,6 +838,7 @@ prototypeRouter.all(
     renderPrototypePage
 );
 
+// ---------- End structure presenter ----------
 /**
  * Render the results page for a prototype.
  */
@@ -967,9 +969,14 @@ export async function renderResultsPage(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         workspace: (await getWorkspaceById(prototypeData.workspaceId))!,
     };
+    const structureVM = buildStructureVM(prototypeData.json.questions);
 
-    res.render('results.njk', data);
+    res.render('results.njk', {
+        ...data,
+        structureVM,
+    });
 }
+
 prototypeRouter.get(
     '/prototype/:id',
     [verifyUser, param('id').trim().notEmpty(), verifyPrototype],
