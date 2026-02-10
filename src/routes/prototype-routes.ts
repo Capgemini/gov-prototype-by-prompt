@@ -61,6 +61,7 @@ import {
 } from '../utils';
 import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
+import { buildOverviewVM } from './presenters/prototype-overview.presenter';
 import { buildStructureVM } from './presenters/prototype-structure.presenter';
 
 // Create an Express router
@@ -971,8 +972,15 @@ export async function renderResultsPage(
     };
     const structureVM = buildStructureVM(prototypeData.json.questions);
 
+    const overviewVM = buildOverviewVM(
+        prototypeData.json,
+        prototypeData.generatedFrom,
+        getEnvironmentVariables().SUGGESTIONS_ENABLED
+    );
+
     res.render('results.njk', {
         ...data,
+        overviewVM,
         structureVM,
     });
 }

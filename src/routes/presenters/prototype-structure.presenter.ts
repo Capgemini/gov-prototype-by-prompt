@@ -45,9 +45,6 @@ export function buildStructureVM(questions: ITemplateField[]): StructureVM {
                   }))
                 : undefined;
 
-        // Next jump visibility (mirrors original NJK):
-        // {% if question.next_question_value and (not loop.last) and question.next_question_value != loop.index + 1 %}
-        // Also shows for -1 (finish).
         let showNextJump = false;
         let nextJumpTarget: 'finish' | number | undefined = undefined;
         if (isNonBranching(q) && typeof q.next_question_value === 'number') {
@@ -109,7 +106,6 @@ function buildMermaid(questions: ITemplateField[]): string {
                 lines.push(`Q${i} --> Finish`);
             }
         } else {
-            // Defensive fallback (shouldn't happen with current schema)
             lines.push(`Q${i} --> Finish`);
         }
     });

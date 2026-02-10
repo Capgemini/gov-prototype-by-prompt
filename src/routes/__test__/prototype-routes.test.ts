@@ -1,5 +1,8 @@
 import httpMocks from 'node-mocks-http';
 
+import type { OverviewVM } from '../../routes/presenters/prototype-overview.presenter';
+import type { StructureVM } from '../../routes/presenters/prototype-structure.presenter';
+
 import formSchema from '../../../data/extract-form-questions-schema.json';
 import {
     allUsers,
@@ -1678,6 +1681,82 @@ describe('renderResultsPage', () => {
         expect(
             data.allUsers.find((u: IUser) => u.id === user1.id)
         ).toBeUndefined();
+    });
+
+    it('should include structureVM with list matching questions and valid Mermaid flow', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        expect(response.statusCode).toBe(200);
+        expect(response._getRenderView()).toBe('results.njk');
+
+        const data = response._getRenderData() as Record<string, unknown>;
+        expect(data.structureVM).toBeDefined();
+
+        const structureVM = data.structureVM as {
+            list: {
+                answerType: string;
+                branchingOptions?: unknown[];
+                index: number;
+                nextJumpTarget?: unknown;
+                options?: unknown[];
+                questionText: string;
+                showNextJump?: boolean;
+            }[];
+            mermaid: string;
+        };
+
+        expect(Array.isArray(structureVM.list)).toBe(true);
+
+        expect(structureVM.list.length).toBe(
+            prototypeData1.json.questions.length
+        );
+
+        structureVM.list.forEach((item, idx) => {
+            expect(item.index).toBe(idx + 1);
+            expect(typeof item.answerType).toBe('string');
+            expect(typeof item.questionText).toBe('string');
+        });
+
+        expect(typeof structureVM.mermaid).toBe('string');
+
+        expect(structureVM.mermaid).toContain('flowchart TD');
+        expect(structureVM.mermaid).toContain('Finish(["End"])');
+
+        for (let i = 1; i <= prototypeData1.json.questions.length; i++) {
+            expect(structureVM.mermaid).toContain(`Q${i}[`);
+        }
+    });
+
+    it('includes overviewVM with correct prompt mode and suggestion flags', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        const data = response._getRenderData() as ResultsTemplatePayload & {
+            overviewVM: OverviewVM;
+            structureVM: StructureVM;
+        };
+
+        const overviewVM = data.overviewVM;
+        expect(['json', 'text']).toContain(overviewVM.promptType);
+        expect(typeof overviewVM.showJsonEditor).toBe('boolean');
+        expect(typeof overviewVM.switchPromptButtonText).toBe('string');
+        expect(Array.isArray(overviewVM.suggestions)).toBe(true);
     });
 });
 
