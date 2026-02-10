@@ -33,7 +33,6 @@ export interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
     answer_type: 'branching_choice';
     next_question_value: undefined;
 }
-
 // For all other answer_types, next_question_value is required
 export interface ITemplateFieldNonBranching extends ITemplateFieldBase {
     answer_type: Exclude<string, 'branching_choice'>;
@@ -51,7 +50,6 @@ interface ITemplateFieldBase {
     required: boolean;
     required_error_text?: string;
 }
-
 export const PrototypeDesignSystems = ['GOV.UK', 'HMRC'] as const;
 export type PrototypeDesignSystemsType =
     (typeof PrototypeDesignSystems)[number];
