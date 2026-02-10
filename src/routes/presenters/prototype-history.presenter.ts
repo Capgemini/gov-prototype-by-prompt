@@ -11,7 +11,7 @@ export interface HistoryVM {
     additionalCount: number;
     additionalLabel: string;
     hasMultiple: boolean;
-    pluralSuffix: string; // NEW
+    pluralSuffix: string;
     rows: HistoryRowVM[][];
     totalCount: number;
 }

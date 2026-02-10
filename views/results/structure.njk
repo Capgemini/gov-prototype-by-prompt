@@ -1,0 +1,72 @@
+<h2 class="govuk-heading-m">View the prototype structure</h2>
+
+{{ govukButton({
+  id: "switchStructureTypeButton",
+  type: "button",
+  text: "Graph view",
+  classes: "govuk-button--secondary govuk-!-margin-bottom-2"
+}) }}
+
+<div class="govuk-grid-row">
+    <div id="listStructure" class="govuk-!-padding-left-0">
+        <ol>
+            {% for item in structureVM.list %}
+                <li>
+                    <strong>{{ item.answerType }}</strong>: {{ item.questionText }}
+
+                    {% if item.branchingOptions %}
+                        <ul>
+                            {% for opt in item.branchingOptions %}
+                                <li>
+                                    {{ opt.label }}
+                                    {% if opt.next != 'finish' %}
+                    &rarr; question {{ opt.next }}
+                                    {% else %}
+                    &rarr; finish
+                  {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if item.showNextJump %}
+                        <ul>
+                            <li>
+                                {% if item.nextJumpTarget == 'finish' %}
+                  finish
+                {% else %}
+                  question {{ item.nextJumpTarget }}
+                                {% endif %}
+                            </li>
+                        </ul>
+                    {% endif %}
+
+                    {% if item.options %}
+                        <ul>
+                            {% for o in item.options %}
+                                <li>{{ o }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                    {% if item.minAge %}
+                        <ul>
+                            <li>Minimum age: {{ item.minAge }} years</li>
+                        </ul>
+                    {% endif %}
+                    {% if item.maxAge %}
+                        <ul>
+                            <li>Maximum age: {{ item.maxAge }} years</li>
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div id="prototypeGraph"
+       class="mermaid display-none govuk-!-padding-right-0"
+       style="text-align: center;">
+        {{ structureVM.mermaid | safe }}
+    </div>
+</div>

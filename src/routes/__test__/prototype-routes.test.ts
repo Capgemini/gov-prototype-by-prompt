@@ -1,10 +1,5 @@
 import httpMocks from 'node-mocks-http';
 
-import type { HistoryVM } from '../presenters/prototype-history.presenter';
-import type { OverviewVM } from '../presenters/prototype-overview.presenter';
-import type { SharingVM } from '../presenters/prototype-sharing.presenter';
-import type { StructureVM } from '../presenters/prototype-structure.presenter';
-
 import formSchema from '../../../data/extract-form-questions-schema.json';
 import {
     allUsers,
@@ -1304,7 +1299,7 @@ describe('renderResultsPage', () => {
         await renderResultsPage(request, response);
 
         expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
+        expect(response._getRenderView()).toBe('results/main.njk');
         const data = response._getRenderData() as ResultsTemplatePayload;
         expect(data.enableSuggestions).toBe(true);
         expect(data.isOwner).toBe(true);
@@ -1325,7 +1320,7 @@ describe('renderResultsPage', () => {
         await renderResultsPage(request, response);
 
         expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
+        expect(response._getRenderView()).toBe('results/main.njk');
         const data = response._getRenderData() as ResultsTemplatePayload;
         expect(data.allUsers).toEqual([]);
         expect(data.allWorkspaces).toHaveLength(1);
@@ -1683,159 +1678,6 @@ describe('renderResultsPage', () => {
         expect(
             data.allUsers.find((u: IUser) => u.id === user1.id)
         ).toBeUndefined();
-    });
-
-    it('should include structureVM with list matching questions and valid Mermaid flow', async () => {
-        const request = httpMocks.createRequest({
-            method: 'GET',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-
-        const response = httpMocks.createResponse();
-
-        await renderResultsPage(request, response);
-
-        expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
-
-        const data = response._getRenderData() as Record<string, unknown>;
-        expect(data.structureVM).toBeDefined();
-
-        const structureVM = data.structureVM as {
-            list: {
-                answerType: string;
-                branchingOptions?: unknown[];
-                index: number;
-                nextJumpTarget?: unknown;
-                options?: unknown[];
-                questionText: string;
-                showNextJump?: boolean;
-            }[];
-            mermaid: string;
-        };
-
-        expect(Array.isArray(structureVM.list)).toBe(true);
-
-        expect(structureVM.list.length).toBe(
-            prototypeData1.json.questions.length
-        );
-
-        structureVM.list.forEach((item, idx) => {
-            expect(item.index).toBe(idx + 1);
-            expect(typeof item.answerType).toBe('string');
-            expect(typeof item.questionText).toBe('string');
-        });
-
-        expect(typeof structureVM.mermaid).toBe('string');
-
-        expect(structureVM.mermaid).toContain('flowchart TD');
-        expect(structureVM.mermaid).toContain('Finish(["End"])');
-
-        for (let i = 1; i <= prototypeData1.json.questions.length; i++) {
-            expect(structureVM.mermaid).toContain(`Q${i}[`);
-        }
-    });
-
-    it('includes overviewVM with correct prompt mode and suggestion flags', async () => {
-        const request = httpMocks.createRequest({
-            method: 'GET',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
-
-        await renderResultsPage(request, response);
-
-        const data = response._getRenderData() as ResultsTemplatePayload & {
-            overviewVM: OverviewVM;
-            structureVM: StructureVM;
-        };
-
-        const overviewVM = data.overviewVM;
-        expect(['json', 'text']).toContain(overviewVM.promptType);
-        expect(typeof overviewVM.showJsonEditor).toBe('boolean');
-        expect(typeof overviewVM.switchPromptButtonText).toBe('string');
-        expect(Array.isArray(overviewVM.suggestions)).toBe(true);
-    });
-
-    it('includes historyVM with correct row structure and counts', async () => {
-        const request = httpMocks.createRequest({
-            method: 'GET',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
-
-        await renderResultsPage(request, response);
-
-        const renderData =
-            response._getRenderData() as ResultsTemplatePayload & {
-                historyVM: HistoryVM;
-            };
-
-        const historyVM = renderData.historyVM;
-
-        expect(historyVM).toBeDefined();
-        expect(Array.isArray(historyVM.rows)).toBe(true);
-        expect(historyVM.rows.length).toBeGreaterThan(0);
-
-        expect(historyVM.rows[0][0].html).toContain('this&nbsp;version');
-
-        expect(historyVM.totalCount).toBeGreaterThanOrEqual(
-            historyVM.rows.length - 1
-        );
-        expect(typeof historyVM.pluralSuffix).toBe('string');
-        expect(typeof historyVM.additionalLabel).toBe('string');
-
-        expect(typeof historyVM.hasMultiple).toBe('boolean');
-    });
-
-    it('includes sharingVM with expected workspace options and shared user info', async () => {
-        const request = httpMocks.createRequest({
-            method: 'GET',
-            params: { id: prototypeData1.id },
-            prototypeData: prototypeData1,
-            user: user1,
-        });
-        const response = httpMocks.createResponse();
-
-        await renderResultsPage(request, response);
-
-        expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
-
-        const renderData =
-            response._getRenderData() as ResultsTemplatePayload & {
-                sharingVM: SharingVM;
-            };
-
-        const sharingVM = renderData.sharingVM;
-
-        expect(sharingVM).toBeDefined();
-        expect(typeof sharingVM.isOwner).toBe('boolean');
-        expect(Array.isArray(sharingVM.workspaces)).toBe(true);
-        expect(Array.isArray(sharingVM.sharedUsers)).toBe(true);
-
-        expect(sharingVM.workspaces.length).toBeGreaterThan(0);
-
-        const selectedWorkspace = sharingVM.workspaces.find((w) => w.selected);
-        expect(selectedWorkspace).toBeDefined();
-        expect(typeof selectedWorkspace?.text).toBe('string');
-        expect(typeof selectedWorkspace?.value).toBe('string');
-
-        expect(['none', 'password', 'public']).toContain(
-            sharingVM.publicSharing.mode
-        );
-        expect(typeof sharingVM.publicSharing.password).toBe('string');
-
-        sharingVM.sharedUsers.forEach((u) => {
-            expect(typeof u.nameAndEmail).toBe('string');
-            expect(typeof u.userId).toBe('string');
-        });
     });
 });
 

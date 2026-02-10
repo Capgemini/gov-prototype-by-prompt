@@ -1,0 +1,18 @@
+<h2 class="govuk-heading-m">View previous versions</h2>
+
+{% if historyVM.hasMultiple %}
+    {{ govukTable({
+    head: [],
+    rows: historyVM.rows
+  }) }}
+
+    {% if historyVM.additionalLabel %}
+        <p class="govuk-body">
+            {{ historyVM.additionalLabel }}
+        </p>
+    {% endif %}
+{% else %}
+    <p class="govuk-body">
+        {{ historyVM.rows[0][0].html | safe }}
+    </p>
+{% endif %}

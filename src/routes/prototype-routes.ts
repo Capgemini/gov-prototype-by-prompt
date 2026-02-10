@@ -992,7 +992,7 @@ export async function renderResultsPage(
         sharedWithUsers
     );
 
-    res.render('results.njk', {
+    res.render('results/main.njk', {
         ...data,
         historyVM,
         overviewVM,
