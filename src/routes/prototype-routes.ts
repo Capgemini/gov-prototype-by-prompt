@@ -61,6 +61,7 @@ import {
 } from '../utils';
 import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
+import { buildHistoryVM } from './presenters/prototype-history.presenter';
 import { buildOverviewVM } from './presenters/prototype-overview.presenter';
 import { buildStructureVM } from './presenters/prototype-structure.presenter';
 
@@ -977,9 +978,17 @@ export async function renderResultsPage(
         prototypeData.generatedFrom,
         getEnvironmentVariables().SUGGESTIONS_ENABLED
     );
+    const historyVM = await buildHistoryVM(
+        prototypeData,
+        previousPrototypes,
+        totalCountPreviousPrototypes,
+        getUserById,
+        user.id
+    );
 
     res.render('results.njk', {
         ...data,
+        historyVM,
         overviewVM,
         structureVM,
     });

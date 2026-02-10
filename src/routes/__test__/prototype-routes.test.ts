@@ -1,5 +1,6 @@
 import httpMocks from 'node-mocks-http';
 
+import type { HistoryVM } from '../../routes/presenters/prototype-history.presenter';
 import type { OverviewVM } from '../../routes/presenters/prototype-overview.presenter';
 import type { StructureVM } from '../../routes/presenters/prototype-structure.presenter';
 
@@ -1757,6 +1758,37 @@ describe('renderResultsPage', () => {
         expect(typeof overviewVM.showJsonEditor).toBe('boolean');
         expect(typeof overviewVM.switchPromptButtonText).toBe('string');
         expect(Array.isArray(overviewVM.suggestions)).toBe(true);
+    });
+
+    it('includes historyVM with correct row structure and counts', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        const renderData =
+            response._getRenderData() as ResultsTemplatePayload & {
+                historyVM: HistoryVM;
+            };
+
+        const historyVM = renderData.historyVM;
+
+        expect(historyVM).toBeDefined();
+        expect(Array.isArray(historyVM.rows)).toBe(true);
+        expect(historyVM.rows.length).toBeGreaterThan(0);
+
+        expect(historyVM.rows[0][0].html).toContain('this&nbsp;version');
+
+        expect(historyVM.totalCount).toBeGreaterThanOrEqual(
+            historyVM.rows.length - 1
+        );
+
+        expect(typeof historyVM.hasMultiple).toBe('boolean');
     });
 });
 

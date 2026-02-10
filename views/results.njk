@@ -244,32 +244,35 @@
 
       {% set historyHtml %}
       <h2 class="govuk-heading-m">View previous versions</h2>
-      {% if previousPrototypesRows | length > 1 %}
+      {% if historyVM.hasMultiple %}
         {{ govukTable({
-            head: [],
-            rows: previousPrototypesRows
-          }) }}
-        {% if additionalCountPreviousPrototypes > 0 %}
-          <p class="govuk-body">
-              Plus {{ additionalCountPreviousPrototypes }} more previous version{{ 's' if additionalCountPreviousPrototypes != 1 else '' }} (total {{ totalCountPreviousPrototypes + 1 }}).
-          {% endif %}
-        {% else %}
-          <p class="govuk-body">
-            {{ previousPrototypesRows[0][0].html | safe }}
-          </p>
-        {% endif %}
-        {% endset -%}
+              head: [],
+              rows: historyVM.rows
+            }) }}
 
-        {% set sharingHtml %}
-        <form id="sharingForm" class="govuk-form-group govuk-!-margin-0" novalidate>
-          <h2 class="govuk-heading-m">Share this prototype</h2>
-          <div class="sharing-column govuk-!-padding-left-0">
-            {% if not isOwner %}
-              <p class="govuk-body">
+        {% if historyVM.additionalCount > 0 %}
+          <p class="govuk-body">
+                Plus {{ historyVM.additionalCount }} more previous version{% if historyVM.additionalCount != 1 %}s{% endif %}
+                (total {{ historyVM.totalCount }}).
+              </p>
+        {% endif %}
+      {% else %}
+        <p class="govuk-body">
+          {{ historyVM.rows[0][0].html | safe }}
+        </p>
+      {% endif %}
+      {% endset -%}
+
+      {% set sharingHtml %}
+      <form id="sharingForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+        <h2 class="govuk-heading-m">Share this prototype</h2>
+        <div class="sharing-column govuk-!-padding-left-0">
+          {% if not isOwner %}
+            <p class="govuk-body">
                 Only the members of this prototype's workspace, {{ workspace.name }}, can manage sharing. 
               </p>
-            {% endif %}
-            {{ govukSelect({
+          {% endif %}
+          {{ govukSelect({
               classes: "govuk-!-width-full",
               id: "newWorkspaceId",
               name: "newWorkspaceId",
@@ -280,8 +283,8 @@
               items: allWorkspaces,
               disabled: not isOwner
             }) }}
-            {% set publicSharingPasswordHtml %}
-            {{ govukPasswordInput({
+          {% set publicSharingPasswordHtml %}
+          {{ govukPasswordInput({
                 id: "publicSharingPassword",
                 name: "publicSharingPassword",
                 autocomplete: "new-password",
@@ -291,8 +294,8 @@
                 },
                 disabled: not isOwner
               }) }}
-            {% endset -%}
-            {{ govukRadios({
+          {% endset -%}
+          {{ govukRadios({
               name: "publicSharing",
               fieldset: {
                 legend: {
@@ -325,44 +328,44 @@
                 }
               ]
             }) }}
-            {% if isOwner %}
-              <div class="govuk-button-group">
-                {{ govukButton({
+          {% if isOwner %}
+            <div class="govuk-button-group">
+              {{ govukButton({
                   id: 'updateSharingButton',
                   text: "Save public sharing",
                   type: "submit",
                   preventDoubleClick: true,
                   disabled: not isOwner
                 }) }}
-                {{ govukButton({
+              {{ govukButton({
                   id: 'copyPublicLinkButton',
                   text: "Copy public link",
                   type: "button",
                   classes: "govuk-button--secondary",
                   disabled: not isLivePrototypePublic
                 }) }}
-              </div>
-              <p class="sharing-last-updated govuk-body display-none"></p>
-            {% endif %}
-          </div>
-          <div class="sharing-column govuk-!-padding-right-0">
-            {% if isOwner %}
-              <div class="govuk-form-group">
-                <label class="govuk-label govuk-label--s" for="userToAdd">Share the prototype with other users</label>
-                <div id="event-name-hint" class="govuk-hint">
+            </div>
+            <p class="sharing-last-updated govuk-body display-none"></p>
+          {% endif %}
+        </div>
+        <div class="sharing-column govuk-!-padding-right-0">
+          {% if isOwner %}
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-label--s" for="userToAdd">Share the prototype with other users</label>
+              <div id="event-name-hint" class="govuk-hint">
                   Press the Enter key to add a user
                 </div>
-                <div class="govuk-input__wrapper">
-                  <input class="govuk-input" list="allUsers" id="userToAdd" name="userToAdd" autocomplete="off"/>
-                  <datalist id="allUsers" >
-                    {% for user in allUsers %}
-                      <option value="{{ user.email }}" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">{{ user.name }}</option>
-                    {% endfor %}
-                  </datalist>
-                </div>
+              <div class="govuk-input__wrapper">
+                <input class="govuk-input" list="allUsers" id="userToAdd" name="userToAdd" autocomplete="off"/>
+                <datalist id="allUsers" >
+                  {% for user in allUsers %}
+                    <option value="{{ user.email }}" data-user-id="{{ user.id }}" data-user-name="{{ user.name }}">{{ user.name }}</option>
+                  {% endfor %}
+                </datalist>
               </div>
-              {% macro removeUserButton(userId) %}
-                {{ govukButton({
+            </div>
+            {% macro removeUserButton(userId) %}
+              {{ govukButton({
                   text: "Remove",
                   classes: "govuk-button--warning govuk-!-margin-0 remove-shared-user-button",
                   attributes: {
@@ -370,21 +373,21 @@
                   },
                   disabled: not isOwner
                 }) }}
-              {% endmacro %}
-              {% set rows = [
+            {% endmacro %}
+            {% set rows = [
                 [{ text: "Not shared with any users", colspan: 2, classes: "display-none" if sharedWithUsers | length > 0 else "" }],
                 [{text: "hidden user", classes: "display-none"}, {html: removeUserButton("none"), classes: "display-none"}]
                 ] %}
-              {% for user in sharedWithUsers %}
-                {% set _ = rows.push([
-                  {
-                    text: user.name ~ " (" ~ user.email ~ ")"
-                  }, {
-                    html: removeUserButton(user.id)
-                  }
-                ]) %}
-              {% endfor %}
-              {{ govukTable({
+            {% for user in sharedWithUsers %}
+              {% set _ = rows.push([
+                {
+                  text: user.name ~ " (" ~ user.email ~ ")"
+                }, {
+                  html: removeUserButton(user.id)
+                }
+              ]) %}
+            {% endfor %}
+            {{ govukTable({
                 firstCellIsHeader: false,
                 classes: "shared-with-users-table",
                 head: [
@@ -397,17 +400,17 @@
                 ],
                 rows: rows
               }) }}
-              <p class="sharing-last-updated govuk-body"></p>
-            {% else %}
-              {% set rows = [] %}
-              {% for user in sharedWithUsers %}
-                {% set _ = rows.push([
-                  {
-                    text: user.name ~ " (" ~ user.email ~ ")"
-                  }
-                ]) %}
-              {% endfor %}
-              {{ govukTable({
+            <p class="sharing-last-updated govuk-body"></p>
+          {% else %}
+            {% set rows = [] %}
+            {% for user in sharedWithUsers %}
+              {% set _ = rows.push([
+                {
+                  text: user.name ~ " (" ~ user.email ~ ")"
+                }
+              ]) %}
+            {% endfor %}
+            {{ govukTable({
                 firstCellIsHeader: false,
                 caption: "Share the prototype with other users",
                 captionClasses: "govuk-table__caption--s govuk-!-margin-top-6",
@@ -415,12 +418,12 @@
                 head: [],
                 rows: rows
               }) }}
-            {% endif %}
-          </div>
-        </form>
-        {% endset -%}
+          {% endif %}
+        </div>
+      </form>
+      {% endset -%}
 
-        {{ govukTabs({
+      {{ govukTabs({
         items: [
           {
             label: "Overview",
@@ -452,309 +455,156 @@
           }
         ]
       }) }}
-      </div>
+    </div>
 
-      <div id="demoColumn" class="govuk-grid-column-one-half">
-        <!-- Live Preview -->
-        <iframe id="previewFrame" 
+    <div id="demoColumn" class="govuk-grid-column-one-half">
+      <!-- Live Preview -->
+      <iframe id="previewFrame" 
               src="/prototype/{{ prototypeId }}/start" 
               width="100%" 
               height="650px" 
               style="border: 1px solid #b1b4b6; border-radius: 4px; resize: vertical; overflow: auto"
               sandbox="allow-same-origin allow-scripts allow-forms"
               title="{{ prototypeTitle }}"></iframe>
-      </div>
     </div>
-  {% endblock %}
+  </div>
+{% endblock %}
 
-  {% block bodyEnd %}
-    {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
-    {{ super() }}
-    <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script src="{{ assetPath }}/ace-editor-src-min/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
-    <script src="{{ assetPath }}/ace-linters/ace-linters.js" type="text/javascript" charset="utf-8"></script>
-    <script src="{{ assetPath }}/mermaid/mermaid.min.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-      // Enable autocompletion
-      ace.require("ace/ext/language_tools");
+{% block bodyEnd %}
+  {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+  {{ super() }}
+  <script src="{{ assetPath }}/ace-editor-src-min/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/ace-editor-src-min/ext-language_tools.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/ace-linters/ace-linters.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ assetPath }}/mermaid/mermaid.min.js" type="text/javascript" charset="utf-8"></script>
+  <script>
+    // Enable autocompletion
+    ace.require("ace/ext/language_tools");
 
-      // Initialize the Ace editor for JSON input
-      ace
-        .config
-        .set("basePath", "{{ assetPath }}/ace-editor-src-min");
-      var editor = ace.edit("aceEditor", {
-        mode: "ace/mode/json",
-        wrap: true,
-        enableBasicAutocompletion: true,
-        enableLiveAutocompletion: true
-      });
+    // Initialize the Ace editor for JSON input
+    ace
+      .config
+      .set("basePath", "{{ assetPath }}/ace-editor-src-min");
+    var editor = ace.edit("aceEditor", {
+      mode: "ace/mode/json",
+      wrap: true,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true
+    });
 
-      // Create a language provider
-      var provider = LanguageProvider.fromCdn(window.location.origin + "{{ assetPath }}/ace-linters/");
+    // Create a language provider
+    var provider = LanguageProvider.fromCdn(window.location.origin + "{{ assetPath }}/ace-linters/");
 
-      // Register the editor with the language provider and set the schema
-      provider.registerEditor(editor);
-      provider.setGlobalOptions("json", {
-        schemas: [
-          {
-            uri: "schema.json",
-            schema: `{{ jsonSchema | safe }}`
-          }
-        ]
-      });
-      provider.setSessionOptions(editor.session, {schemaUri: "schema.json"});
-
-      // Update the hidden input field with the JSON code when the editor changes
-      const jsonCodeInput = document.getElementById("jsonPrompt");
-      editor
-        .session
-        .on('change', function (delta) {
-          // Replace escaped quotes with smart quotes and make sure backslashes are escaped
-          jsonCodeInput.value = editor
-            .getValue()
-            .replace(/\\"/g, '“')
-            .replace(/\\/g, '\\\\');
-        });
-
-      editor.setValue(`{{ jsonText | safe }}`, -1);
-
-      // Reload the page if the user navigates back
-      // This makes sure the submit button is re-enabled
-      window.addEventListener("pageshow", function (event) {
-        const historyTraversal = event.persisted || (typeof window.performance !== "undefined" && window.performance.getEntriesByType('navigation').length > 0 && window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
-        if (historyTraversal) {
-          window
-            .location
-            .reload();
+    // Register the editor with the language provider and set the schema
+    provider.registerEditor(editor);
+    provider.setGlobalOptions("json", {
+      schemas: [
+        {
+          uri: "schema.json",
+          schema: `{{ jsonSchema | safe }}`
         }
+      ]
+    });
+    provider.setSessionOptions(editor.session, {schemaUri: "schema.json"});
+
+    // Update the hidden input field with the JSON code when the editor changes
+    const jsonCodeInput = document.getElementById("jsonPrompt");
+    editor
+      .session
+      .on('change', function (delta) {
+        // Replace escaped quotes with smart quotes and make sure backslashes are escaped
+        jsonCodeInput.value = editor
+          .getValue()
+          .replace(/\\"/g, '“')
+          .replace(/\\/g, '\\\\');
       });
 
-      const promptForm = document.getElementById('promptForm');
-      const textPromptInput = document.getElementById('textPrompt');
-      const designSystemSelect = document.getElementById('designSystem');
-      const firstDesignSystem = '{{ designSystem }}';
-      const startButton = document.getElementById('startPrototypeButton');
-      const promptTypeInput = document.getElementById('promptType');
-      const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
-      const switchStructureTypeButton = document.getElementById('switchStructureTypeButton');
-      const listStructure = document.getElementById('listStructure');
-      const prototypeGraph = document.getElementById('prototypeGraph');
-      const suggestionButtons = document.querySelectorAll('.suggestion-button');
-      const sharingLastUpdateds = document.getElementsByClassName('sharing-last-updated');
-      const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
-      const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
-      const prototypeId = '{{ prototypeId }}';
+    editor.setValue(`{{ jsonText | safe }}`, -1);
 
-      // Add a hidden error element to the text prompt input
-      const errorElement = document.createElement('p');
-      errorElement.id = 'textPromptInputErrorMessage';
-      errorElement.className = 'govuk-error-message';
-      errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> Enter a prompt to update the prototype`;
-      errorElement.style.display = 'none';
-      textPromptInput
-        .parentNode
-        .insertBefore(errorElement, textPromptInput);
+    // Reload the page if the user navigates back
+    // This makes sure the submit button is re-enabled
+    window.addEventListener("pageshow", function (event) {
+      const historyTraversal = event.persisted || (typeof window.performance !== "undefined" && window.performance.getEntriesByType('navigation').length > 0 && window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
+      if (historyTraversal) {
+        window
+          .location
+          .reload();
+      }
+    });
 
-      // Initialize mermaid for the prototype structure graph
-      mermaid.initialize({startOnLoad: false, theme: "neutral", securityLevel: 'loose'});
+    const promptForm = document.getElementById('promptForm');
+    const textPromptInput = document.getElementById('textPrompt');
+    const designSystemSelect = document.getElementById('designSystem');
+    const firstDesignSystem = '{{ designSystem }}';
+    const startButton = document.getElementById('startPrototypeButton');
+    const promptTypeInput = document.getElementById('promptType');
+    const switchPromptTypeButton = document.getElementById('switchPromptTypeButton');
+    const switchStructureTypeButton = document.getElementById('switchStructureTypeButton');
+    const listStructure = document.getElementById('listStructure');
+    const prototypeGraph = document.getElementById('prototypeGraph');
+    const suggestionButtons = document.querySelectorAll('.suggestion-button');
+    const sharingLastUpdateds = document.getElementsByClassName('sharing-last-updated');
+    const errorSummary = document.getElementsByClassName("govuk-error-summary")[0];
+    const errorDescription = document.getElementsByClassName("govuk-error-summary__body")[0];
+    const prototypeId = '{{ prototypeId }}';
 
-      // Load the graph if it's visible
-      document.addEventListener('DOMContentLoaded', () => {
-        const graphEl = document.getElementById('prototypeGraph');
-        if (graphEl) {
-          const rect = graphEl.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0 && switchStructureTypeButton.textContent === 'List view') {
-            mermaid.init(undefined, '.mermaid')
-          }
+    // Add a hidden error element to the text prompt input
+    const errorElement = document.createElement('p');
+    errorElement.id = 'textPromptInputErrorMessage';
+    errorElement.className = 'govuk-error-message';
+    errorElement.innerHTML = `<span class="govuk-visually-hidden">Error:</span> Enter a prompt to update the prototype`;
+    errorElement.style.display = 'none';
+    textPromptInput
+      .parentNode
+      .insertBefore(errorElement, textPromptInput);
+
+    // Initialize mermaid for the prototype structure graph
+    mermaid.initialize({startOnLoad: false, theme: "neutral", securityLevel: 'loose'});
+
+    // Load the graph if it's visible
+    document.addEventListener('DOMContentLoaded', () => {
+      const graphEl = document.getElementById('prototypeGraph');
+      if (graphEl) {
+        const rect = graphEl.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0 && switchStructureTypeButton.textContent === 'List view') {
+          mermaid.init(undefined, '.mermaid')
         }
-      });
+      }
+    });
 
-      // Handle switching between list and graph views of the prototype structure
-      switchStructureTypeButton.addEventListener('click', async function (event) {
-        event.preventDefault();
-        listStructure
+    // Handle switching between list and graph views of the prototype structure
+    switchStructureTypeButton.addEventListener('click', async function (event) {
+      event.preventDefault();
+      listStructure
+        .classList
+        .toggle('display-none');
+      prototypeGraph
+        .classList
+        .toggle('display-none');
+      if (switchStructureTypeButton.textContent.trim() === "Graph view") {
+        mermaid.init(undefined, '.mermaid');
+        switchStructureTypeButton.textContent = "List view";
+      } else {
+        switchStructureTypeButton.textContent = "Graph view";
+      }
+    });
+
+    // Handle async form submission
+    promptForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      // Check that the text prompt is not empty, or the design system has changed
+      if (promptTypeInput.value === 'text' && textPromptInput.value.trim() === '' && firstDesignSystem === designSystemSelect.value) {
+        errorElement.style.display = '';
+        textPromptInput
           .classList
-          .toggle('display-none');
-        prototypeGraph
+          .add('govuk-textarea--error');
+        document
+          .querySelector('.govuk-form-group:has(#editor)')
           .classList
-          .toggle('display-none');
-        if (switchStructureTypeButton.textContent.trim() === "Graph view") {
-          mermaid.init(undefined, '.mermaid');
-          switchStructureTypeButton.textContent = "List view";
-        } else {
-          switchStructureTypeButton.textContent = "Graph view";
-        }
-      });
-
-      // Handle async form submission
-      promptForm.addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        // Check that the text prompt is not empty, or the design system has changed
-        if (promptTypeInput.value === 'text' && textPromptInput.value.trim() === '' && firstDesignSystem === designSystemSelect.value) {
-          errorElement.style.display = '';
-          textPromptInput
-            .classList
-            .add('govuk-textarea--error');
-          document
-            .querySelector('.govuk-form-group:has(#editor)')
-            .classList
-            .add('govuk-form-group--error');
-          return;
-        } else {
-          errorElement.style.display = 'none';
-          textPromptInput
-            .classList
-            .remove('govuk-textarea--error');
-          document
-            .querySelector('.govuk-form-group:has(#editor)')
-            .classList
-            .remove('govuk-form-group--error');
-        }
-
-        // Show processing state
-        startButton.disabled = true;
-        startButton.textContent = 'Processing...';
-        switchPromptTypeButton.disabled = true;
-        suggestionButtons.forEach(button => {
-          button.disabled = true; // Disable suggestion buttons
-        });
-
-        // Request to create the prototype
-        const data = new URLSearchParams();
-        for (const pair of new FormData(promptForm)) {
-          data.append(pair[0], pair[1]);
-        }
-        fetch(
-          promptTypeInput.value === 'json'
-          ? '/create'
-          : '/update', {
-          method: 'POST',
-          body: data
-        })
-          .then(async response => {
-            const responseJson = await response.json();
-            // If response is OK, redirect to the prototype page, otherwise show error
-            if (response.ok) {
-              window.location.href = responseJson.url;
-            } else {
-              throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
-            }
-          })
-          .catch(err => {
-            errorSummary
-              .classList
-              .remove('display-none');
-            errorDescription.innerHTML = `${err.message}`;
-            errorSummary.scrollIntoView({block: 'nearest'});
-            startButton.disabled = false;
-            startButton.textContent = 'Update prototype';
-            switchPromptTypeButton.disabled = false;
-            suggestionButtons.forEach(button => {
-              button.disabled = false; // Enable suggestion buttons
-            });
-          });
-      });
-
-      // Allow the user to hide or show the demo
-      const toggleDemoButton = document.getElementById('toggleDemoButton');
-      const mainColumn = document.getElementById('mainColumn');
-      const demoColumn = document.getElementById('demoColumn');
-      const sharingColumns = document.getElementsByClassName('sharing-column');
-      toggleDemoButton.addEventListener('click', function () {
-        [
-          demoColumn, ...sharingLastUpdateds,
-          switchStructureTypeButton
-        ].forEach(element => {
-          element
-            .classList
-            .toggle('display-none');
-        });
-        [demoColumn, mainColumn].forEach(column => {
-          column
-            .classList
-            .toggle('govuk-grid-column-one-half');
-          column
-            .classList
-            .toggle('govuk-grid-column-full');
-        });
-        Array
-          .from([
-            ...sharingColumns,
-            listStructure,
-            prototypeGraph
-          ])
-          .forEach(column => {
-            column
-              .classList
-              .toggle('govuk-grid-column-one-half');
-          });
-        toggleDemoButton.setAttribute('aria-expanded', !demoColumn.classList.contains('display-none'));
-        if (demoColumn.classList.contains('display-none')) {
-          toggleDemoButton.textContent = 'Show demo';
-          listStructure
-            .classList
-            .remove('display-none');
-          prototypeGraph
-            .classList
-            .remove('display-none');
-          mermaid.init(undefined, '.mermaid');
-        } else {
-          toggleDemoButton.textContent = 'Hide demo';
-          if (switchStructureTypeButton.textContent.trim() === "Graph view") {
-            listStructure
-              .classList
-              .remove('display-none');
-            prototypeGraph
-              .classList
-              .add('display-none');
-          } else {
-            listStructure
-              .classList
-              .add('display-none');
-            prototypeGraph
-              .classList
-              .remove('display-none');
-          }
-        }
-      });
-
-      // Handle the reset button click event
-      const resetButton = document.getElementById('resetDemoButton');
-      const previewFrame = document.getElementById('previewFrame');
-      const initialSrc = '/prototype/{{ prototypeId }}/start';
-      resetButton.addEventListener('click', function () {
-        // Make a GET request to reset the prototype
-        fetch(`/prototype/{{ prototypeId }}/reset`, {method: 'GET'})
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            // Reset the preview frame to the initial source
-            previewFrame.src = initialSrc;
-          })
-          .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-            previewFrame.src = initialSrc;
-          });
-      });
-
-      // Allow the user to change the preview to a specific page
-      document
-        .querySelectorAll('a.change-preview-page')
-        .forEach(function (link) {
-          link.addEventListener('click', function (event) {
-            event.preventDefault();
-            if (!demoColumn.classList.contains('display-none')) {
-              previewFrame.src = `/prototype/{{ prototypeId }}/${link.dataset.previewPage}`;
-            }
-          });
-        });
-
-      // Allow the user to switch between text and JSON prompts
-      switchPromptTypeButton.addEventListener('click', function () {
-
-        // Clear any existing error messages on the text area
+          .add('govuk-form-group--error');
+        return;
+      } else {
         errorElement.style.display = 'none';
         textPromptInput
           .classList
@@ -763,29 +613,182 @@
           .querySelector('.govuk-form-group:has(#editor)')
           .classList
           .remove('govuk-form-group--error');
+      }
 
-        const jsonCodeEditor = document.getElementById('editor');
-        textPromptInput.disabled = !textPromptInput.disabled;
-        textPromptInput
-          .classList
-          .toggle('display-none');
-        jsonCodeInput.disabled = !jsonCodeInput.disabled;
-        jsonCodeEditor
-          .classList
-          .toggle('display-none');
-        if (promptTypeInput.value === 'text') {
-          promptTypeInput.value = 'json';
-          switchPromptTypeButton.textContent = "Switch to text";
-        } else {
-          promptTypeInput.value = 'text';
-          switchPromptTypeButton.textContent = "Switch to JSON";
-        }
+      // Show processing state
+      startButton.disabled = true;
+      startButton.textContent = 'Processing...';
+      switchPromptTypeButton.disabled = true;
+      suggestionButtons.forEach(button => {
+        button.disabled = true; // Disable suggestion buttons
       });
-    </script>
-    {% if isOwner %}
-      <script src="{{ assetPath }}/js/prototype-sharing.js" type="text/javascript"></script>
-    {% endif %}
-    {% if enableSuggestions %}
-      <script src="{{ assetPath }}/js/prototype-suggestions.js" type="text/javascript"></script>
-    {% endif %}
-  {% endblock %}
+
+      // Request to create the prototype
+      const data = new URLSearchParams();
+      for (const pair of new FormData(promptForm)) {
+        data.append(pair[0], pair[1]);
+      }
+      fetch(
+        promptTypeInput.value === 'json'
+        ? '/create'
+        : '/update', {
+        method: 'POST',
+        body: data
+      })
+        .then(async response => {
+          const responseJson = await response.json();
+          // If response is OK, redirect to the prototype page, otherwise show error
+          if (response.ok) {
+            window.location.href = responseJson.url;
+          } else {
+            throw new Error(responseJson.message ?? `${response.status} ${response.statusText}`);
+          }
+        })
+        .catch(err => {
+          errorSummary
+            .classList
+            .remove('display-none');
+          errorDescription.innerHTML = `${err.message}`;
+          errorSummary.scrollIntoView({block: 'nearest'});
+          startButton.disabled = false;
+          startButton.textContent = 'Update prototype';
+          switchPromptTypeButton.disabled = false;
+          suggestionButtons.forEach(button => {
+            button.disabled = false; // Enable suggestion buttons
+          });
+        });
+    });
+
+    // Allow the user to hide or show the demo
+    const toggleDemoButton = document.getElementById('toggleDemoButton');
+    const mainColumn = document.getElementById('mainColumn');
+    const demoColumn = document.getElementById('demoColumn');
+    const sharingColumns = document.getElementsByClassName('sharing-column');
+    toggleDemoButton.addEventListener('click', function () {
+      [
+        demoColumn, ...sharingLastUpdateds,
+        switchStructureTypeButton
+      ].forEach(element => {
+        element
+          .classList
+          .toggle('display-none');
+      });
+      [demoColumn, mainColumn].forEach(column => {
+        column
+          .classList
+          .toggle('govuk-grid-column-one-half');
+        column
+          .classList
+          .toggle('govuk-grid-column-full');
+      });
+      Array
+        .from([
+          ...sharingColumns,
+          listStructure,
+          prototypeGraph
+        ])
+        .forEach(column => {
+          column
+            .classList
+            .toggle('govuk-grid-column-one-half');
+        });
+      toggleDemoButton.setAttribute('aria-expanded', !demoColumn.classList.contains('display-none'));
+      if (demoColumn.classList.contains('display-none')) {
+        toggleDemoButton.textContent = 'Show demo';
+        listStructure
+          .classList
+          .remove('display-none');
+        prototypeGraph
+          .classList
+          .remove('display-none');
+        mermaid.init(undefined, '.mermaid');
+      } else {
+        toggleDemoButton.textContent = 'Hide demo';
+        if (switchStructureTypeButton.textContent.trim() === "Graph view") {
+          listStructure
+            .classList
+            .remove('display-none');
+          prototypeGraph
+            .classList
+            .add('display-none');
+        } else {
+          listStructure
+            .classList
+            .add('display-none');
+          prototypeGraph
+            .classList
+            .remove('display-none');
+        }
+      }
+    });
+
+    // Handle the reset button click event
+    const resetButton = document.getElementById('resetDemoButton');
+    const previewFrame = document.getElementById('previewFrame');
+    const initialSrc = '/prototype/{{ prototypeId }}/start';
+    resetButton.addEventListener('click', function () {
+      // Make a GET request to reset the prototype
+      fetch(`/prototype/{{ prototypeId }}/reset`, {method: 'GET'})
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          // Reset the preview frame to the initial source
+          previewFrame.src = initialSrc;
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+          previewFrame.src = initialSrc;
+        });
+    });
+
+    // Allow the user to change the preview to a specific page
+    document
+      .querySelectorAll('a.change-preview-page')
+      .forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          if (!demoColumn.classList.contains('display-none')) {
+            previewFrame.src = `/prototype/{{ prototypeId }}/${link.dataset.previewPage}`;
+          }
+        });
+      });
+
+    // Allow the user to switch between text and JSON prompts
+    switchPromptTypeButton.addEventListener('click', function () {
+
+      // Clear any existing error messages on the text area
+      errorElement.style.display = 'none';
+      textPromptInput
+        .classList
+        .remove('govuk-textarea--error');
+      document
+        .querySelector('.govuk-form-group:has(#editor)')
+        .classList
+        .remove('govuk-form-group--error');
+
+      const jsonCodeEditor = document.getElementById('editor');
+      textPromptInput.disabled = !textPromptInput.disabled;
+      textPromptInput
+        .classList
+        .toggle('display-none');
+      jsonCodeInput.disabled = !jsonCodeInput.disabled;
+      jsonCodeEditor
+        .classList
+        .toggle('display-none');
+      if (promptTypeInput.value === 'text') {
+        promptTypeInput.value = 'json';
+        switchPromptTypeButton.textContent = "Switch to text";
+      } else {
+        promptTypeInput.value = 'text';
+        switchPromptTypeButton.textContent = "Switch to JSON";
+      }
+    });
+  </script>
+  {% if isOwner %}
+    <script src="{{ assetPath }}/js/prototype-sharing.js" type="text/javascript"></script>
+  {% endif %}
+  {% if enableSuggestions %}
+    <script src="{{ assetPath }}/js/prototype-suggestions.js" type="text/javascript"></script>
+  {% endif %}
+{% endblock %}
