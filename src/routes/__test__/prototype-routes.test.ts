@@ -1,8 +1,9 @@
 import httpMocks from 'node-mocks-http';
 
-import type { HistoryVM } from '../../routes/presenters/prototype-history.presenter';
-import type { OverviewVM } from '../../routes/presenters/prototype-overview.presenter';
-import type { StructureVM } from '../../routes/presenters/prototype-structure.presenter';
+import type { HistoryVM } from '../presenters/prototype-history.presenter';
+import type { OverviewVM } from '../presenters/prototype-overview.presenter';
+import type { SharingVM } from '../presenters/prototype-sharing.presenter';
+import type { StructureVM } from '../presenters/prototype-structure.presenter';
 
 import formSchema from '../../../data/extract-form-questions-schema.json';
 import {
@@ -1787,8 +1788,54 @@ describe('renderResultsPage', () => {
         expect(historyVM.totalCount).toBeGreaterThanOrEqual(
             historyVM.rows.length - 1
         );
+        expect(typeof historyVM.pluralSuffix).toBe('string');
+        expect(typeof historyVM.additionalLabel).toBe('string');
 
         expect(typeof historyVM.hasMultiple).toBe('boolean');
+    });
+
+    it('includes sharingVM with expected workspace options and shared user info', async () => {
+        const request = httpMocks.createRequest({
+            method: 'GET',
+            params: { id: prototypeData1.id },
+            prototypeData: prototypeData1,
+            user: user1,
+        });
+        const response = httpMocks.createResponse();
+
+        await renderResultsPage(request, response);
+
+        expect(response.statusCode).toBe(200);
+        expect(response._getRenderView()).toBe('results.njk');
+
+        const renderData =
+            response._getRenderData() as ResultsTemplatePayload & {
+                sharingVM: SharingVM;
+            };
+
+        const sharingVM = renderData.sharingVM;
+
+        expect(sharingVM).toBeDefined();
+        expect(typeof sharingVM.isOwner).toBe('boolean');
+        expect(Array.isArray(sharingVM.workspaces)).toBe(true);
+        expect(Array.isArray(sharingVM.sharedUsers)).toBe(true);
+
+        expect(sharingVM.workspaces.length).toBeGreaterThan(0);
+
+        const selectedWorkspace = sharingVM.workspaces.find((w) => w.selected);
+        expect(selectedWorkspace).toBeDefined();
+        expect(typeof selectedWorkspace?.text).toBe('string');
+        expect(typeof selectedWorkspace?.value).toBe('string');
+
+        expect(['none', 'password', 'public']).toContain(
+            sharingVM.publicSharing.mode
+        );
+        expect(typeof sharingVM.publicSharing.password).toBe('string');
+
+        sharingVM.sharedUsers.forEach((u) => {
+            expect(typeof u.nameAndEmail).toBe('string');
+            expect(typeof u.userId).toBe('string');
+        });
     });
 });
 

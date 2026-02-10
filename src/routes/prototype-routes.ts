@@ -63,6 +63,7 @@ import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
 import { buildHistoryVM } from './presenters/prototype-history.presenter';
 import { buildOverviewVM } from './presenters/prototype-overview.presenter';
+import { buildSharingVM } from './presenters/prototype-sharing.presenter';
 import { buildStructureVM } from './presenters/prototype-structure.presenter';
 
 // Create an Express router
@@ -972,7 +973,6 @@ export async function renderResultsPage(
         workspace: (await getWorkspaceById(prototypeData.workspaceId))!,
     };
     const structureVM = buildStructureVM(prototypeData.json.questions);
-
     const overviewVM = buildOverviewVM(
         prototypeData.json,
         prototypeData.generatedFrom,
@@ -985,11 +985,18 @@ export async function renderResultsPage(
         getUserById,
         user.id
     );
+    const sharingVM = buildSharingVM(
+        prototypeData,
+        isOwner,
+        allWorkspaces,
+        sharedWithUsers
+    );
 
     res.render('results.njk', {
         ...data,
         historyVM,
         overviewVM,
+        sharingVM,
         structureVM,
     });
 }

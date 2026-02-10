@@ -9,7 +9,9 @@ export interface HistoryRowVM {
 
 export interface HistoryVM {
     additionalCount: number;
+    additionalLabel: string;
     hasMultiple: boolean;
+    pluralSuffix: string; // NEW
     rows: HistoryRowVM[][];
     totalCount: number;
 }
@@ -54,9 +56,20 @@ export async function buildHistoryVM(
         ]);
     }
 
+    const additionalCount = totalCount - previous.length;
+
+    const pluralSuffix = additionalCount === 1 ? '' : 's';
+
+    const additionalLabel =
+        additionalCount > 0
+            ? `Plus ${additionalCount} more previous version${pluralSuffix} (total ${totalCount}).`
+            : '';
+
     return {
-        additionalCount: totalCount - previous.length,
+        additionalCount,
+        additionalLabel,
         hasMultiple: rows.length > 1,
+        pluralSuffix,
         rows,
         totalCount,
     };
