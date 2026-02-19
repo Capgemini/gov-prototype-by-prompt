@@ -62,7 +62,7 @@ export async function buildHistoryVM(
 
     const additionalLabel =
         additionalCount > 0
-            ? `Plus ${additionalCount} more previous version${pluralSuffix} (total ${totalCount}).`
+            ? `Plus ${String(additionalCount)} more previous version${pluralSuffix} (total ${String(totalCount)}).`
             : '';
 
     return {

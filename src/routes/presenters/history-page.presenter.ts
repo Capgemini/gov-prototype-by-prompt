@@ -49,9 +49,9 @@ export function buildHistoryPageVM(input: {
     if (totalPrototypes === 0) {
         summaryText = 'There are no prototypes.';
     } else if (totalPrototypes === countPrototypes) {
-        summaryText = `Showing all ${totalPrototypes} prototype${totalPrototypes !== 1 ? 's' : ''}.`;
+        summaryText = `Showing all ${String(totalPrototypes)} prototype${totalPrototypes === 1 ? '' : 's'}.`;
     } else {
-        summaryText = `Showing ${countPrototypes} prototype${countPrototypes !== 1 ? 's' : ''} out of ${totalPrototypes}.`;
+        summaryText = `Showing ${String(countPrototypes)} prototype${countPrototypes === 1 ? '' : 's'} out of ${String(totalPrototypes)}.`;
     }
 
     return {

@@ -115,7 +115,7 @@ function buildMermaid(questions: ITemplateField[]): string {
 }
 
 function escapeForMermaid(text: string): string {
-    return String(text).replace(/"/g, '\\"');
+    return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
 function isBranchingChoice(
