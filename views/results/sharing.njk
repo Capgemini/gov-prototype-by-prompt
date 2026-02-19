@@ -1,0 +1,130 @@
+<form id="sharingForm" class="govuk-form-group govuk-!-margin-0" novalidate>
+    <h2 class="govuk-heading-m">Share this prototype</h2>
+
+    <div class="sharing-column govuk-!-padding-left-0">
+
+        {% if sharingVM.showOwnerWarning %}
+            <p class="govuk-body">
+        Only the members of this workspace can manage sharing.
+      </p>
+        {% endif %}
+
+        {{ govukSelect({
+      classes: "govuk-!-width-full",
+      id: "newWorkspaceId",
+      name: "newWorkspaceId",
+      label: {
+        text: "Choose a workspace",
+        classes: "govuk-label--s"
+      },
+      items: sharingVM.workspaces,
+      disabled: not sharingVM.isOwner
+    }) }}
+
+        {% set passwordHtml %}
+        {{ govukPasswordInput({
+        id: "publicSharingPassword",
+        name: "publicSharingPassword",
+        autocomplete: "new-password",
+        value: sharingVM.publicSharing.password,
+        label: { text: "Password" },
+        disabled: not sharingVM.isOwner
+      }) }}
+        {% endset %}
+
+        {{ govukRadios({
+      name: "publicSharing",
+      fieldset: {
+        legend: {
+          text: "Share the live demo prototype publicly",
+          isPageHeading: false,
+          classes: "govuk-fieldset__legend--s"
+        }
+      },
+      items: [
+        {
+          value: "doNotSharePublicly",
+          text: "Do not share publicly",
+          disabled: not sharingVM.isOwner,
+          checked: sharingVM.publicSharing.mode == "none"
+        },
+        {
+          value: "doSharePubliclyWithPassword",
+          text: "Share publicly with password",
+          conditional: { html: passwordHtml },
+          disabled: not sharingVM.isOwner,
+          checked: sharingVM.publicSharing.mode == "password"
+        },
+        {
+          value: "doSharePubliclyWithoutPassword",
+          text: "Share publicly",
+          disabled: not sharingVM.isOwner,
+          checked: sharingVM.publicSharing.mode == "public"
+        }
+      ]
+    }) }}
+
+        {% if sharingVM.isOwner %}
+            <div class="govuk-button-group">
+                {{ govukButton({
+          id: "updateSharingButton",
+          text: "Save public sharing",
+          type: "submit",
+          preventDoubleClick: true
+        }) }}
+
+                {{ govukButton({
+          id: "copyPublicLinkButton",
+          text: "Copy public link",
+          type: "button",
+          classes: "govuk-button--secondary",
+          disabled: sharingVM.publicSharing.mode == "none"
+        }) }}
+            </div>
+            <p class="sharing-last-updated govuk-body display-none"></p>
+        {% endif %}
+    </div>
+
+    <div class="sharing-column govuk-!-padding-right-0">
+        {% if sharingVM.isOwner %}
+
+            <div class="govuk-form-group">
+                <label class="govuk-label govuk-label--s" for="userToAdd">Share the prototype with other users</label>
+                <div class="govuk-hint">Press the Enter key to add a user</div>
+
+                <div class="govuk-input__wrapper">
+                    <input class="govuk-input" list="allUsers" id="userToAdd" name="userToAdd" autocomplete="off">
+                    <datalist id="allUsers">
+                        {% for u in allUsers %}
+                            <option value="{{ u.email }}" data-user-id="{{ u.id }}" data-user-name="{{ u.name }}">
+                                {{ u.name }}
+                            </option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+
+            {{ govukTable({
+        firstCellIsHeader: false,
+        classes: "shared-with-users-table",
+        head: [
+          { text: "User" },
+          { text: "Remove" }
+        ],
+        rows: sharingVM.ownerRows
+      }) }}
+
+        {% else %}
+
+            {{ govukTable({
+        firstCellIsHeader: false,
+        caption: "Shared users",
+        captionClasses: "govuk-table__caption--s govuk-!-margin-top-6",
+        classes: "shared-with-users-table",
+        head: [],
+        rows: sharingVM.viewerRows
+      }) }}
+
+        {% endif %}
+    </div>
+</form>

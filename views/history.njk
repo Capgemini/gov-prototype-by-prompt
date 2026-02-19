@@ -5,171 +5,61 @@
 {% endblock %}
 
 {% block content %}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-l">Your prototypes</h1>
-      <p class="govuk-body">
-        {% if totalPrototypes == 0 %}
-          There are no prototypes.
-        {% elif totalPrototypes == countPrototypes %}
-          Showing all {{ totalPrototypes }} prototype{{ 's' if totalPrototypes != 1 else '' }}.
-        {% else %}
-          Showing {{ countPrototypes }} prototype{{ 's' if countPrototypes != 1 else '' }} out of {{ totalPrototypes }}.
-        {% endif %}
-      </p>
-      <div class="govuk-button-group">
-        {{ govukButton({
-          text: "Create a prototype",
-          href: "/create"
-        }) }}
-      {% if totalPrototypes > 0 %}
-        {{ govukButton({
-          text: "Reset filters",
-          href: "/history",
-          classes: "govuk-button--secondary"
-        }) }}
-        </div>
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-one-half">
-            {{ govukSelect({
-              id: "onlyCreated",
-              name: "onlyCreated",
-              label: {
-                text: "Filter by type",
-                isPageHeading: false
-              },
-              classes: "govuk-!-width-full",
-              items: [
-                {
-                  value: "false",
-                  text: "All prototypes",
-                  selected: onlyCreated === false
-                },
-                {
-                  value: "true",
-                  text: "Exclude updates to existing prototypes",
-                  selected: onlyCreated === true
-                }
-              ]
-            }) }}
-          </div>
-          <div class="govuk-grid-column-one-half">
-            {{ govukSelect({
-              id: "createdBy",
-              name: "createdBy",
-              label: {
-                text: "Filter by creator",
-                isPageHeading: false
-              },
-              classes: "govuk-!-width-full",
-              items: [
-                {
-                  value: "anyone",
-                  text: "Created by anyone",
-                  selected: createdBy === "anyone"
-                },
-                {
-                  value: "self",
-                  text: "Created by you",
-                  selected: createdBy === "self"
-                },
-                {
-                  value: "others",
-                  text: "Created by others",
-                  selected: createdBy === "others"
-                }
-              ]
-            }) }}
-          </div>
-        </div>
-        <div class="govuk-grid-row">
-          <div class="govuk-grid-column-one-half">
-            {{ govukSelect({
-              id: "workspace",
-              name: "workspace",
-              label: {
-                text: "Filter by workspace",
-                isPageHeading: false
-              },
-              classes: "govuk-!-width-full",
-              items: workspaceItems
-            }) }}
-          </div>
-          <div class="govuk-grid-column-one-half">
-            {{ govukSelect({
-              id: "sharing",
-              name: "sharing",
-              label: {
-                text: "Filter by sharing",
-                isPageHeading: false
-              },
-              classes: "govuk-!-width-full",
-              items: [
-                {
-                  value: "all",
-                  text: "All prototypes",
-                  selected: sharing === "all"
-                },
-                {
-                  value: "public",
-                  text: "Prototypes shared publicly",
-                  selected: sharing === "public"
-                },
-                {
-                  value: "users",
-                  text: "Prototypes shared with specific users",
-                  selected: sharing === "users"
-                },
-                {
-                  value: "workspace",
-                  text: "Prototypes within a shared workspace",
-                  selected: sharing === "workspace"
-                },
-                {
-                  value: "private",
-                  text: "Prototypes that are not shared",
-                  selected: sharing === "private"
-                }
-              ]
-            }) }}
-          </div>
-        </div>
-        {{ govukTable({
-          firstCellIsHeader: true,
-          head: header,
-          rows: prototypeRows
-        }) }}
-        {% if showPagination %}
-          {{ govukPagination({
-            classes: "justify-self-center",
-            previous: {
-              href: paginationPreviousHref
-            },
-            next: {
-              href: paginationNextHref
-            },
-            items: paginationItems
-          }) }}
-        {% endif %}
-        {% if countPrototypes > 0 %}
-          {{ govukRadios({
-            classes: "govuk-radios--inline govuk-radios--small",
-            id: "itemsPerPage",
-            name: "itemsPerPage",
-            fieldset: {
-              legend: {
-                text: "Items per page",
-                isPageHeading: false
-              }
-            },
-            items: perPageItems
-          }) }}
-        {% endif %}
-      {% else %}
-        </div>
-      {% endif %}
-    </div>
+  <p class="govuk-body">
+    {{ historyPageVM.summaryText }}
+  </p>
+
+  <div class="govuk-button-group">
+    {{ govukButton({ text: "Create a prototype", href: "/create" }) }}
+    {% if historyPageVM.hasPrototypes %}
+      {{ govukButton({ text: "Reset filters", href: "/history", classes: "govuk-button--secondary" }) }}
+    {% endif %}
   </div>
+
+  {% if historyPageVM.hasPrototypes %}
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-one-half">
+        {{ govukSelect({
+        id: "onlyCreated",
+        name: "onlyCreated",
+        label: { text: "Filter by type" },
+        items: historyPageVM.filterOnlyCreatedItems
+      }) }}
+      </div>
+
+      <div class="govuk-grid-column-one-half">
+        {{ govukSelect({
+        id: "createdBy",
+        name: "createdBy",
+        label: { text: "Filter by creator" },
+        items: historyPageVM.filterCreatedByItems
+      }) }}
+      </div>
+    </div>
+
+    {{ govukTable({ head: header, rows: prototypeRows }) }}
+
+    {% if historyPageVM.showPagination %}
+      {{ govukPagination({
+      previous: { href: historyPageVM.paginationPreviousHref },
+      next: { href: historyPageVM.paginationNextHref },
+      items: historyPageVM.paginationItems
+    }) }}
+    {% endif %}
+
+    {{ govukRadios({
+      classes: "govuk-radios--inline govuk-radios--small",
+      id: "itemsPerPage",
+      name: "itemsPerPage",
+      fieldset: {
+        legend: {
+          text: "Items per page",
+          isPageHeading: false
+        }
+      },
+      items: perPageItems
+    }) }}
+  {% endif %}
 {% endblock %}
 
 {% block bodyEnd %}
@@ -178,13 +68,12 @@
   <script>
     // Reload the page if the user navigates back
     // This makes sure the submit button is re-enabled
-    window.addEventListener("pageshow", function(event) {
-      const historyTraversal = event.persisted ||
-        (typeof window.performance !== "undefined" &&
-          window.performance.getEntriesByType('navigation').length > 0 &&
-          window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
+    window.addEventListener("pageshow", function (event) {
+      const historyTraversal = event.persisted || (typeof window.performance !== "undefined" && window.performance.getEntriesByType('navigation').length > 0 && window.performance.getEntriesByType('navigation')[0].type === 'back_forward');
       if (historyTraversal) {
-        window.location.reload();
+        window
+          .location
+          .reload();
       }
     });
 
@@ -193,23 +82,44 @@
 
       // Handle the click event for the onlyCreated radio input
       formInputs.forEach(input => {
-        input.addEventListener('change', function(event) {
+        input.addEventListener('change', function (event) {
 
           // Get the values
-          const onlyCreatedSelectValue = document.querySelector('select[name="onlyCreated"]').value;
-          const createdBySelectValue = document.querySelector('select[name="createdBy"]').value;
-          const workspaceSelectValue = document.querySelector('select[name="workspace"]').value;
-          const sharingSelectValue = document.querySelector('select[name="sharing"]').value;
-          const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked')?.value ?? '10';
-          
+          const onlyCreatedSelectValue = document
+            .querySelector('select[name="onlyCreated"]')
+            .value;
+          const createdBySelectValue = document
+            .querySelector('select[name="createdBy"]')
+            .value;
+          const workspaceSelectValue = document
+            .querySelector('select[name="workspace"]')
+            .value;
+          const sharingSelectValue = document
+            .querySelector('select[name="sharing"]')
+            .value;
+          const itemsPerPageRadioValue = document.querySelector('input[name="itemsPerPage"]:checked')
+            ?.value ?? '10';
+
           // Redirect to the same page with the selected filter
           const url = new URL(window.location.href);
-          url.searchParams.set('onlyCreated', onlyCreatedSelectValue);
-          url.searchParams.set('createdBy', createdBySelectValue);
-          url.searchParams.set('workspaceId', workspaceSelectValue);
-          url.searchParams.set('sharing', sharingSelectValue);
-          url.searchParams.set('page', '1'); // Reset to the first page
-          url.searchParams.set('perPage', itemsPerPageRadioValue);
+          url
+            .searchParams
+            .set('onlyCreated', onlyCreatedSelectValue);
+          url
+            .searchParams
+            .set('createdBy', createdBySelectValue);
+          url
+            .searchParams
+            .set('workspaceId', workspaceSelectValue);
+          url
+            .searchParams
+            .set('sharing', sharingSelectValue);
+          url
+            .searchParams
+            .set('page', '1'); // Reset to the first page
+          url
+            .searchParams
+            .set('perPage', itemsPerPageRadioValue);
           window.location.href = url.toString();
         });
       });

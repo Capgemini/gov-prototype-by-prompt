@@ -28,6 +28,17 @@ export type ITemplateField =
     | ITemplateFieldBranchingChoice
     | ITemplateFieldNonBranching;
 
+// For "branching_choice", next_question_value is always undefined
+export interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
+    answer_type: 'branching_choice';
+    next_question_value: undefined;
+}
+// For all other answer_types, next_question_value is required
+export interface ITemplateFieldNonBranching extends ITemplateFieldBase {
+    answer_type: Exclude<string, 'branching_choice'>;
+    next_question_value: number;
+}
+
 interface ITemplateFieldBase {
     date_of_birth_maximum_age?: number;
     date_of_birth_minimum_age?: number;
@@ -39,19 +50,6 @@ interface ITemplateFieldBase {
     required: boolean;
     required_error_text?: string;
 }
-
-// For "branching_choice", next_question_value is always undefined
-interface ITemplateFieldBranchingChoice extends ITemplateFieldBase {
-    answer_type: 'branching_choice';
-    next_question_value: undefined;
-}
-
-// For all other answer_types, next_question_value is required
-interface ITemplateFieldNonBranching extends ITemplateFieldBase {
-    answer_type: Exclude<string, 'branching_choice'>;
-    next_question_value: number;
-}
-
 export const PrototypeDesignSystems = ['GOV.UK', 'HMRC'] as const;
 export type PrototypeDesignSystemsType =
     (typeof PrototypeDesignSystems)[number];
