@@ -55,9 +55,9 @@ export async function createFormWithOpenAI(
             : '',
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -68,16 +68,19 @@ export async function createFormWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'create-form-schema',
                     schema: createSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then((response) => {
+            console.log(response);
+            return response.output_text;
+        });
 }
 
 /**
@@ -104,9 +107,9 @@ export async function generateSuggestionsWithOpenAI(
         orgFor: getOrgFor(designSystem),
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -117,16 +120,16 @@ export async function generateSuggestionsWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'generate-form-suggestions-schema',
                     schema: suggestionsSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then((response) => response.output_text);
 }
 
 /**
@@ -157,9 +160,9 @@ export async function judgeFormWithOpenAI(
 JSON Form: ${JSON.stringify(templateData, null, 2)}
 Criteria: "${criteria}"`;
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -170,16 +173,16 @@ Criteria: "${criteria}"`;
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'judge-form-schema',
                     schema: judgeSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then((response) => response.output_text);
 }
 
 /**
@@ -232,9 +235,9 @@ export async function updateFormWithOpenAI(
             : '',
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -245,16 +248,16 @@ export async function updateFormWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'update-form-schema',
                     schema: updateSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then((response) => response.output_text);
 }
 
 /**
