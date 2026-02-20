@@ -1,6 +1,7 @@
 import opentelemetry from '@opentelemetry/api';
 import * as nunjucks from 'nunjucks';
 import { OpenAI } from 'openai';
+import { ResponseOutputMessage } from 'openai/resources/responses/responses';
 
 import formSchema from '../data/extract-form-questions-schema.json';
 import suggestionsSchema from '../data/generate-form-suggestions-schema.json';
@@ -55,9 +56,9 @@ export async function createFormWithOpenAI(
             : '',
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -68,16 +69,16 @@ export async function createFormWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'create-form-schema',
                     schema: createSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then(handleOpenAIResponse);
 }
 
 /**
@@ -104,9 +105,9 @@ export async function generateSuggestionsWithOpenAI(
         orgFor: getOrgFor(designSystem),
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -117,16 +118,36 @@ export async function generateSuggestionsWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'generate-form-suggestions-schema',
                     schema: suggestionsSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then(handleOpenAIResponse);
+}
+
+/**
+ * Handle the response from the OpenAI API.
+ * @param {OpenAI.Responses.Response} response the response from the OpenAI API to handle
+ * @returns {string} The processed response text from the OpenAI API.
+ */
+export function handleOpenAIResponse(
+    response: Partial<OpenAI.Responses.Response>
+): string {
+    if (response.output_text) {
+        return response.output_text;
+    }
+    const content = (
+        response.output as Partial<ResponseOutputMessage>[] | undefined
+    )?.[0]?.content?.[0];
+    if (content?.type === 'refusal') {
+        throw new Error(`OpenAI refused to respond: ${content.refusal}`);
+    }
+    throw new Error('Unexpected response format from OpenAI');
 }
 
 /**
@@ -157,9 +178,9 @@ export async function judgeFormWithOpenAI(
 JSON Form: ${JSON.stringify(templateData, null, 2)}
 Criteria: "${criteria}"`;
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -170,16 +191,16 @@ Criteria: "${criteria}"`;
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'judge-form-schema',
                     schema: judgeSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then(handleOpenAIResponse);
 }
 
 /**
@@ -232,9 +253,9 @@ export async function updateFormWithOpenAI(
             : '',
     });
 
-    return client.chat.completions
+    return client.responses
         .create({
-            messages: [
+            input: [
                 {
                     content: systemPrompt,
                     role: 'system',
@@ -245,16 +266,16 @@ export async function updateFormWithOpenAI(
                 },
             ],
             model: envVars.OPENAI_MODEL_ID,
-            response_format: {
-                json_schema: {
+            text: {
+                format: {
                     name: 'update-form-schema',
                     schema: updateSchema,
                     strict: true,
+                    type: 'json_schema',
                 },
-                type: 'json_schema',
             },
         })
-        .then((response) => response.choices[0].message.content ?? '{}');
+        .then(handleOpenAIResponse);
 }
 
 /**
