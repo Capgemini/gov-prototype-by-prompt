@@ -1,7 +1,7 @@
 import opentelemetry from '@opentelemetry/api';
 import { NextFunction, Request, Response } from 'express';
 import { ValidatorResultError } from 'jsonschema';
-import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 
 import {
     canUserAccessPrototype,
@@ -408,7 +408,7 @@ export const errorHandler = (
     const activeSpan = opentelemetry.trace.getActiveSpan();
     let errorId: string | undefined;
     if (activeSpan) {
-        errorId = uuidv4();
+        errorId = new mongoose.Types.ObjectId().toString();
         activeSpan.setAttribute('error.name', errorName);
         activeSpan.setAttribute('error.message', errorMessage);
         activeSpan.setAttribute('error.stack', String(errorStack));
