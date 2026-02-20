@@ -67,7 +67,7 @@
         "@opentelemetry/sdk-node": "~0.211.0",
         "@opentelemetry/sdk-trace-node": "~2.5.0",
         "ace-builds": "~1.43.6",
-        "ace-linters": "~1.8.7",
+        "ace-linters": "~2.0.0",
         "bcryptjs": "~3.0.3",
         "body-parser": "~2.2.2",
         "client-zip": "~2.5.0",
