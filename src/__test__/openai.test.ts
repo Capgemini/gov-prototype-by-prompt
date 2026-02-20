@@ -1,4 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import OpenAI from 'openai';
 
 import { PrototypeDesignSystemsType, TemplateData } from '../types';
 import { envVarSchema, exampleEnvVars } from '../validationSchemas/env';
@@ -335,5 +336,45 @@ describe('judgeFormWithOpenAI', () => {
                 'some criteria'
             )
         ).rejects.toThrow('API error');
+    });
+});
+
+describe('handleOpenAIResponse', () => {
+    let handleOpenAIResponse: (response: OpenAI.Responses.Response) => string;
+    beforeEach(async () => {
+        ({ handleOpenAIResponse } = await import('../openai'));
+    });
+
+    it('returns output_text if present', () => {
+        const response = {
+            output_text: 'This is the output text',
+        } as OpenAI.Responses.Response;
+        const result = handleOpenAIResponse(response);
+        expect(result).toBe('This is the output text');
+    });
+
+    it('throws if response contains a refusal message', () => {
+        const response = {
+            output: [
+                {
+                    content: [
+                        {
+                            refusal: 'I refuse to answer',
+                            type: 'refusal',
+                        },
+                    ],
+                },
+            ],
+        } as unknown as OpenAI.Responses.Response;
+        expect(() => handleOpenAIResponse(response)).toThrow(
+            'OpenAI refused to respond: I refuse to answer'
+        );
+    });
+
+    it('throws if response format is unexpected', () => {
+        const response = {} as OpenAI.Responses.Response;
+        expect(() => handleOpenAIResponse(response)).toThrow(
+            'Unexpected response format from OpenAI'
+        );
     });
 });

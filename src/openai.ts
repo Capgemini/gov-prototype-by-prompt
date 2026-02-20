@@ -1,6 +1,7 @@
 import opentelemetry from '@opentelemetry/api';
 import * as nunjucks from 'nunjucks';
 import { OpenAI } from 'openai';
+import { ResponseOutputMessage } from 'openai/resources/responses/responses';
 
 import formSchema from '../data/extract-form-questions-schema.json';
 import suggestionsSchema from '../data/generate-form-suggestions-schema.json';
@@ -77,10 +78,7 @@ export async function createFormWithOpenAI(
                 },
             },
         })
-        .then((response) => {
-            console.log(response);
-            return response.output_text;
-        });
+        .then(handleOpenAIResponse);
 }
 
 /**
@@ -129,7 +127,27 @@ export async function generateSuggestionsWithOpenAI(
                 },
             },
         })
-        .then((response) => response.output_text);
+        .then(handleOpenAIResponse);
+}
+
+/**
+ * Handle the response from the OpenAI API.
+ * @param {OpenAI.Responses.Response} response the response from the OpenAI API to handle
+ * @returns {string} The processed response text from the OpenAI API.
+ */
+export function handleOpenAIResponse(
+    response: Partial<OpenAI.Responses.Response>
+): string {
+    if (response.output_text) {
+        return response.output_text;
+    }
+    const content = (
+        response.output as Partial<ResponseOutputMessage>[] | undefined
+    )?.[0]?.content?.[0];
+    if (content?.type === 'refusal') {
+        throw new Error(`OpenAI refused to respond: ${content.refusal}`);
+    }
+    throw new Error('Unexpected response format from OpenAI');
 }
 
 /**
@@ -182,7 +200,7 @@ Criteria: "${criteria}"`;
                 },
             },
         })
-        .then((response) => response.output_text);
+        .then(handleOpenAIResponse);
 }
 
 /**
@@ -257,7 +275,7 @@ export async function updateFormWithOpenAI(
                 },
             },
         })
-        .then((response) => response.output_text);
+        .then(handleOpenAIResponse);
 }
 
 /**
