@@ -150,10 +150,12 @@ export function getEnvironmentVariables(): EnvironmentVariables {
  * This is only used to validate the JSON input from the user, not from the LLM.
  * The schema is cloned to avoid modifying the original.
  * @param {JsonSchema} formSchema The JSON schema to prepare for validation.
+ * @param {boolean} removeAIProperties Whether to remove AI-specific properties that are not part of user input. Defaults to true.
  * @returns {JsonSchema} The modified JSON schema with 'null' types removed and required fields updated.
  */
 export function getFormSchemaForJsonInputValidation(
-    formSchema: JsonSchema
+    formSchema: JsonSchema,
+    removeAIProperties = true
 ): JsonSchema {
     // Create a clone of the schema to avoid modifying the original
     formSchema = structuredClone(formSchema);
@@ -162,9 +164,11 @@ export function getFormSchemaForJsonInputValidation(
     formSchema = updateJsonSchemaFields(formSchema);
 
     // Remove AI-specific properties that are not part of user input
-    delete formSchema.properties?.changes_made;
-    delete formSchema.properties?.explanation;
-    delete formSchema.properties?.suggestions;
+    if (removeAIProperties) {
+        delete formSchema.properties?.changes_made;
+        delete formSchema.properties?.explanation;
+        delete formSchema.properties?.suggestions;
+    }
 
     return formSchema;
 }
