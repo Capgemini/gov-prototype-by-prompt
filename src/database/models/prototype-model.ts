@@ -247,7 +247,7 @@ export class PrototypeModel {
     ): Promise<IPrototypeData | null> {
         try {
             return await Prototype.findByIdAndUpdate(id, updates, {
-                new: true,
+                returnDocument: 'after',
             });
         } catch (error) {
             console.error('Error updating prototype:', error);

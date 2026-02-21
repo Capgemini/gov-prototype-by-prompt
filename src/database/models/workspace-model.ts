@@ -106,7 +106,7 @@ export class WorkspaceModel {
     ): Promise<IWorkspace | null> {
         try {
             return await Workspace.findByIdAndUpdate(id, updates, {
-                new: true,
+                returnDocument: 'after',
             });
         } catch (error) {
             console.error('Error updating workspace:', error);
