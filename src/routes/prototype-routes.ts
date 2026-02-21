@@ -43,6 +43,7 @@ import {
     CreateFormRequestBody,
     DefaultPrototypeDesignSystem,
     IPrototypeData,
+    ITemplateData,
     PrototypeDesignSystems,
     PrototypeDesignSystemsType,
     ResultsTemplatePayload,
@@ -1026,7 +1027,9 @@ export async function handleUpdatePrototype(
             .replace(/\\"/g, '“')
             .replace(/(?<!\\)\\(?!\\)/g, '\\\\');
     } else {
-        const newJson = structuredClone(oldPrototypeData.json);
+        const newJson = JSON.parse(
+            JSON.stringify(oldPrototypeData.json)
+        ) as ITemplateData;
         newJson.changes_made = `Updated design system to ${designSystem}`;
         newJson.explanation = `The design system has been updated to ${designSystem}.`;
         responseText = JSON.stringify(newJson);
@@ -1037,7 +1040,7 @@ export async function handleUpdatePrototype(
     const templateData = validateTemplateDataText(
         responseText,
         prompt.startsWith('Update the design system to ')
-            ? getFormSchemaForJsonInputValidation(formSchema)
+            ? getFormSchemaForJsonInputValidation(formSchema, false)
             : formSchema
     );
 

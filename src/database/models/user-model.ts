@@ -103,7 +103,7 @@ export class UserModel {
         updates: Partial<IUser>
     ): Promise<IUser | null> {
         try {
-            return await User.findByIdAndUpdate(id, updates, { new: true });
+            return await User.findByIdAndUpdate(id, updates, { returnDocument: 'after' });
         } catch (error) {
             console.error('Error updating user:', error);
             throw error;
