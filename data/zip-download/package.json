@@ -15,7 +15,7 @@
         "express": "~5.2.1",
         "express-rate-limit": "~8.2.1",
         "express-session": "~1.19.0",
-        "govuk-frontend": "~5.14.0",
+        "govuk-frontend": "~6.0.0",
         "govuk-markdown": "~0.8.0",
         "hmrc-frontend": "~6.115.0",
         "marked": "~17.0.3",
