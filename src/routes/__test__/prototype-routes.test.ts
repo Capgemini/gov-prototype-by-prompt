@@ -1299,7 +1299,7 @@ describe('renderResultsPage', () => {
         await renderResultsPage(request, response);
 
         expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
+        expect(response._getRenderView()).toBe('results/main.njk');
         const data = response._getRenderData() as ResultsTemplatePayload;
         expect(data.enableSuggestions).toBe(true);
         expect(data.isOwner).toBe(true);
@@ -1320,7 +1320,7 @@ describe('renderResultsPage', () => {
         await renderResultsPage(request, response);
 
         expect(response.statusCode).toBe(200);
-        expect(response._getRenderView()).toBe('results.njk');
+        expect(response._getRenderView()).toBe('results/main.njk');
         const data = response._getRenderData() as ResultsTemplatePayload;
         expect(data.allUsers).toEqual([]);
         expect(data.allWorkspaces).toHaveLength(1);
