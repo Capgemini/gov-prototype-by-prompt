@@ -74,7 +74,7 @@
         "compression": "~1.8.1",
         "dotenv": "~17.3.1",
         "express": "~5.2.1",
-        "express-rate-limit": "~8.2.1",
+        "express-rate-limit": "~8.2.2",
         "express-session": "~1.19.0",
         "express-validator": "~7.3.1",
         "govuk-frontend": "~5.14.0",
