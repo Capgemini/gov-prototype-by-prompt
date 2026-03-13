@@ -36,7 +36,7 @@ export function buildStructureVM(questions: ITemplateField[]): StructureVM {
         const branchingOptions: BranchingOptionVM[] | undefined =
             isBranchingChoice(q) && q.options_branching
                 ? q.options_branching.map((opt) => ({
-                      label: opt.text_value ?? '',
+                      label: opt.text_value,
                       next:
                           typeof opt.next_question_value === 'number' &&
                           opt.next_question_value > 0
@@ -85,23 +85,23 @@ function buildMermaid(questions: ITemplateField[]): string {
     const lines: string[] = ['flowchart TD'];
 
     questions.forEach((q, idx) => {
-        const i = idx + 1;
+        const i = String(idx + 1);
         lines.push(`Q${i}["${escapeForMermaid(q.question_text)}"]`);
 
         if (isBranchingChoice(q) && q.options_branching?.length) {
             q.options_branching.forEach((opt) => {
-                const label = escapeForMermaid(opt.text_value ?? '');
+                const label = escapeForMermaid(opt.text_value);
                 const next =
                     typeof opt.next_question_value === 'number' &&
                     opt.next_question_value > 0
-                        ? `Q${opt.next_question_value}`
+                        ? `Q${String(opt.next_question_value)}`
                         : 'Finish';
                 lines.push(`Q${i} -->|${label}| ${next}`);
             });
         } else if (isNonBranching(q)) {
             const nv = q.next_question_value;
             if (typeof nv === 'number' && nv > 0) {
-                lines.push(`Q${i} --> Q${nv}`);
+                lines.push(`Q${i} --> Q${nv.toString()}`);
             } else {
                 lines.push(`Q${i} --> Finish`);
             }

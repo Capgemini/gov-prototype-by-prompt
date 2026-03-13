@@ -64,7 +64,7 @@ export function buildSharingVM(
         ownerRows,
         publicSharing: {
             mode,
-            password: prototype.livePrototypePublicPassword ?? '',
+            password: prototype.livePrototypePublicPassword,
         },
         sharedUsers,
         showOwnerWarning: !isOwner,
