@@ -62,6 +62,11 @@ import {
 } from '../utils';
 import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
+import { buildHistoryPageVM } from './presenters/history-page.presenter';
+import { buildHistoryVM } from './presenters/results-page-history.presenter';
+import { buildOverviewVM } from './presenters/results-page-overview.presenter';
+import { buildSharingVM } from './presenters/results-page-sharing.presenter';
+import { buildStructureVM } from './presenters/results-page-structure.presenter';
 
 // Create an Express router
 const prototypeRouter = express.Router();
@@ -363,11 +368,24 @@ export async function renderHistoryPage(
         text: option.toString(),
         value: option.toString(),
     }));
-
+    const totalPrototypes = await countPrototypesByUserId(user.id, false);
+    const historyPageVM = buildHistoryPageVM({
+        countPrototypes,
+        createdBy,
+        onlyCreated,
+        paginationItems,
+        paginationNextHref,
+        paginationPreviousHref,
+        perPage,
+        sharing,
+        totalPrototypes,
+        workspaceItems,
+    });
     res.render('history.njk', {
         countPrototypes: countPrototypes,
         createdBy: createdBy,
         header: header,
+        historyPageVM,
         itemsPerPage: perPage.toString(),
         onlyCreated: onlyCreated,
         paginationItems: paginationItems,
@@ -377,7 +395,7 @@ export async function renderHistoryPage(
         prototypeRows: prototypeRows,
         sharing: sharing,
         showPagination: showPagination,
-        totalPrototypes: await countPrototypesByUserId(user.id, false),
+        totalPrototypes: totalPrototypes,
         workspaceItems: workspaceItems,
     });
 }
@@ -968,8 +986,33 @@ export async function renderResultsPage(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         workspace: (await getWorkspaceById(prototypeData.workspaceId))!,
     };
+    const structureVM = buildStructureVM(prototypeData.json.questions);
+    const overviewVM = buildOverviewVM(
+        prototypeData.json,
+        prototypeData.generatedFrom,
+        getEnvironmentVariables().SUGGESTIONS_ENABLED
+    );
+    const historyVM = await buildHistoryVM(
+        prototypeData,
+        previousPrototypes,
+        totalCountPreviousPrototypes,
+        getUserById,
+        user.id
+    );
+    const sharingVM = buildSharingVM(
+        prototypeData,
+        isOwner,
+        allWorkspaces,
+        sharedWithUsers
+    );
 
-    res.render('results.njk', data);
+    res.render('results/results.njk', {
+        ...data,
+        historyVM,
+        overviewVM,
+        sharingVM,
+        structureVM,
+    });
 }
 prototypeRouter.get(
     '/prototype/:id',
