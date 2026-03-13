@@ -63,19 +63,19 @@
     </div>
     <div id="mainColumn" class="govuk-grid-column-one-half">
       {% set overviewHtml %}
-      {% include "./overview.njk" %}
+      {% include "./_overview.njk" %}
       {% endset -%}
 
       {% set structureHtml %}
-      {% include "./structure.njk" %}
+      {% include "./_structure.njk" %}
       {% endset -%}
 
       {% set historyHtml %}
-      {% include "./history.njk" %}
+      {% include "./_history.njk" %}
       {% endset -%}
 
       {% set sharingHtml %}
-      {% include "./sharing.njk" %}
+      {% include "./_sharing.njk" %}
       {% endset -%}
 
       {{ govukTabs({
