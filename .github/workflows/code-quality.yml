@@ -126,7 +126,8 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-            - name: Run Snyk Monitor to check for vulnerabilities
+            - name: Run Snyk Monitor to check for vulnerabilities and upload results to Snyk
+              if: github.ref == 'refs/heads/main'
               uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
               continue-on-error: true # To make sure that future steps get called
               env:
@@ -134,7 +135,7 @@ jobs:
               with:
                   args: --file=${{ matrix.target-file }} --project-name=${{ matrix.target-file }}
                   command: monitor
-            - name: Run Snyk Test to check for vulnerabilities
+            - name: Run Snyk Test to check for vulnerabilities and output results
               uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04 # v1.0.0
               continue-on-error: true # To make sure that future steps get called
               env:

@@ -1,4 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
+import OpenAI from 'openai';
 
 import { PrototypeDesignSystemsType, TemplateData } from '../types';
 import { envVarSchema, exampleEnvVars } from '../validationSchemas/env';
@@ -10,33 +11,31 @@ const envVars = {
     OPENAI_MODEL_ID: modelId,
 };
 
-interface ChatCreateMockType {
-    messages: { content: string }[];
+interface ResponsesCreateMockType {
+    input: { content: string }[];
     model: string;
-    response_format: {
-        json_schema: {
+    text: {
+        format: {
             name: string;
             schema: { required: string[] };
         };
     };
 }
 
-let chatCreateMock: jest.Mock;
+let responsesCreateMock: jest.Mock;
 let setAttributeMock: jest.Mock;
 let getActiveSpanMock: jest.Mock;
 let nunjucksRenderMock: jest.Mock;
 beforeEach(() => {
-    chatCreateMock = jest.fn().mockReturnValue(
+    responsesCreateMock = jest.fn().mockReturnValue(
         Promise.resolve({
-            choices: [{ message: { content: '{"name":"Test Form"}' } }],
+            output_text: '{"name":"Test Form"}',
         })
     );
     jest.doMock('openai', () => ({
         OpenAI: jest.fn().mockImplementation(() => ({
-            chat: {
-                completions: {
-                    create: chatCreateMock,
-                },
+            responses: {
+                create: responsesCreateMock,
             },
         })),
     }));
@@ -100,20 +99,17 @@ describe('createFormWithOpenAI', () => {
                         : '',
                 }
             );
-            expect(chatCreateMock).toHaveBeenCalled();
-            const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
+            expect(responsesCreateMock).toHaveBeenCalled();
+            const data = responsesCreateMock.mock
+                .calls[0][0] as ResponsesCreateMockType;
             expect(data.model).toBe(modelId);
-            expect(data.messages[0].content).toContain('rendered-prompt');
-            expect(data.messages[1].content).toBe(prompt);
-            expect(data.response_format.json_schema.name).toBe(
-                'create-form-schema'
-            );
+            expect(data.input[0].content).toContain('rendered-prompt');
+            expect(data.input[1].content).toBe(prompt);
+            expect(data.text.format.name).toBe('create-form-schema');
 
             // Test the suggestions logic
             expect(
-                data.response_format.json_schema.schema.required.includes(
-                    'suggestions'
-                )
+                data.text.format.schema.required.includes('suggestions')
             ).toBe(enableSuggestions);
 
             // Test the result
@@ -134,23 +130,8 @@ describe('createFormWithOpenAI', () => {
         expect(setAttributeMock).not.toHaveBeenCalled();
     });
 
-    it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce(
-            Promise.resolve({
-                choices: [{ message: { content: undefined } }],
-            })
-        );
-        const result = await createFormWithOpenAI(
-            envVars,
-            prompt,
-            'GOV.UK',
-            false
-        );
-        expect(result).toBe('{}');
-    });
-
     it('throws if OpenAI call fails', async () => {
-        chatCreateMock.mockImplementationOnce(() => {
+        responsesCreateMock.mockImplementationOnce(() => {
             throw new Error('API error');
         });
         await expect(
@@ -201,20 +182,17 @@ describe('updateFormWithOpenAI', () => {
                         : '',
                 }
             );
-            expect(chatCreateMock).toHaveBeenCalled();
-            const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
+            expect(responsesCreateMock).toHaveBeenCalled();
+            const data = responsesCreateMock.mock
+                .calls[0][0] as ResponsesCreateMockType;
             expect(data.model).toBe(modelId);
-            expect(data.messages[0].content).toContain('rendered-prompt');
-            expect(data.messages[1].content).toContain(prompt);
-            expect(data.response_format.json_schema.name).toBe(
-                'update-form-schema'
-            );
+            expect(data.input[0].content).toContain('rendered-prompt');
+            expect(data.input[1].content).toContain(prompt);
+            expect(data.text.format.name).toBe('update-form-schema');
 
             // Test the suggestions logic
             expect(
-                data.response_format.json_schema.schema.required.includes(
-                    'suggestions'
-                )
+                data.text.format.schema.required.includes('suggestions')
             ).toBe(enableSuggestions);
 
             // Test the result
@@ -247,24 +225,8 @@ describe('updateFormWithOpenAI', () => {
         expect(setAttributeMock).not.toHaveBeenCalled();
     });
 
-    it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce(
-            Promise.resolve({
-                choices: [{ message: { content: undefined } }],
-            })
-        );
-        const result = await updateFormWithOpenAI(
-            envVars,
-            prompt,
-            {} as TemplateData, // Mocking TemplateData as an empty object
-            'GOV.UK',
-            false
-        );
-        expect(result).toBe('{}');
-    });
-
     it('throws if OpenAI call fails', async () => {
-        chatCreateMock.mockImplementationOnce(() => {
+        responsesCreateMock.mockImplementationOnce(() => {
             throw new Error('API error');
         });
         await expect(
@@ -308,11 +270,12 @@ describe('generateSuggestionsWithOpenAI', () => {
                     orgFor: orgFor,
                 }
             );
-            expect(chatCreateMock).toHaveBeenCalled();
-            const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
+            expect(responsesCreateMock).toHaveBeenCalled();
+            const data = responsesCreateMock.mock
+                .calls[0][0] as ResponsesCreateMockType;
             expect(data.model).toBe(modelId);
-            expect(data.messages[0].content).toContain('rendered-prompt');
-            expect(data.response_format.json_schema.name).toBe(
+            expect(data.input[0].content).toContain('rendered-prompt');
+            expect(data.text.format.name).toBe(
                 'generate-form-suggestions-schema'
             );
 
@@ -321,22 +284,8 @@ describe('generateSuggestionsWithOpenAI', () => {
         }
     );
 
-    it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce(
-            Promise.resolve({
-                choices: [{ message: { content: undefined } }],
-            })
-        );
-        const result = await generateSuggestionsWithOpenAI(
-            envVars,
-            {} as TemplateData, // Mocking TemplateData as an empty object
-            'GOV.UK'
-        );
-        expect(result).toBe('{}');
-    });
-
     it('throws if OpenAI call fails', async () => {
-        chatCreateMock.mockImplementationOnce(() => {
+        responsesCreateMock.mockImplementationOnce(() => {
             throw new Error('API error');
         });
         await expect(
@@ -364,33 +313,19 @@ describe('judgeFormWithOpenAI', () => {
             'some criteria'
         );
         expect(nunjucksRenderMock).toHaveBeenCalledWith('judge-prompt.njk');
-        expect(chatCreateMock).toHaveBeenCalled();
-        const data = chatCreateMock.mock.calls[0][0] as ChatCreateMockType;
+        expect(responsesCreateMock).toHaveBeenCalled();
+        const data = responsesCreateMock.mock
+            .calls[0][0] as ResponsesCreateMockType;
         expect(data.model).toBe(modelId);
-        expect(data.messages[0].content).toContain('rendered-prompt');
-        expect(data.response_format.json_schema.name).toBe('judge-form-schema');
+        expect(data.input[0].content).toContain('rendered-prompt');
+        expect(data.text.format.name).toBe('judge-form-schema');
 
         // Test the result
         expect(result).toBe('{"name":"Test Form"}');
     });
 
-    it('returns {} if OpenAI response content is undefined', async () => {
-        chatCreateMock.mockReturnValueOnce(
-            Promise.resolve({
-                choices: [{ message: { content: undefined } }],
-            })
-        );
-        const result = await judgeFormWithOpenAI(
-            envVars,
-            'Judge this form',
-            {} as TemplateData,
-            'some criteria'
-        );
-        expect(result).toBe('{}');
-    });
-
     it('throws if OpenAI call fails', async () => {
-        chatCreateMock.mockImplementationOnce(() => {
+        responsesCreateMock.mockImplementationOnce(() => {
             throw new Error('API error');
         });
         await expect(
@@ -401,5 +336,45 @@ describe('judgeFormWithOpenAI', () => {
                 'some criteria'
             )
         ).rejects.toThrow('API error');
+    });
+});
+
+describe('handleOpenAIResponse', () => {
+    let handleOpenAIResponse: (response: OpenAI.Responses.Response) => string;
+    beforeEach(async () => {
+        ({ handleOpenAIResponse } = await import('../openai'));
+    });
+
+    it('returns output_text if present', () => {
+        const response = {
+            output_text: 'This is the output text',
+        } as OpenAI.Responses.Response;
+        const result = handleOpenAIResponse(response);
+        expect(result).toBe('This is the output text');
+    });
+
+    it('throws if response contains a refusal message', () => {
+        const response = {
+            output: [
+                {
+                    content: [
+                        {
+                            refusal: 'I refuse to answer',
+                            type: 'refusal',
+                        },
+                    ],
+                },
+            ],
+        } as unknown as OpenAI.Responses.Response;
+        expect(() => handleOpenAIResponse(response)).toThrow(
+            'OpenAI refused to respond: I refuse to answer'
+        );
+    });
+
+    it('throws if response format is unexpected', () => {
+        const response = {} as OpenAI.Responses.Response;
+        expect(() => handleOpenAIResponse(response)).toThrow(
+            'Unexpected response format from OpenAI'
+        );
     });
 });
