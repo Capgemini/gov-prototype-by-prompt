@@ -1005,7 +1005,7 @@ export async function renderResultsPage(
         sharedWithUsers
     );
 
-    res.render('results/main.njk', {
+    res.render('results/results.njk', {
         ...data,
         historyVM,
         overviewVM,
