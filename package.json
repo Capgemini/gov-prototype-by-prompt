@@ -104,7 +104,7 @@
         "@types/jest": "~30.0.0",
         "@types/node": "^20.19.0",
         "@types/nunjucks": "~3.2.6",
-        "@types/supertest": "~6.0.3",
+        "@types/supertest": "~7.2.0",
         "cspell": "~9.6.4",
         "eslint": "~10.0.3",
         "eslint-config-prettier": "~10.1.8",
