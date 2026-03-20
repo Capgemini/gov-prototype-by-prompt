@@ -4,7 +4,7 @@
   Manage {{ 'your' if isSelf else user.name ~ "\'s" }} account – Gov Prototype by Prompt
 {% endblock %}
 
-{% block beforeContent %}
+{% block containerStart %}
   {% if not isSelf %}
     {{ govukBreadcrumbs({
       items: [

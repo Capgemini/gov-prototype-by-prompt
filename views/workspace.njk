@@ -4,7 +4,7 @@
   {{ "Your workspace: " ~ ws.name if ws else "Create a workspace" }} – Gov Prototype by Prompt
 {% endblock %}
 
-{% block beforeContent %}
+{% block containerStart %}
   {{ govukBreadcrumbs({
     items: [
       {
