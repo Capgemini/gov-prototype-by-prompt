@@ -146,7 +146,6 @@ export function getMultiPageBase(
     const hmrcVersion = getHmrcAssetsVersion();
     return [
         `{% extends "govuk/template.njk" %}`,
-        `{% set govukRebrand = true %}`,
         `{% set assetPath = '${assetPath}' %}`,
         ``,
         `{% from "govuk/components/button/macro.njk" import govukButton %}`,
