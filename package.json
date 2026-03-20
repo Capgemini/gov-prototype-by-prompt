@@ -80,7 +80,7 @@
         "govuk-frontend": "~5.14.0",
         "govuk-markdown": "~0.8.0",
         "helmet": "~8.1.0",
-        "hmrc-frontend": "~6.115.0",
+        "hmrc-frontend": "~7.2.0",
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
         "marked": "~17.0.3",
