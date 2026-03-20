@@ -47,7 +47,7 @@ export function generatePagination(
         page < totalPages
             ? `${baseUrl}&page=${String(page + 1)}&perPage=${String(perPage)}`
             : '';
-    let paginationItems: object[] = [];
+    let paginationItems: object[];
     if (totalPages <= 5) {
         // Show all pages if total pages are 5 or less
         paginationItems = Array.from({ length: totalPages }, (_, i) => ({
