@@ -47,12 +47,7 @@
 {% endblock %}
 
 {% block header %}
-  {{ govukHeader({
-    classes: "govuk-header--full-width-border",
-    attributes: {
-      title: "header"
-    }
-  }) }}
+  <div class="govuk-header" style="height: 20px"></div>
   {% set navigation = [] %}
   {% if currentUser is defined %}
     {% set navigation = navigation.concat([
