@@ -40,22 +40,16 @@ export function getCheckAnswersFooter(urlPrefix: string): string {
  * Generate the header text for the check answers page.
  * @param {string} title The title of the form
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The header HTML text for the check answers page
  */
 export function getCheckAnswersHeader(
     title: string,
-    designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
+    designSystem: PrototypeDesignSystemsType
 ): string {
     return [
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "Check your answers – ${title}" %}`,
         `{% set serviceTitle = "${title}" %}`,
-        ``,
-        `{% block headerEnd %}`,
-        ...(showDemoWarning ? getDemoWarning() : []),
-        `{% endblock %}`,
         ``,
         `{% block containerStart %}`,
         ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
@@ -83,13 +77,11 @@ export function getCheckAnswersHeader(
  * Generate the confirmation page text after form submission.
  * @param {TemplateData} data The template data containing the form details
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The confirmation page HTML text
  */
 export function getConfirmationPage(
     data: TemplateData,
-    designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
+    designSystem: PrototypeDesignSystemsType
 ): string {
     const formType =
         data.form_type.charAt(0).toUpperCase() +
@@ -98,10 +90,6 @@ export function getConfirmationPage(
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "${formType} complete – ${data.title}" %}`,
         `{% set serviceTitle = "${data.title}" %}`,
-        ``,
-        `{% block headerEnd %}`,
-        ...(showDemoWarning ? getDemoWarning() : []),
-        `{% endblock %}`,
         ``,
         `{% block containerStart %}`,
         ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
@@ -136,11 +124,13 @@ export function getConfirmationPage(
  * Generate the base template for a multi-page form.
  * @param {string} assetPath The path to the assets
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
+ * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The base template HTML text for a multi-page form
  */
 export function getMultiPageBase(
     assetPath: string,
-    designSystem: PrototypeDesignSystemsType
+    designSystem: PrototypeDesignSystemsType,
+    showDemoWarning: boolean
 ): string {
     // Get the version of the HMRC frontend assets
     const hmrcVersion = getHmrcAssetsVersion();
@@ -193,6 +183,10 @@ export function getMultiPageBase(
         `      }`,
         `    }`,
         `  </style>`,
+        `{% endblock %}`,
+        ``,
+        `{% block headerEnd %}`,
+        ...(showDemoWarning ? getDemoWarning() : []),
         `{% endblock %}`,
         ``,
         `{% block pageTitle %}`,
@@ -254,7 +248,6 @@ export function getQuestionFooter(): string {
  * @param {string} opts.formAction The form action URL for the multi-page form
  * @param {number} opts.questionNumber The question number in the form
  * @param {string} opts.questionTitle The current question title
- * @param {boolean} opts.showDemoWarning Whether to warn the user that this is a demo of a service
  * @param {boolean} opts.showProgressIndicators Whether to show progress indicators to the user
  * @param {string} opts.title The title of the form
  * @param {number} opts.totalQuestions The total number of questions in the form
@@ -266,7 +259,6 @@ export function getQuestionHeader({
     formAction,
     questionNumber,
     questionTitle,
-    showDemoWarning,
     showProgressIndicators,
     title,
     totalQuestions,
@@ -275,10 +267,6 @@ export function getQuestionHeader({
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "${questionTitle} – ${title}" %}`,
         `{% set serviceTitle = "${title}" %}`,
-        ``,
-        `{% block headerEnd %}`,
-        ...(showDemoWarning ? getDemoWarning() : []),
-        `{% endblock %}`,
         ``,
         `{% block containerStart %}`,
         ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
@@ -318,22 +306,16 @@ export function getQuestionHeader({
  * @param {TemplateData} data The template data containing the form details
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The start page HTML text
  */
 export function getStartPage(
     data: TemplateData,
     urlPrefix: string,
-    designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
+    designSystem: PrototypeDesignSystemsType
 ): string {
     return [
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "${data.title}" %}`,
-        ``,
-        `{% block headerEnd %}`,
-        ...(showDemoWarning ? getDemoWarning() : []),
-        `{% endblock %}`,
         ``,
         `{% block containerStart %}`,
         ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
