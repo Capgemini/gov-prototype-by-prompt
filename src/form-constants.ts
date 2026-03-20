@@ -55,9 +55,7 @@ export function getCheckAnswersHeader(
         ``,
         `{% block beforeContent %}`,
         ...(showDemoWarning ? getDemoWarning() : []),
-        ...(designSystem === 'HMRC'
-            ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
-            : []),
+        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {% if backLinkHref is defined %}`,
         `    <section aria-label="Back link">`,
         `      {{ govukBackLink({`,
@@ -100,9 +98,7 @@ export function getConfirmationPage(
 
         `{% block beforeContent %}`,
         ...(showDemoWarning ? getDemoWarning() : []),
-        ...(designSystem === 'HMRC'
-            ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
-            : []),
+        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `{% endblock %}`,
         ``,
         `{% block content %}`,
@@ -275,9 +271,7 @@ export function getQuestionHeader({
         ``,
         `{% block beforeContent %}`,
         ...(showDemoWarning ? getDemoWarning() : []),
-        ...(designSystem === 'HMRC'
-            ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
-            : []),
+        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {% if backLinkHref is defined %}`,
         `    <section aria-label="Back link">`,
         `      {{ govukBackLink({`,
@@ -329,9 +323,7 @@ export function getStartPage(
         ``,
         `{% block beforeContent %}`,
         ...(showDemoWarning ? getDemoWarning() : []),
-        ...(designSystem === 'HMRC'
-            ? [`{{ hmrcBanner({`, `  useTudorCrown: true`, `}) }}`]
-            : []),
+        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {{ govukBreadcrumbs({`,
         `    items: [`,
         `      {`,
