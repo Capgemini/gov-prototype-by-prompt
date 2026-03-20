@@ -46,8 +46,10 @@
   Gov Prototype by Prompt
 {% endblock %}
 
-{% block header %}
+{% block govukHeader %}
   <div class="govuk-header" style="height: 20px"></div>
+{% endblock %}
+{% block govukServiceNavigation %}
   {% set navigation = [] %}
   {% if currentUser is defined %}
     {% set navigation = navigation.concat([
