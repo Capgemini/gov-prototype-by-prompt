@@ -214,16 +214,11 @@ function generateZipOfForm(
     const assetPath = '/assets';
     const files: InputWithSizeMeta[] = [
         {
-            input: generateBasePage(assetPath, designSystem),
+            input: generateBasePage(assetPath, designSystem, showDemoWarning),
             name: `views/form-base.njk`,
         },
         {
-            input: generateStartPage(
-                templateData,
-                urlPrefix,
-                designSystem,
-                showDemoWarning
-            ),
+            input: generateStartPage(templateData, urlPrefix, designSystem),
             name: `views/${urlPrefix}/start.njk`,
         },
     ];
@@ -233,8 +228,7 @@ function generateZipOfForm(
                 templateData,
                 urlPrefix,
                 i,
-                designSystem,
-                showDemoWarning
+                designSystem
             ),
             name: `views/${urlPrefix}/question-${String(i + 1)}.njk`,
         });
@@ -244,17 +238,12 @@ function generateZipOfForm(
             input: generateCheckAnswersPage(
                 templateData,
                 urlPrefix,
-                designSystem,
-                showDemoWarning
+                designSystem
             ),
             name: `views/${urlPrefix}/check-answers.njk`,
         },
         {
-            input: generateConfirmationPage(
-                templateData,
-                designSystem,
-                showDemoWarning
-            ),
+            input: generateConfirmationPage(templateData, designSystem),
             name: `views/${urlPrefix}/confirmation.njk`,
         }
     );

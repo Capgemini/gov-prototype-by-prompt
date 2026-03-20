@@ -46,13 +46,10 @@
   Gov Prototype by Prompt
 {% endblock %}
 
-{% block header %}
-  {{ govukHeader({
-    classes: "govuk-header--full-width-border",
-    attributes: {
-      title: "header"
-    }
-  }) }}
+{% block govukHeader %}
+  <div class="govuk-header" style="height: 20px"></div>
+{% endblock %}
+{% block govukServiceNavigation %}
   {% set navigation = [] %}
   {% if currentUser is defined %}
     {% set navigation = navigation.concat([
@@ -96,4 +93,8 @@
     import { initAll } from '{{ assetPath }}/govuk-frontend.min.js'
     initAll()
   </script>
+{% endblock %}
+
+{% block govukFooter %}
+  <div class="govuk-footer"></div>
 {% endblock %}

@@ -764,14 +764,12 @@ export function renderPrototypePage(
             prototypeData.json,
             urlPrefix,
             designSystem,
-            showDemoWarning
         );
     } else if (page === 'check-answers') {
         pageContent = generateCheckAnswersPage(
             prototypeData.json,
             urlPrefix,
             designSystem,
-            showDemoWarning
         );
     } else if (page === 'confirmation') {
         // Reset live data and history on confirmation
@@ -780,7 +778,6 @@ export function renderPrototypePage(
         pageContent = generateConfirmationPage(
             prototypeData.json,
             designSystem,
-            showDemoWarning
         );
     } else {
         const questionIndex = Number.parseInt(page.split('-')[1], 10) - 1;
@@ -789,7 +786,6 @@ export function renderPrototypePage(
             urlPrefix,
             questionIndex,
             designSystem,
-            showDemoWarning
         );
     }
 
@@ -821,7 +817,11 @@ export function renderPrototypePage(
 
     // Incorporate the base template into the page content and render it
     const assetPath = '/assets';
-    const baseTemplate = generateBasePage(assetPath, designSystem);
+    const baseTemplate = generateBasePage(
+        assetPath,
+        designSystem,
+        showDemoWarning
+    );
     res.send(
         nunjucks.renderString(
             pageContent.replace('{% extends "form-base.njk" %}', baseTemplate),

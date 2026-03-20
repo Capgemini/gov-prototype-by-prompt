@@ -92,9 +92,6 @@ export const nunjucksEnv = nunjucks.configure(
     }
 );
 
-// Use the GOV.UK rebrand
-nunjucksEnv.addGlobal('govukRebrand', true);
-
 // Add the filters
 nunjucksEnv.addFilter('govukDate', govukDate);
 nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);

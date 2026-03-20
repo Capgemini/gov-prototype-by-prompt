@@ -24,27 +24,29 @@ import { formatHtml } from './utils';
  * Generate the base HTML for the multi-page form.
  * @param {string} assetPath The path to the assets
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
+ * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The Nunjucks HTML string for the base template.
  */
 export function generateBasePage(
     assetPath: string,
-    designSystem: PrototypeDesignSystemsType
+    designSystem: PrototypeDesignSystemsType,
+    showDemoWarning: boolean
 ): string {
-    return formatHtml(getMultiPageBase(assetPath, designSystem));
+    return formatHtml(
+        getMultiPageBase(assetPath, designSystem, showDemoWarning)
+    );
 }
 /**
  * Generate the check answers page for the multi-page form.
  * @param {TemplateData} data The template data representing the form structure.
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The Nunjucks HTML string for the check answers page.
  */
 export function generateCheckAnswersPage(
     data: TemplateData,
     urlPrefix: string,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean,
     seenQuestions?: string[]
 ): string {
     const formFields: TemplateField[] = data.questions;
@@ -120,7 +122,6 @@ export function generateCheckAnswersPage(
         `${getCheckAnswersHeader(
             data.title,
             designSystem,
-            showDemoWarning
         )}\n{{ govukSummaryList(${objectToJSFormat(macroOptions)}) }}\n${getCheckAnswersFooter(urlPrefix)}`
     );
 }
@@ -129,15 +130,13 @@ export function generateCheckAnswersPage(
  * Generate the confirmation page for the multi-page form.
  * @param {TemplateData} data The template data representing the form structure.
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The Nunjucks HTML string for the confirmation page.
  */
 export function generateConfirmationPage(
     data: TemplateData,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
 ): string {
-    return formatHtml(getConfirmationPage(data, designSystem, showDemoWarning));
+    return formatHtml(getConfirmationPage(data, designSystem));
 }
 
 /**
@@ -146,7 +145,6 @@ export function generateConfirmationPage(
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
  * @param {number} questionIndex The question index to generate, starting from 0.
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The Nunjucks HTML string for the specified question page.
  */
 export function generateQuestionPage(
@@ -154,7 +152,6 @@ export function generateQuestionPage(
     urlPrefix: string,
     questionIndex: number,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
 ): string {
     // Check that the question number is valid
     if (
@@ -174,7 +171,6 @@ export function generateQuestionPage(
         formAction: formAction,
         questionNumber: questionIndex + 1,
         questionTitle: data.questions[questionIndex].question_text,
-        showDemoWarning: showDemoWarning,
         showProgressIndicators: data.show_progress_indicators,
         title: data.title,
         totalQuestions: data.questions.length,
@@ -198,17 +194,15 @@ export function generateQuestionPage(
  * @param {TemplateData} data The template data representing the form structure.
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
  * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
- * @param {boolean} showDemoWarning Whether to warn the user that this is a demo of a service
  * @returns {string} The Nunjucks HTML string for the start page.
  */
 export function generateStartPage(
     data: TemplateData,
     urlPrefix: string,
     designSystem: PrototypeDesignSystemsType,
-    showDemoWarning: boolean
 ): string {
     return formatHtml(
-        getStartPage(data, urlPrefix, designSystem, showDemoWarning)
+        getStartPage(data, urlPrefix, designSystem)
     );
 }
 
