@@ -103,6 +103,7 @@ export async function renderHistoryPage(
         {},
         {},
         {},
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
         {
             createdBy?: string;
             onlyCreated?: string;
@@ -763,13 +764,13 @@ export function renderPrototypePage(
         pageContent = generateStartPage(
             prototypeData.json,
             urlPrefix,
-            designSystem,
+            designSystem
         );
     } else if (page === 'check-answers') {
         pageContent = generateCheckAnswersPage(
             prototypeData.json,
             urlPrefix,
-            designSystem,
+            designSystem
         );
     } else if (page === 'confirmation') {
         // Reset live data and history on confirmation
@@ -777,7 +778,7 @@ export function renderPrototypePage(
         req.session.livePrototypeHistory[prototypeId] = [];
         pageContent = generateConfirmationPage(
             prototypeData.json,
-            designSystem,
+            designSystem
         );
     } else {
         const questionIndex = Number.parseInt(page.split('-')[1], 10) - 1;
@@ -785,7 +786,7 @@ export function renderPrototypePage(
             prototypeData.json,
             urlPrefix,
             questionIndex,
-            designSystem,
+            designSystem
         );
     }
 

@@ -279,6 +279,7 @@ export async function renderWorkspacesPage(
         {},
         {},
         {},
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
         {
             page?: string;
             perPage?: string;
