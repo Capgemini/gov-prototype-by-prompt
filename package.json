@@ -59,12 +59,12 @@
     },
     "dependencies": {
         "@azure/monitor-opentelemetry-exporter": "~1.0.0-beta.32",
-        "@opentelemetry/api": "~1.9.0",
-        "@opentelemetry/auto-instrumentations-node": "~0.71.0",
-        "@opentelemetry/instrumentation-express": "~0.61.0",
-        "@opentelemetry/instrumentation-http": "~0.213.0",
-        "@opentelemetry/sdk-metrics": "~2.6.0",
-        "@opentelemetry/sdk-node": "~0.213.0",
+        "@opentelemetry/api": "~1.9.1",
+        "@opentelemetry/auto-instrumentations-node": "~0.72.0",
+        "@opentelemetry/instrumentation-express": "~0.62.0",
+        "@opentelemetry/instrumentation-http": "~0.214.0",
+        "@opentelemetry/sdk-metrics": "~2.6.1",
+        "@opentelemetry/sdk-node": "~0.214.0",
         "@opentelemetry/sdk-trace-node": "~2.6.0",
         "ace-builds": "~1.43.6",
         "ace-linters": "~2.1.1",
@@ -80,21 +80,21 @@
         "govuk-frontend": "~6.1.0",
         "govuk-markdown": "~0.8.0",
         "helmet": "~8.1.0",
-        "hmrc-frontend": "~7.2.0",
+        "hmrc-frontend": "~7.4.0",
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
         "marked": "~17.0.5",
         "mermaid": "~11.13.0",
         "moment": "~2.30.1",
-        "mongoose": "~9.3.1",
+        "mongoose": "~9.3.3",
         "nunjucks": "~3.2.4",
-        "openai": "~6.32.0",
+        "openai": "~6.33.0",
         "tsx": "~4.21.0",
         "ts-migrate-mongoose": "~4.2.0",
         "zod": "~3.25.76"
     },
     "devDependencies": {
-        "@cspell/dict-en-gb": "~5.0.25",
+        "@cspell/dict-en-gb": "~5.0.27",
         "@cspell/eslint-plugin": "~9.7.0",
         "@eslint/js": "~10.0.1",
         "@types/body-parser": "~1.19.6",
@@ -120,7 +120,7 @@
         "ts-jest": "~29.4.6",
         "ts-node": "~10.9.2",
         "typescript": "~5.9.3",
-        "typescript-eslint": "~8.57.1"
+        "typescript-eslint": "~8.57.2"
     },
     "overrides": {
         "lodash-es": "4.17.23"
