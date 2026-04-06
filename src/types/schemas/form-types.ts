@@ -2,8 +2,7 @@
 import {
     ITemplateData,
     ITemplateDetailedExplanation,
-    ITemplateField,
-    PrototypeDesignSystemsType,
+    ITemplateField
 } from './prototype-schema';
 
 export interface FieldGeneratorOptions {
@@ -13,7 +12,6 @@ export interface FieldGeneratorOptions {
 }
 
 export interface QuestionHeaderOptions {
-    designSystem: PrototypeDesignSystemsType;
     detailedExplanation?: ITemplateDetailedExplanation;
     formAction: string;
     questionNumber: number;

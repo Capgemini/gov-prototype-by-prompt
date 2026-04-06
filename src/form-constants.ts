@@ -39,20 +39,15 @@ export function getCheckAnswersFooter(urlPrefix: string): string {
 /**
  * Generate the header text for the check answers page.
  * @param {string} title The title of the form
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The header HTML text for the check answers page
  */
-export function getCheckAnswersHeader(
-    title: string,
-    designSystem: PrototypeDesignSystemsType
-): string {
+export function getCheckAnswersHeader(title: string): string {
     return [
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "Check your answers – ${title}" %}`,
         `{% set serviceTitle = "${title}" %}`,
         ``,
         `{% block containerStart %}`,
-        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {% if backLinkHref is defined %}`,
         `    <section aria-label="Back link">`,
         `      {{ govukBackLink({`,
@@ -76,13 +71,9 @@ export function getCheckAnswersHeader(
 /**
  * Generate the confirmation page text after form submission.
  * @param {TemplateData} data The template data containing the form details
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The confirmation page HTML text
  */
-export function getConfirmationPage(
-    data: TemplateData,
-    designSystem: PrototypeDesignSystemsType
-): string {
+export function getConfirmationPage(data: TemplateData): string {
     const formType =
         data.form_type.charAt(0).toUpperCase() +
         data.form_type.slice(1).toLowerCase();
@@ -90,10 +81,6 @@ export function getConfirmationPage(
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "${formType} complete – ${data.title}" %}`,
         `{% set serviceTitle = "${data.title}" %}`,
-        ``,
-        `{% block containerStart %}`,
-        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
-        `{% endblock %}`,
         ``,
         `{% block content %}`,
         `  <div class="govuk-grid-row">`,
@@ -197,6 +184,7 @@ export function getMultiPageBase(
         `  {{ govukHeader({`,
         `    classes: "govuk-header--full-width-border"`,
         `  }) }}`,
+        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `{% endblock %}`,
         `{% if serviceTitle is defined %}`,
         `  {% block govukServiceNavigation %}`,
@@ -243,7 +231,6 @@ export function getQuestionFooter(): string {
 /**
  * Generate the header text for the template with one question per page.
  * @param {QuestionHeaderOptions} opts Options for the header
- * @param {PrototypeDesignSystemsType} opts.designSystem The design system to use for the prototype
  * @param {ITemplateDetailedExplanation} [opts.detailedExplanation] The detailed explanation for the question, if any
  * @param {string} opts.formAction The form action URL for the multi-page form
  * @param {number} opts.questionNumber The question number in the form
@@ -254,7 +241,6 @@ export function getQuestionFooter(): string {
  * @returns {string} The header HTML text for the template
  */
 export function getQuestionHeader({
-    designSystem,
     detailedExplanation,
     formAction,
     questionNumber,
@@ -269,7 +255,6 @@ export function getQuestionHeader({
         `{% set serviceTitle = "${title}" %}`,
         ``,
         `{% block containerStart %}`,
-        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {% if backLinkHref is defined %}`,
         `    <section aria-label="Back link">`,
         `      {{ govukBackLink({`,
@@ -305,20 +290,14 @@ export function getQuestionHeader({
  * Generate the start page HTML text for a multi-page form.
  * @param {TemplateData} data The template data containing the form details
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The start page HTML text
  */
-export function getStartPage(
-    data: TemplateData,
-    urlPrefix: string,
-    designSystem: PrototypeDesignSystemsType
-): string {
+export function getStartPage(data: TemplateData, urlPrefix: string): string {
     return [
         `{% extends "form-base.njk" %}`,
         `{% set pageTitle = "${data.title}" %}`,
         ``,
         `{% block containerStart %}`,
-        ...(designSystem === 'HMRC' ? [`{{ hmrcBanner() }}`] : []),
         `  {{ govukBreadcrumbs({`,
         `    items: [`,
         `      {`,

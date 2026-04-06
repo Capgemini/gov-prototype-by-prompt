@@ -218,32 +218,23 @@ function generateZipOfForm(
             name: `views/form-base.njk`,
         },
         {
-            input: generateStartPage(templateData, urlPrefix, designSystem),
+            input: generateStartPage(templateData, urlPrefix),
             name: `views/${urlPrefix}/start.njk`,
         },
     ];
     for (let i = 0; i < templateData.questions.length; i++) {
         files.push({
-            input: generateQuestionPage(
-                templateData,
-                urlPrefix,
-                i,
-                designSystem
-            ),
+            input: generateQuestionPage(templateData, urlPrefix, i),
             name: `views/${urlPrefix}/question-${String(i + 1)}.njk`,
         });
     }
     files.push(
         {
-            input: generateCheckAnswersPage(
-                templateData,
-                urlPrefix,
-                designSystem
-            ),
+            input: generateCheckAnswersPage(templateData, urlPrefix),
             name: `views/${urlPrefix}/check-answers.njk`,
         },
         {
-            input: generateConfirmationPage(templateData, designSystem),
+            input: generateConfirmationPage(templateData),
             name: `views/${urlPrefix}/confirmation.njk`,
         }
     );
