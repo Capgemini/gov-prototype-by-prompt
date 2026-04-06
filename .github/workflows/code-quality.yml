@@ -96,6 +96,7 @@ jobs:
     npm-audit:
         runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
                 working-directory: ['', './data/zip-download/']
         steps:
@@ -117,6 +118,7 @@ jobs:
     snyk-scan:
         runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
                 target-file:
                     [

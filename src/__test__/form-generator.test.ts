@@ -60,8 +60,7 @@ describe('generateCheckAnswersPage', () => {
     let getCheckAnswersFooterMocked: jest.Mock;
     let generateCheckAnswersPage: (
         data: TemplateData,
-        urlPrefix: string,
-        designSystem: PrototypeDesignSystemsType
+        urlPrefix: string
     ) => string;
     beforeEach(async () => {
         getCheckAnswersHeaderMocked = jest.fn(() => '<header>');
@@ -81,10 +80,9 @@ describe('generateCheckAnswersPage', () => {
             ],
             title: 'Test Form',
         } as TemplateData;
-        const result = generateCheckAnswersPage(data, urlPrefix, designSystem);
+        const result = generateCheckAnswersPage(data, urlPrefix);
         expect(getCheckAnswersHeaderMocked).toHaveBeenCalledWith(
-            data.title,
-            designSystem
+            data.title
         );
         expect(getCheckAnswersFooterMocked).toHaveBeenCalledWith(urlPrefix);
         expect(formatHtmlMocked).toHaveBeenCalled();
@@ -104,7 +102,7 @@ describe('generateCheckAnswersPage', () => {
             ],
             title: 'Test Form',
         } as TemplateData;
-        const result = generateCheckAnswersPage(data, urlPrefix, 'GOV.UK');
+        const result = generateCheckAnswersPage(data, urlPrefix);
         expect(result.split('?referrer=check-answers').length - 1).toBe(
             data.questions.length
         );
@@ -123,7 +121,7 @@ describe('generateCheckAnswersPage', () => {
             ],
             title: 'Test Form',
         } as TemplateData;
-        const result = generateCheckAnswersPage(data, urlPrefix, 'GOV.UK');
+        const result = generateCheckAnswersPage(data, urlPrefix);
         expect(result).toContain(
             "(data['question-1'] if not data['question-1'] | isArray else data['question-1'] | formatList)"
         );
@@ -177,7 +175,7 @@ describe('generateCheckAnswersPage', () => {
                 questions: [{ answer_type, question_text: 'Q1' }],
                 title: 'Test Form',
             } as TemplateData;
-            const result = generateCheckAnswersPage(data, urlPrefix, 'GOV.UK');
+            const result = generateCheckAnswersPage(data, urlPrefix);
             for (const field of expectedFields) {
                 expect(result).toContain(field);
             }
@@ -200,7 +198,7 @@ describe('generateCheckAnswersPage', () => {
             ],
             title: 'Test Form',
         } as TemplateData;
-        const result = generateCheckAnswersPage(data, urlPrefix, 'GOV.UK');
+        const result = generateCheckAnswersPage(data, urlPrefix);
         expect(result.match(/data \| isoDateFromDateInput/g)?.length).toBe(2);
         expect(result).toContain('isoDateFromDateInput("question-1")');
         expect(result).toContain('isoDateFromDateInput("question-2")');
@@ -226,7 +224,7 @@ describe('generateCheckAnswersPage', () => {
             ],
             title: 'Test Form',
         } as TemplateData;
-        const result = generateCheckAnswersPage(data, urlPrefix, 'GOV.UK');
+        const result = generateCheckAnswersPage(data, urlPrefix);
         expect(result.match(/'£' ~ /g)?.length).toBe(1);
         expect(result).toContain(
             "text: data['question-2'] if data['question-2'] else 'Not provided'"
@@ -241,8 +239,7 @@ describe('generateCheckAnswersPage', () => {
 
 describe('generateConfirmationPage', () => {
     let generateConfirmationPage: (
-        templateData: TemplateData,
-        designSystem: PrototypeDesignSystemsType
+        templateData: TemplateData
     ) => string;
     let getConfirmationPageMocked: jest.Mock;
     beforeEach(async () => {
@@ -261,13 +258,11 @@ describe('generateConfirmationPage', () => {
             title: 'Test Form',
         } as TemplateData;
         const result: string = generateConfirmationPage(
-            templateData,
-            designSystem
+            templateData
         );
 
         expect(getConfirmationPageMocked).toHaveBeenCalledWith(
-            templateData,
-            designSystem
+            templateData
         );
         expect(formatHtmlMocked).toHaveBeenCalledWith(
             '<html>confirmation page</html>'
@@ -282,8 +277,7 @@ describe('generateQuestionPage', () => {
     let generateQuestionPage: (
         data: TemplateData,
         urlPrefix: string,
-        questionIndex: number,
-        designSystem: PrototypeDesignSystemsType
+        questionIndex: number
     ) => string;
     let getQuestionHeaderMocked: jest.Mock;
     let getQuestionFooterMocked: jest.Mock;
@@ -306,14 +300,14 @@ describe('generateQuestionPage', () => {
         // Throw error for invalid index
         for (const index of [-12, -1, 3, 99]) {
             expect(() =>
-                generateQuestionPage(data, urlPrefix, index, designSystem)
+                generateQuestionPage(data, urlPrefix, index)
             ).toThrow(`Invalid question index: ${String(index)}`);
         }
 
         // Don't throw error for valid index
         for (const index of [0, 1]) {
             expect(() =>
-                generateQuestionPage(data, urlPrefix, index, designSystem)
+                generateQuestionPage(data, urlPrefix, index)
             ).not.toThrow();
         }
     });
@@ -338,12 +332,11 @@ describe('generateQuestionPage', () => {
 
         // Act
         for (const [index] of data.questions.entries()) {
-            generateQuestionPage(data, urlPrefix, index, designSystem);
+            generateQuestionPage(data, urlPrefix, index);
         }
 
         // Assert
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            designSystem,
             detailedExplanation: undefined,
             formAction: `/${urlPrefix}/question-1/submit`,
             questionNumber: 1,
@@ -353,7 +346,6 @@ describe('generateQuestionPage', () => {
             totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            designSystem,
             detailedExplanation: {
                 explanation_text: 'Q2 Explanation',
                 question_title: 'Q2 Title',
@@ -366,7 +358,6 @@ describe('generateQuestionPage', () => {
             totalQuestions: data.questions.length,
         });
         expect(getQuestionHeaderMocked).toHaveBeenCalledWith({
-            designSystem,
             detailedExplanation: undefined,
             formAction: `/${urlPrefix}/question-3/submit`,
             questionNumber: 3,
@@ -394,7 +385,7 @@ describe('generateQuestionPage', () => {
             title: 'Test Form',
         } as TemplateData;
 
-        const result = generateQuestionPage(data, urlPrefix, 0, designSystem);
+        const result = generateQuestionPage(data, urlPrefix, 0);
 
         expect(result.match(/govukInput/g)?.length).toBe(1);
         if (inputHint) {
@@ -472,8 +463,7 @@ describe('generateQuestionPage', () => {
                     const result = generateQuestionPage(
                         data,
                         urlPrefix,
-                        0,
-                        designSystem
+                        0
                     );
 
                     expect(result.match(/govukInput/g)?.length).toBe(
@@ -521,8 +511,7 @@ describe('generateQuestionPage', () => {
                     const result = generateQuestionPage(
                         data,
                         urlPrefix,
-                        0,
-                        designSystem
+                        0
                     );
 
                     expect(result.match(/govukSelect/g)?.length).toBe(1);
@@ -575,8 +564,7 @@ describe('generateQuestionPage', () => {
                     const result = generateQuestionPage(
                         data,
                         urlPrefix,
-                        0,
-                        designSystem
+                        0
                     );
 
                     expect(result.match(/govukDateInput/g)?.length).toBe(1);
@@ -655,8 +643,7 @@ describe('generateQuestionPage', () => {
                     const result = generateQuestionPage(
                         data,
                         urlPrefix,
-                        0,
-                        designSystem
+                        0
                     );
 
                     expect(result.match(/govukInput/g)?.length).toBe(1);
@@ -700,8 +687,7 @@ describe('generateQuestionPage', () => {
             const result = generateQuestionPage(
                 data,
                 urlPrefix,
-                0,
-                designSystem
+                0
             );
 
             expect(result.match(/govukFileUpload/g)?.length).toBe(1);
@@ -740,8 +726,7 @@ describe('generateQuestionPage', () => {
                     const result = generateQuestionPage(
                         data,
                         urlPrefix,
-                        0,
-                        designSystem
+                        0
                     );
 
                     expect(
@@ -784,8 +769,7 @@ describe('generateQuestionPage', () => {
             const result = generateQuestionPage(
                 data,
                 urlPrefix,
-                0,
-                designSystem
+                0
             );
 
             expect(new RegExp('govukRadios', 'g').exec(result)?.length).toBe(1);
@@ -813,8 +797,7 @@ describe('generateQuestionPage', () => {
             const result = generateQuestionPage(
                 data,
                 urlPrefix,
-                0,
-                designSystem,
+                0
             );
 
             expect(result.match(/govukTextarea/g)?.length).toBe(1);
@@ -827,7 +810,6 @@ describe('generateStartPage', () => {
     let generateStartPage: (
         templateData: TemplateData,
         urlPrefix: string,
-        designSystem: PrototypeDesignSystemsType,
     ) => string;
     let getStartPageMocked: jest.Mock;
     beforeEach(async () => {
@@ -845,14 +827,12 @@ describe('generateStartPage', () => {
         } as TemplateData;
         const result: string = generateStartPage(
             templateData,
-            urlPrefix,
-            designSystem,
+            urlPrefix
         );
 
         expect(getStartPageMocked).toHaveBeenCalledWith(
             templateData,
-            urlPrefix,
-            designSystem,
+            urlPrefix
         );
         expect(formatHtmlMocked).toHaveBeenCalledWith(
             '<html>start page</html>'

@@ -40,13 +40,11 @@ export function generateBasePage(
  * Generate the check answers page for the multi-page form.
  * @param {TemplateData} data The template data representing the form structure.
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The Nunjucks HTML string for the check answers page.
  */
 export function generateCheckAnswersPage(
     data: TemplateData,
     urlPrefix: string,
-    designSystem: PrototypeDesignSystemsType,
     seenQuestions?: string[]
 ): string {
     const formFields: TemplateField[] = data.questions;
@@ -120,8 +118,7 @@ export function generateCheckAnswersPage(
     }
     return formatHtml(
         `${getCheckAnswersHeader(
-            data.title,
-            designSystem,
+            data.title
         )}\n{{ govukSummaryList(${objectToJSFormat(macroOptions)}) }}\n${getCheckAnswersFooter(urlPrefix)}`
     );
 }
@@ -129,14 +126,10 @@ export function generateCheckAnswersPage(
 /**
  * Generate the confirmation page for the multi-page form.
  * @param {TemplateData} data The template data representing the form structure.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The Nunjucks HTML string for the confirmation page.
  */
-export function generateConfirmationPage(
-    data: TemplateData,
-    designSystem: PrototypeDesignSystemsType,
-): string {
-    return formatHtml(getConfirmationPage(data, designSystem));
+export function generateConfirmationPage(data: TemplateData): string {
+    return formatHtml(getConfirmationPage(data));
 }
 
 /**
@@ -144,14 +137,12 @@ export function generateConfirmationPage(
  * @param {TemplateData} data The template data representing the form structure.
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
  * @param {number} questionIndex The question index to generate, starting from 0.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The Nunjucks HTML string for the specified question page.
  */
 export function generateQuestionPage(
     data: TemplateData,
     urlPrefix: string,
-    questionIndex: number,
-    designSystem: PrototypeDesignSystemsType,
+    questionIndex: number
 ): string {
     // Check that the question number is valid
     if (
@@ -166,7 +157,6 @@ export function generateQuestionPage(
     const formAction = `/${urlPrefix}/question-${String(questionIndex + 1)}/submit`;
 
     const questionHeaderOptions: QuestionHeaderOptions = {
-        designSystem: designSystem,
         detailedExplanation: data.questions[questionIndex].detailed_explanation,
         formAction: formAction,
         questionNumber: questionIndex + 1,
@@ -193,17 +183,13 @@ export function generateQuestionPage(
  * Generate the start page for the multi-page form.
  * @param {TemplateData} data The template data representing the form structure.
  * @param {string} urlPrefix The URL prefix for the prototype, typically the prototype ID.
- * @param {PrototypeDesignSystemsType} designSystem The design system to use for the prototype
  * @returns {string} The Nunjucks HTML string for the start page.
  */
 export function generateStartPage(
     data: TemplateData,
-    urlPrefix: string,
-    designSystem: PrototypeDesignSystemsType,
+    urlPrefix: string
 ): string {
-    return formatHtml(
-        getStartPage(data, urlPrefix, designSystem)
-    );
+    return formatHtml(getStartPage(data, urlPrefix));
 }
 
 // Functions to convert an object to JS text for Nunjucks

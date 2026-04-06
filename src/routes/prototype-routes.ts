@@ -761,32 +761,20 @@ export function renderPrototypePage(
     const showDemoWarning = true;
     let pageContent;
     if (page === 'start') {
-        pageContent = generateStartPage(
-            prototypeData.json,
-            urlPrefix,
-            designSystem
-        );
+        pageContent = generateStartPage(prototypeData.json, urlPrefix);
     } else if (page === 'check-answers') {
-        pageContent = generateCheckAnswersPage(
-            prototypeData.json,
-            urlPrefix,
-            designSystem
-        );
+        pageContent = generateCheckAnswersPage(prototypeData.json, urlPrefix);
     } else if (page === 'confirmation') {
         // Reset live data and history on confirmation
         req.session.liveData[prototypeId] = {};
         req.session.livePrototypeHistory[prototypeId] = [];
-        pageContent = generateConfirmationPage(
-            prototypeData.json,
-            designSystem
-        );
+        pageContent = generateConfirmationPage(prototypeData.json);
     } else {
         const questionIndex = Number.parseInt(page.split('-')[1], 10) - 1;
         pageContent = generateQuestionPage(
             prototypeData.json,
             urlPrefix,
-            questionIndex,
-            designSystem
+            questionIndex
         );
     }
 
