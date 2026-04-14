@@ -44,7 +44,7 @@
     },
     "packageManager": "npm@11.6.4",
     "scripts": {
-        "start": "npx --yes tsx --require ./src/instrumentation.ts server.ts",
+        "start": "npx --yes tsx --import ./src/instrumentation.ts server.ts",
         "dev": "tsx watch ./server.ts",
         "test": "jest --config=jest.config.ts",
         "test:watch": "jest --watch --config=jest.config.ts",
