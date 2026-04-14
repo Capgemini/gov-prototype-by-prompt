@@ -105,7 +105,7 @@
         "@types/node": "^22.13.4",
         "@types/nunjucks": "~3.2.6",
         "@types/supertest": "~7.2.0",
-        "cspell": "~9.7.0",
+        "cspell": "~10.0.0",
         "eslint": "~10.2.0",
         "eslint-config-prettier": "~10.1.8",
         "eslint-plugin-only-warn": "~1.2.1",
