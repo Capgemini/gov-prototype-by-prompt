@@ -57,7 +57,7 @@ You can access the MongoDB database through [MongoDB Compass](https://www.mongod
 #### Setup the application
 
 1. Install [Node version manager (nvm)](https://github.com/nvm-sh/nvm).
-2. Install the latest version of Node.js v22 with `nvm install 22` and switch to it with `nvm use 22`.
+2. Install Node.js v22 with `nvm install 22.22` and switch to it with `nvm use 22.22`.
 3. Check Node JS is ready with the right version using `node --version`.
 4. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
 5. Run `npm install --ignore-scripts` to install the dependencies safely.
