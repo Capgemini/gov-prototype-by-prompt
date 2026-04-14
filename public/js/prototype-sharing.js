@@ -14,7 +14,7 @@ const copyPublicLinkButton = document.getElementById('copyPublicLinkButton');
 
 // Copy public link button functionality
 copyPublicLinkButton.addEventListener('click', function () {
-    const publicLink = `{{ req.host }}/prototype/{{ prototypeId }}/start`;
+    const publicLink = `${window.location.origin}/prototype/${prototypeId}/start`;
     navigator.clipboard.writeText(publicLink).catch((err) => {
         console.error('Failed to copy: ', err);
     });
