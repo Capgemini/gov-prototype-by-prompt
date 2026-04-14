@@ -72,7 +72,7 @@ To run with the local LLM model:
 3. Consider allocating more resources to Docker Desktop in the Docker Desktop settings.
 4. Consider pulling the model image beforehand with `docker model pull ai/gpt-oss`.
 
-To run without the local LLM model, remove the `models` section under the `app` service and the top-level `models` service, both in [`compose.yaml`](compose.yaml).
+To run without the local LLM model, remove the `models` section under the `app` service and the top-level `models` service, both in [`docker-compose.yml`](docker-compose.yml).
 
 To run the application with Docker Compose:
 
