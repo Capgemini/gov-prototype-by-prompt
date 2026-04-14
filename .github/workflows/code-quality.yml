@@ -11,6 +11,12 @@ on:
     pull_request:
         branches: [main]
 
+# For all npm install steps a workaround for npm/cli#9151: Node 22.22.2 ships npm 10.9.7 which
+# crashes during self-upgrade to 11.x (lazy require of promise-retry).
+# npm 10.9.8 fixes this with an eager require (npm/cli#9152).
+# TODO: Remove the intermediate install once Node 22 bundles npm >=10.9.8
+# (track nodejs/node#62463).
+
 jobs:
     setup:
         runs-on: ubuntu-latest
@@ -31,7 +37,7 @@ jobs:
                   node-version-file: package.json
             - name: Upgrade npm to v11
               if: steps.cache-nodemodules.outputs.cache-hit != 'true'
-              run: npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               if: steps.cache-nodemodules.outputs.cache-hit != 'true'
               run: node --version && npm --version
@@ -56,7 +62,7 @@ jobs:
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               run: node --version && npm --version
             - name: Install dependencies
@@ -83,7 +89,7 @@ jobs:
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               run: node --version && npm --version
             - name: Install dependencies
@@ -107,7 +113,7 @@ jobs:
               with:
                   node-version-file: ${{ matrix.working-directory }}package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               run: node --version && npm --version
 

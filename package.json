@@ -39,12 +39,12 @@
         "url": "git+https://github.com/Capgemini/gov-prototype-by-prompt.git"
     },
     "engines": {
-        "node": ">=20.19.0 <21.0.0",
+        "node": ">=22.22.0 <23.0.0",
         "npm": ">=11.6.4 <12.0.0"
     },
     "packageManager": "npm@11.6.4",
     "scripts": {
-        "start": "npx --yes tsx --require ./src/instrumentation.ts server.ts",
+        "start": "npx --yes tsx --import ./src/instrumentation.ts server.ts",
         "dev": "tsx watch ./server.ts",
         "test": "jest --config=jest.config.ts",
         "test:watch": "jest --watch --config=jest.config.ts",
@@ -89,8 +89,8 @@
         "mongoose": "~9.4.1",
         "nunjucks": "~3.2.4",
         "openai": "~6.33.0",
-        "tsx": "~4.21.0",
         "ts-migrate-mongoose": "~4.2.0",
+        "tsx": "~4.21.0",
         "zod": "~3.25.76"
     },
     "devDependencies": {
@@ -102,7 +102,7 @@
         "@types/express": "~5.0.6",
         "@types/express-session": "~1.18.2",
         "@types/jest": "~30.0.0",
-        "@types/node": "^20.19.0",
+        "@types/node": "^22.13.4",
         "@types/nunjucks": "~3.2.6",
         "@types/supertest": "~7.2.0",
         "cspell": "~9.7.0",

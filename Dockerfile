@@ -1,5 +1,5 @@
-# Use Node.js 20 LTS as base image
-FROM node:20-alpine
+# Use Node.js 22 LTS as base image
+FROM node:22.22-alpine
 
 # Set working directory
 WORKDIR /app
@@ -8,7 +8,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Update npm to the latest version and install dependencies
-RUN npm install -g "npm@>=11.6.4 <12" \
+# Workaround for npm/cli#9151: Node 22.22.2 ships npm 10.9.7 which
+# crashes during self-upgrade to 11.x (lazy require of promise-retry).
+# npm 10.9.8 fixes this with an eager require (npm/cli#9152).
+# TODO: Remove the intermediate install once Node 22 bundles npm >=10.9.8
+# (track nodejs/node#62463).
+RUN npm install -g "npm@10.9.8" \
+    && npm install -g "npm@>=11.6.4 <12" \
     && npm --version \
     && npm ci --ignore-scripts --omit=dev
 
@@ -32,4 +38,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
 
 # Start the application using tsx
-CMD ["npx", "--yes", "tsx", "--require", "./src/instrumentation.ts", "server.ts"]
+CMD ["npx", "--yes", "tsx", "--import", "./src/instrumentation.ts", "server.ts"]

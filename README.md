@@ -25,7 +25,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 ## Technology stack
 
-The project uses Express.js v5 with Node.js v20. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
+The project uses Express.js v5 with Node.js v22. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
 
 It connects to an OpenAI LLM; we have been using GPT-4.1-mini running in Azure. Alternatively, you can use a [local LLM](https://hub.docker.com/search?type=model) when running the application with Docker Compose. Note that testing so far has shown that local LLMs struggle to generate a valid JSON representation of the form structure.
 
@@ -57,7 +57,7 @@ You can access the MongoDB database through [MongoDB Compass](https://www.mongod
 #### Setup the application
 
 1. Install [Node version manager (nvm)](https://github.com/nvm-sh/nvm).
-2. Install the latest version of Node.js v20 with `nvm install 20` and switch to it with `nvm use 20`.
+2. Install Node.js v22 with `nvm install 22.22` and switch to it with `nvm use 22.22`.
 3. Check Node JS is ready with the right version using `node --version`.
 4. Copy the example environment file with `cp .env.example .env` and fill out your environment variables; [see below](#environment-variables) for details. Use `mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin` for the `MONGODB_URI` variable.
 5. Run `npm install --ignore-scripts` to install the dependencies safely.
@@ -72,7 +72,7 @@ To run with the local LLM model:
 3. Consider allocating more resources to Docker Desktop in the Docker Desktop settings.
 4. Consider pulling the model image beforehand with `docker model pull ai/gpt-oss`.
 
-To run without the local LLM model, remove the `models` section under the `app` service and the top-level `models` service, both in [`compose.yaml`](compose.yaml).
+To run without the local LLM model, remove the `models` section under the `app` service and the top-level `models` service, both in [`docker-compose.yml`](docker-compose.yml).
 
 To run the application with Docker Compose:
 
