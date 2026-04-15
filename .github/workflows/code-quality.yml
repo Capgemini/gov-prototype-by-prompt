@@ -97,7 +97,65 @@ jobs:
               run: npm ci --ignore-scripts
 
             - name: Run tests with coverage
-              run: npm run test -- --coverage --silent --maxWorkers=1
+              run: npm run test:unit -- --coverage --silent --maxWorkers=1
+
+    playwright-e2e-tests:
+        needs: setup
+        timeout-minutes: 60
+        runs-on: ubuntu-latest
+
+        services:
+            mongo:
+                image: mongo:8.0
+                ports:
+                    - 27017:27017
+                options: >-
+                    --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+            - name: Cache node modules
+              id: cache-nodemodules
+              uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Set up Node.js
+              uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+              with:
+                  node-version-file: package.json
+            - name: Upgrade npm to v11
+              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+            - name: Log node versions
+              run: node --version && npm --version
+            - name: Install dependencies
+              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              run: npm ci --ignore-scripts
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+            - name: Run Playwright tests
+              run: npx playwright test
+              env:
+                  EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: testdomain.com
+                  LOG_USER_ID_IN_AZURE_APP_INSIGHTS: false
+                  MONGODB_URI: mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin
+                  OPENAI_API_KEY: test-openai-api-key
+                  OPENAI_BASE_URL: https://openai.azure.com/openai/v1/
+                  OPENAI_MODEL_ID: gpt-4.1-mini
+                  RATE_LIMITER_ENABLED: false
+                  SESSION_SECRET: test-session-secret
+                  SUGGESTIONS_ENABLED: true
+            - uses: actions/upload-artifact@v4
+              if: ${{ !cancelled() }}
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 30
 
     npm-audit:
         runs-on: ubuntu-latest

@@ -20,7 +20,7 @@ GitHub Actions pipelines exist to run the unit tests, check linting and formatti
 
 ### Running tests and LLM evaluations
 
-Run the command `npm run test` to run the Jest test suite. We are using an in-memory MongoDB database for the tests without mocking, to try to be as close to the deployed solution as possible.
+Run the command `npm run test:unit` to run the Jest test suite. We are using an in-memory MongoDB database for the tests without mocking, to try to be as close to the deployed solution as possible.
 
 Run the command `npm run evals` to run the LLM evaluations in the `evals/` folder. These tests generate form data using the LLM and assess its validity and correctness against several criteria.
 
