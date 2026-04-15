@@ -151,7 +151,7 @@ jobs:
                   EMAIL_ADDRESS_ALLOWED_DOMAIN: testdomain.com
                   EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: true
                   LOG_USER_ID_IN_AZURE_APP_INSIGHTS: false
-                  MONGODB_URI: mongodb://admin:password123@127.0.0.1:27017/gpbp_e2e?directConnection=true&authSource=admin
+                  MONGODB_URI: mongodb://127.0.0.1:27017/gpbp_e2e?directConnection=true&authSource=admin
                   OPENAI_API_KEY: test-openai-api-key
                   OPENAI_BASE_URL: https://openai.azure.com/openai/v1/
                   OPENAI_MODEL_ID: gpt-4.1-mini
