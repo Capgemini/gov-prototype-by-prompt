@@ -24,25 +24,25 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
-              id: cache-nodemodules
+              id: cache-node-modules
               uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
                   lookup-only: true
             - name: Set up Node.js
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: node --version && npm --version
             - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
 
     eslint:
@@ -52,7 +52,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
-              id: cache-nodemodules
+              id: cache-node-modules
               uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
               with:
                   path: node_modules
@@ -66,7 +66,7 @@ jobs:
             - name: Log node versions
               run: node --version && npm --version
             - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
 
             - name: Run ESLint
@@ -79,7 +79,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
-              id: cache-nodemodules
+              id: cache-node-modules
               uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
               with:
                   path: node_modules
@@ -93,7 +93,7 @@ jobs:
             - name: Log node versions
               run: node --version && npm --version
             - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
 
             - name: Run tests with coverage
@@ -119,11 +119,17 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
-              id: cache-nodemodules
+              id: cache-node-modules
               uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+            - name: Cache playwright browsers
+              id: cache-playwright-browsers
+              uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-browsers-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
               uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
               with:
@@ -133,17 +139,19 @@ jobs:
             - name: Log node versions
               run: node --version && npm --version
             - name: Install dependencies
-              if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
 
             - name: Install Playwright Browsers
+              if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
               run: npx playwright install --with-deps
             - name: Run Playwright tests
               run: npx playwright test
               env:
-                  EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: testdomain.com
+                  EMAIL_ADDRESS_ALLOWED_DOMAIN: testdomain.com
+                  EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: true
                   LOG_USER_ID_IN_AZURE_APP_INSIGHTS: false
-                  MONGODB_URI: mongodb://admin:password123@127.0.0.1:27017/gpbp?directConnection=true&authSource=admin
+                  MONGODB_URI: mongodb://admin:password123@127.0.0.1:27017/gpbp_e2e?directConnection=true&authSource=admin
                   OPENAI_API_KEY: test-openai-api-key
                   OPENAI_BASE_URL: https://openai.azure.com/openai/v1/
                   OPENAI_MODEL_ID: gpt-4.1-mini
