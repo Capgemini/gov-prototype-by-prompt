@@ -97,6 +97,7 @@
         "@cspell/dict-en-gb": "~5.0.27",
         "@cspell/eslint-plugin": "~10.0.0",
         "@eslint/js": "~10.0.1",
+        "@playwright/test": "~1.59.1",
         "@types/body-parser": "~1.19.6",
         "@types/compression": "~1.8.1",
         "@types/express": "~5.0.6",
