@@ -15,7 +15,7 @@ export default defineConfig({
     /* Fail the build on CI if you accidentally left test.only in the source code. */
     forbidOnly: !!process.env.CI,
     /* Run tests in files in parallel */
-    fullyParallel: true,
+    fullyParallel: false,
     /* Configure projects for major browsers */
     projects: [
         {
@@ -68,10 +68,10 @@ export default defineConfig({
     },
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'npm run start',
-        reuseExistingServer: !process.env.CI,
+        command: 'npx --yes tsx tests/playwright-web-server.ts',
+        reuseExistingServer: false,
         url: 'http://localhost:3001',
     },
-    /* Opt out of parallel tests on CI. */
-    workers: process.env.CI ? 1 : undefined,
+    /* Opt out of parallel tests. */
+    workers: 1,
 });
