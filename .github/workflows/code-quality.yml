@@ -128,7 +128,7 @@ jobs:
             - name: Install Playwright browsers
               run: npx playwright install --with-deps
             - name: Run Playwright tests
-              run: npx playwright test
+              run: npm run test:e2e
               env:
                   EMAIL_ADDRESS_ALLOWED_DOMAIN: testdomain.com
                   EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: true
