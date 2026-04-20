@@ -2,10 +2,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { ChildProcess, spawn } from 'node:child_process';
 
 import { exampleEnvVars } from '../src/validationSchemas/env';
-
-const PLAYWRIGHT_MONGO_PORT = 27018;
-const PLAYWRIGHT_MONGO_DB_NAME = 'gov-prototype-playwright';
-export const PLAYWRIGHT_MONGODB_URI = `mongodb://127.0.0.1:${String(PLAYWRIGHT_MONGO_PORT)}/${PLAYWRIGHT_MONGO_DB_NAME}?directConnection=true`;
+import {
+    PLAYWRIGHT_MONGO_DB_NAME,
+    PLAYWRIGHT_MONGO_PORT,
+    PLAYWRIGHT_MONGODB_URI,
+} from './playwright-test-env';
 
 let appProcess: ChildProcess | null = null;
 let mongoInstance: MongoMemoryServer | null = null;

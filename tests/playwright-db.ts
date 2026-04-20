@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 import { user1 } from '../jest/mockTestData';
 import { UserModel } from '../src/database/models/user-model';
-import { PLAYWRIGHT_MONGODB_URI } from './playwright-web-server';
+import { PLAYWRIGHT_MONGODB_URI } from './playwright-test-env';
 
 export async function disconnectPlaywrightDb(): Promise<void> {
     if (
