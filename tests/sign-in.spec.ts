@@ -42,7 +42,9 @@ test('sign-in page displays correctly', async ({ page }) => {
     `);
 });
 
-test('error shown when user does not enter credentials', async ({ page }) => {
+test('error shown when user enters no email and no password', async ({
+    page,
+}) => {
     await page.getByRole('button', { name: 'Sign in' }).click();
 
     await expect(
@@ -53,6 +55,26 @@ test('error shown when user does not enter credentials', async ({ page }) => {
     await expect(page.locator('#passwordErrorMessage')).toBeVisible();
     await expect(page.getByText('Error: Enter your email')).toBeVisible();
     await expect(page.getByText('Error: Enter your password')).toBeVisible();
+});
+
+test('error shown when user enters no email and a password', async ({
+    page,
+}) => {
+    await page.getByRole('textbox', { name: 'Password' }).click();
+    await page.getByRole('textbox', { name: 'Password' }).fill('some-password');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+
+    await expect(
+        page.getByRole('heading', { name: 'There was a problem' })
+    ).toBeVisible();
+    await expect(
+        page.getByText('Enter your email address', { exact: true })
+    ).toBeVisible();
+    await expect(page.locator('#emailErrorMessage')).toBeVisible();
+    await expect(page.locator('#passwordErrorMessage')).not.toBeVisible();
+    await expect(
+        page.getByText('Error: Enter your email address')
+    ).toBeVisible();
 });
 
 test('error shown when user enters non-existent email and no password', async ({
@@ -117,4 +139,24 @@ test('error shown when user enters valid email and bad password', async ({
     ).toBeVisible();
     await expect(page.locator('#emailErrorMessage')).toBeVisible();
     await expect(page.locator('#passwordErrorMessage')).toBeVisible();
+});
+
+test('sign-in successfully when user enters valid email and password', async ({
+    page,
+}) => {
+    await page.getByRole('textbox', { name: 'Email address' }).click();
+    await page
+        .getByRole('textbox', { name: 'Email address' })
+        .fill(user1.email);
+    await page.getByRole('textbox', { name: 'Password' }).fill('password123');
+    await page.getByRole('button', { name: 'Sign in' }).click();
+
+    await expect(
+        page.getByRole('button', { name: 'Processing...' })
+    ).toBeVisible();
+    await page.waitForURL('http://localhost:3001');
+    await expect(
+        page.getByRole('heading', { name: 'Gov Prototype by Prompt' })
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Start now' })).toBeVisible();
 });

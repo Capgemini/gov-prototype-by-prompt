@@ -15,6 +15,7 @@ const prototypeId3 = new mongoose.Types.ObjectId();
 const prototypeId4 = new mongoose.Types.ObjectId();
 
 // Users
+// password is password123
 const user1: IUser = {
     _id: userId1 as unknown as mongoose.Schema.Types.ObjectId,
     createdAt: new Date(),
@@ -23,7 +24,8 @@ const user1: IUser = {
     isActive: true,
     isAdmin: false,
     name: 'Test User 1',
-    passwordHash: 'hashed-password',
+    passwordHash:
+        '$2b$10$jEKx6mbVrQNFq2G17LescO3eOMa.gTRaMhlP.Bd.d/qHXBoirZ0Qu',
     personalWorkspaceId: user1PersonalWorkspaceId.toString(),
     updatedAt: new Date(),
 };
