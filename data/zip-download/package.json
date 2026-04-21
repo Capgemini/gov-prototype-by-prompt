@@ -30,6 +30,6 @@
         "@types/express-session": "~1.18.2",
         "@types/node": "^22.13.4",
         "@types/nunjucks": "~3.2.6",
-        "typescript": "~5.9.3"
+        "typescript": "~6.0.3"
     }
 }
