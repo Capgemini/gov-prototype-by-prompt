@@ -89,7 +89,7 @@
         "mongoose": "~9.4.1",
         "nunjucks": "~3.2.4",
         "openai": "~6.33.0",
-        "ts-migrate-mongoose": "~4.2.0",
+        "ts-migrate-mongoose": "~4.2.2",
         "tsx": "~4.21.0",
         "zod": "~3.25.76"
     },
