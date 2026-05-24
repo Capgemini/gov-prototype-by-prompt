@@ -485,7 +485,7 @@ describe('renderHistoryPage', () => {
             expect(data.countPrototypes).toBe(countPrototypes);
             expect(data.workspaceItems).toContainEqual({
                 selected: true,
-                text: expect.stringContaining('') as unknown as string,
+                text: expect.stringContaining('') as string,
                 value: workspaceId,
             });
             expect(data.totalPrototypes).toBe(3);
@@ -2701,7 +2701,7 @@ describe('handleCreatePrototype', () => {
                 const error = new Error('Invalid JSON');
                 error.name = undefined as unknown as string;
                 error.message = undefined as unknown as string;
-                error.stack = undefined as unknown as string;
+                error.stack = undefined;
                 throw error;
             });
             const request = httpMocks.createRequest({

@@ -103,7 +103,7 @@ export async function renderHistoryPage(
         {},
         {},
         {},
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+         
         {
             createdBy?: string;
             onlyCreated?: string;
