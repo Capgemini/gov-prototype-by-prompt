@@ -53,7 +53,7 @@ export const envVarSchema = z
                 Number.isNaN(env.RATE_LIMITER_MAX_REQUESTS)
             ) {
                 ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
+                    code: 'custom',
                     message:
                         'RATE_LIMITER_MAX_REQUESTS is required when RATE_LIMITER_ENABLED is true and must be a number',
                     path: ['RATE_LIMITER_MAX_REQUESTS'],
@@ -64,7 +64,7 @@ export const envVarSchema = z
                 Number.isNaN(env.RATE_LIMITER_WINDOW_MINUTES)
             ) {
                 ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
+                    code: 'custom',
                     message:
                         'RATE_LIMITER_WINDOW_MINUTES is required when RATE_LIMITER_ENABLED is true and must be a number',
                     path: ['RATE_LIMITER_WINDOW_MINUTES'],
