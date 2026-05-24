@@ -97,7 +97,7 @@ describe('buildZipOfForm', () => {
         const result = await buildZipOfForm(
             exampleTemplateData,
             urlPrefix,
-            'GOV.UK' as PrototypeDesignSystemsType,
+            'GOV.UK',
             author
         );
         expect(readdirSyncMock).toHaveBeenCalled();
@@ -134,7 +134,7 @@ describe('buildZipOfForm', () => {
         const result = await buildZipOfForm(
             exampleTemplateData,
             urlPrefix,
-            'HMRC' as PrototypeDesignSystemsType,
+            'HMRC',
             author
         );
 
