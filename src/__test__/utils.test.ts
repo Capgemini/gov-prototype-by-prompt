@@ -52,16 +52,16 @@ describe('getEnvironmentVariables', () => {
                 {
                     code: 'invalid_type',
                     expected: 'string',
-                    message: 'Required',
+                    message:
+                        'Invalid input: expected string, received undefined',
                     path: ['MONGODB_URI'],
-                    received: 'undefined',
                 },
                 {
                     code: 'invalid_type',
                     expected: 'string',
-                    message: 'Required',
+                    message:
+                        'Invalid input: expected string, received undefined',
                     path: ['OPENAI_API_KEY'],
-                    received: 'undefined',
                 },
             ]);
         }
