@@ -1,5 +1,5 @@
 # Use Node.js 22 LTS as base image
-FROM node:22.22-alpine
+FROM node:22.22.3-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,14 +7,7 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Update npm to the latest version and install dependencies
-# Workaround for npm/cli#9151: Node 22.22.2 ships npm 10.9.7 which
-# crashes during self-upgrade to 11.x (lazy require of promise-retry).
-# npm 10.9.8 fixes this with an eager require (npm/cli#9152).
-# TODO: Remove the intermediate install once Node 22 bundles npm >=10.9.8
-# (track nodejs/node#62463).
-RUN npm install -g "npm@10.9.8" \
-    && npm install -g "npm@>=11.6.4 <12" \
+RUN npm install -g "npm@>=11.6.4 <12" \
     && npm --version \
     && npm ci --ignore-scripts --omit=dev
 
