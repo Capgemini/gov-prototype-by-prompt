@@ -11,7 +11,7 @@ updates:
           - '/data/zip-download'
       schedule:
           interval: 'cron'
-          cronjob: '0 3 */2& * 2'
+          cronjob: '0 3 5 * *'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:
@@ -40,7 +40,7 @@ updates:
       directory: '/'
       schedule:
           interval: 'cron'
-          cronjob: '0 3 */2& * 2'
+          cronjob: '0 3 5 * *'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:
