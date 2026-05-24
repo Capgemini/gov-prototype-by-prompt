@@ -11,7 +11,7 @@ updates:
           - '/data/zip-download'
       schedule:
           interval: 'cron'
-          cronjob: '0 3 */2& * 2'
+          cronjob: '0 3 5 * *'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:
@@ -32,15 +32,11 @@ updates:
           # Ignore node versions
           - dependency-name: 'node'
           - dependency-name: '@types/node'
-          # Ignore 4.x of zod for now, as openai requires 3.x
-          # See PRs #18 and #20 when re-enabling
-          - dependency-name: 'zod'
-            versions: ['4.x']
     - package-ecosystem: 'github-actions'
       directory: '/'
       schedule:
           interval: 'cron'
-          cronjob: '0 3 */2& * 2'
+          cronjob: '0 3 5 * *'
           timezone: 'Europe/London'
       assignees: ['cmenon12']
       labels:

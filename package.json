@@ -91,7 +91,7 @@
         "openai": "~6.39.0",
         "ts-migrate-mongoose": "~5.3.3",
         "tsx": "~4.22.3",
-        "zod": "~3.25.76"
+        "zod": "~4.4.3"
     },
     "devDependencies": {
         "@cspell/dict-en-gb": "~5.0.27",
