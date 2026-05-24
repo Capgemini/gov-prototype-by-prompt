@@ -60,12 +60,12 @@
     "dependencies": {
         "@azure/monitor-opentelemetry-exporter": "~1.0.0-beta.32",
         "@opentelemetry/api": "~1.9.1",
-        "@opentelemetry/auto-instrumentations-node": "~0.72.0",
-        "@opentelemetry/instrumentation-express": "~0.62.0",
-        "@opentelemetry/instrumentation-http": "~0.214.0",
-        "@opentelemetry/sdk-metrics": "~2.6.1",
-        "@opentelemetry/sdk-node": "~0.214.0",
-        "@opentelemetry/sdk-trace-node": "~2.6.0",
+        "@opentelemetry/auto-instrumentations-node": "~0.76.0",
+        "@opentelemetry/instrumentation-express": "~0.66.0",
+        "@opentelemetry/instrumentation-http": "~0.218.0",
+        "@opentelemetry/sdk-metrics": "~2.7.1",
+        "@opentelemetry/sdk-node": "~0.218.0",
+        "@opentelemetry/sdk-trace-node": "~2.7.1",
         "ace-builds": "~1.43.6",
         "ace-linters": "~2.1.2",
         "bcryptjs": "~3.0.3",
@@ -74,7 +74,7 @@
         "compression": "~1.8.1",
         "dotenv": "~17.4.1",
         "express": "~5.2.1",
-        "express-rate-limit": "~8.3.2",
+        "express-rate-limit": "~8.5.2",
         "express-session": "~1.19.0",
         "express-validator": "~7.3.2",
         "govuk-frontend": "~6.1.0",
@@ -84,7 +84,7 @@
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
         "marked": "~17.0.6",
-        "mermaid": "~11.14.0",
+        "mermaid": "~11.15.0",
         "moment": "~2.30.1",
         "mongoose": "~9.4.1",
         "nunjucks": "~3.2.4",
@@ -121,8 +121,5 @@
         "ts-node": "~10.9.2",
         "typescript": "~5.9.3",
         "typescript-eslint": "~8.58.0"
-    },
-    "overrides": {
-        "lodash-es": "4.17.23"
     }
 }
