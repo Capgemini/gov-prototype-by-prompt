@@ -31,7 +31,7 @@ export async function renderUsersPage(
         {},
         {},
         {},
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-arguments
+         
         {
             isActive?: string;
             isAdmin?: string;
