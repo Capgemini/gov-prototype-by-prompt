@@ -73,6 +73,7 @@ mockAgent
                 'content-type': 'application/json',
             },
         }
-    );
+    )
+    .persist();
 
 setGlobalDispatcher(mockAgent);
