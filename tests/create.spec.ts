@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
+import 'dotenv/config';
 
-import { user1 } from '../jest/mockTestData';
+import { prototypeData1, user1 } from '../jest/mockTestData';
 import { disconnectPlaywrightDb, resetDatabase } from './playwright-db';
 
 test.beforeEach(async ({ page }) => {
@@ -48,6 +49,10 @@ test('can create a prototype and is redirected to the prototype page', async ({
         .getByRole('textbox', { name: 'Describe the form or service' })
         .fill('prompt text');
     await page.getByRole('button', { name: 'Create prototype' }).click();
+
+    await page.waitForURL('http://localhost:3001/prototype/*');
+
+    await expect(await page.title()).toContain(prototypeData1.json.title);
 });
 
 test.afterAll(async () => {

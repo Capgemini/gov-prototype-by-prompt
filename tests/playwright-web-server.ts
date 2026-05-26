@@ -46,10 +46,20 @@ async function start(): Promise<void> {
         NODE_ENV: 'test',
     };
 
-    appProcess = spawn('npm', ['run', 'start'], {
-        env,
-        stdio: 'inherit',
-    });
+    appProcess = spawn(
+        'npx',
+        [
+            '--yes',
+            'tsx',
+            '--import',
+            './tests/playwright-openai-mock.ts',
+            './server.ts',
+        ],
+        {
+            env,
+            stdio: 'inherit',
+        }
+    );
 
     console.log(`Playwright MongoMemoryServer URI: ${PLAYWRIGHT_MONGODB_URI}`);
 
