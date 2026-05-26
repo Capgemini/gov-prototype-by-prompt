@@ -8,10 +8,13 @@ mockAgent.disableNetConnect();
 mockAgent.enableNetConnect('127.0.0.1');
 mockAgent.enableNetConnect('localhost');
 
+/**
+ * Convert the prototype JSON data into the format returned by OpenAI.
+ * @param {ITemplateData} input the prototype JSON data.
+ * @returns {object} the normalised data in the format returned by OpenAI.
+ */
 export function normaliseTemplateData(input: ITemplateData): object {
-    if (!Array.isArray(input.questions)) {
-        return input;
-    }
+    if (!Array.isArray(input.questions)) return input;
 
     return {
         ...input,
@@ -20,15 +23,12 @@ export function normaliseTemplateData(input: ITemplateData): object {
 
             return {
                 ...q,
-
                 date_of_birth_maximum_age: q.date_of_birth_maximum_age ?? null,
                 date_of_birth_minimum_age: q.date_of_birth_minimum_age ?? null,
                 detailed_explanation: q.detailed_explanation ?? null,
                 hint_text: q.hint_text ?? null,
                 options: q.options ?? null,
                 options_branching: q.options_branching ?? null,
-
-                // Special handling: required_error_text
                 required_error_text:
                     q.required_error_text ??
                     (isRequired

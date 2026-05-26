@@ -52,7 +52,7 @@ test('can create a prototype and is redirected to the prototype page', async ({
 
     await page.waitForURL('http://localhost:3001/prototype/*');
 
-    await expect(await page.title()).toContain(prototypeData1.json.title);
+    expect(await page.title()).toContain(prototypeData1.json.title);
 });
 
 test.afterAll(async () => {

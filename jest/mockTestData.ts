@@ -25,6 +25,7 @@ const user1: IUser = {
     isAdmin: false,
     name: 'Test User 1',
     passwordHash:
+        // eslint-disable-next-line @cspell/spellchecker
         '$2b$10$jEKx6mbVrQNFq2G17LescO3eOMa.gTRaMhlP.Bd.d/qHXBoirZ0Qu',
     personalWorkspaceId: user1PersonalWorkspaceId.toString(),
     updatedAt: new Date(),
