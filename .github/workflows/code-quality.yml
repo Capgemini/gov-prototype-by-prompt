@@ -11,12 +11,6 @@ on:
     pull_request:
         branches: [main]
 
-# For all npm install steps a workaround for npm/cli#9151: Node 22.22.2 ships npm 10.9.7 which
-# crashes during self-upgrade to 11.x (lazy require of promise-retry).
-# npm 10.9.8 fixes this with an eager require (npm/cli#9152).
-# TODO: Remove the intermediate install once Node 22 bundles npm >=10.9.8
-# (track nodejs/node#62463).
-
 jobs:
     setup:
         runs-on: ubuntu-latest
@@ -25,19 +19,19 @@ jobs:
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
               id: cache-node-modules
-              uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
                   lookup-only: true
             - name: Set up Node.js
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
-              uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
-              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: node --version && npm --version
@@ -53,16 +47,16 @@ jobs:
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
               id: cache-node-modules
-              uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
-              uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@>=11.6.4 <12"
             - name: Install dependencies
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
@@ -78,16 +72,16 @@ jobs:
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Cache node modules
               id: cache-node-modules
-              uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+              uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
-              uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@>=11.6.4 <12"
             - name: Install dependencies
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
@@ -158,11 +152,11 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
             - name: Set up Node.js
-              uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+              uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
               with:
                   node-version-file: ${{ matrix.working-directory }}package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@>=11.6.4 <12"
             - name: Log node versions
               run: node --version && npm --version
 
@@ -201,6 +195,6 @@ jobs:
                   args: --file=${{ matrix.target-file }} --project-name=${{ matrix.target-file }} --sarif-file-output=snyk.sarif
                   command: test
             - name: Upload result to GitHub Code Scanning
-              uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
+              uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
               with:
                   sarif_file: snyk.sarif
