@@ -114,7 +114,7 @@ jobs:
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
-              run: npm install -g "npm@10.9.8" && npm install -g "npm@>=11.6.4 <12"
+              run: npm install -g "npm@>=11.6.4 <12"
             - name: Install dependencies
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: npm ci --ignore-scripts
