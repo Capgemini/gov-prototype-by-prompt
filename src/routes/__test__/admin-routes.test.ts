@@ -6,7 +6,7 @@ import {
     user2,
     userId1,
     userId2,
-} from '../../../jest/mockTestData';
+} from '../../../config/mockTestData';
 
 let countActiveAdminUsersMock: jest.Mock;
 let countAllUsersMock: jest.Mock;

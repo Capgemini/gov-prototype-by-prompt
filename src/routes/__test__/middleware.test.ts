@@ -8,7 +8,7 @@ import {
     prototypeData3,
     prototypeData4,
     user1,
-} from '../../../jest/mockTestData';
+} from '../../../config/mockTestData';
 import { IUser } from '../../types';
 
 // Test parameters for the sec-fetch-dest header variations

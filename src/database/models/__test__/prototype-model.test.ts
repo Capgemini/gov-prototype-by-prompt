@@ -9,7 +9,7 @@ import {
     user2PersonalWorkspaceId,
     userId1,
     userId2,
-} from '../../../../jest/mockTestData';
+} from '../../../../config/mockTestData';
 import { Prototype, Workspace } from '../../../types';
 
 const mockPrototypeId1 = prototypeId1.toString();

@@ -1,16 +1,26 @@
 {
+    "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/packages/cspell-types/cspell.schema.json",
     "version": "0.2",
     "ignorePaths": [],
     "language": "en-GB",
-    "dictionaryDefinitions": [
-        {
-            "name": "custom-dictionary",
-            "path": "./.cspell/custom-dictionary.txt",
-            "addWords": true
-        }
+    "words": [
+        "__MONGOINSTANCE",
+        "autosync",
+        "bday",
+        "deepcode",
+        "endcall",
+        "evals",
+        "fulfill",
+        "govuk",
+        "HMRC",
+        "hmrc",
+        "inputmode",
+        "labelledby",
+        "millis",
+        "novalidate",
+        "slugified",
+        "teardown"
     ],
-    "dictionaries": ["custom-dictionary"],
-    "words": [],
     "ignoreWords": [],
     "import": ["@cspell/dict-en-gb/cspell-ext.json"]
 }

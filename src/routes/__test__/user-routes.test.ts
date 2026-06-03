@@ -10,7 +10,7 @@ import {
     userId1,
     userId2,
     workspaceId3,
-} from '../../../jest/mockTestData';
+} from '../../../config/mockTestData';
 import { IUser, IWorkspace } from '../../types';
 
 // Mocking middleware and utilities

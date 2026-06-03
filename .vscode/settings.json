@@ -9,5 +9,6 @@
     "[markdown]": {
         "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
     },
-    "git.branchProtection": ["main"]
+    "git.branchProtection": ["main"],
+    "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

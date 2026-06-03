@@ -1,4 +1,4 @@
-import { user1 } from '../../../../jest/mockTestData';
+import { user1 } from '../../../../config/mockTestData';
 import { IUser, User } from '../../../types';
 import { disconnectFromDatabase } from '../../connection/mongoose';
 import { UserModel } from '../user-model';

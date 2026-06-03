@@ -25,7 +25,7 @@ If you want to contact the maintainers directly, please [complete this form](htt
 
 ## Technology stack
 
-The project uses Express.js v5 with Node.js v22. It's written in TypeScript. Tests and LLM evaluations use the Jest testing framework.
+The project uses Express.js v5 with Node.js v22. It's written in TypeScript. Unit tests and LLM evaluations use the Jest testing framework, whilst end-to-end tests use Playwright.
 
 It connects to an OpenAI LLM; we have been using GPT-4.1-mini running in Azure. Alternatively, you can use a [local LLM](https://hub.docker.com/search?type=model) when running the application with Docker Compose. Note that testing so far has shown that local LLMs struggle to generate a valid JSON representation of the form structure.
 
@@ -111,17 +111,17 @@ Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/a
 
 The project is structured as follows:
 
-- [`.cspell/`](.cspell/) – Custom dictionary for spelling checks.
 - [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Dependabot configuration).
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
+- [`config/`](config/) – Configuration and setup files for tests.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
 - [`docs/`](docs/) – Project documentation and a user help guide.
+- [`e2e/`](e2e/) – End-to-end Playwright tests.
 - [`evals/`](evals/) – Automated tests for evaluating the LLM's output against expected form structures.
-- [`jest/`](jest/) – Jest configuration and setup files for testing.
 - [`migrations/`](migrations/) – Mongoose database migration scripts.
 - [`public/`](public/) – Static assets not provided by third-parties.
 - [`src/`](src/) – Application source code (Express routes, utilities, business logic, data models).
-  - Tests are in a `__tests__` folder within each source folder.
+  - Unit tests are in a `__tests__` folder within each source folder.
 - [`views/`](views/) – Nunjucks templates for all pages and components.
 
 The entry point for the application is [`server.ts`](/server.ts), which sets up the Express server, middleware, and routes.

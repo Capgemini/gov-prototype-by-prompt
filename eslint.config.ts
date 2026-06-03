@@ -6,32 +6,37 @@ import perfectionist from 'eslint-plugin-perfectionist';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
-export default defineConfig({
-    extends: [
-        eslint.configs.recommended,
-        tseslint.configs.strictTypeChecked,
-        tseslint.configs.stylisticTypeChecked,
-        perfectionist.configs['recommended-natural'],
-        eslintConfigPrettier,
-    ],
-    files: ['**/*.ts'],
-    ignores: [
-        '**/coverage/**',
-        '**/assets/**',
-        '**/docs/**',
-        '**/data/**',
-        '**/dist/**',
-        '**/node_modules/**',
-    ],
-    languageOptions: {
-        parser: tseslint.parser,
-        parserOptions: {
-            projectService: true,
+export default defineConfig([
+    {
+        ignores: [
+            '**/coverage/**',
+            '**/assets/**',
+            '**/docs/**',
+            '**/data/**',
+            '**/dist/**',
+            '**/node_modules/**',
+        ],
+    },
+    {
+        extends: [
+            eslint.configs.recommended,
+            tseslint.configs.strictTypeChecked,
+            tseslint.configs.stylisticTypeChecked,
+            perfectionist.configs['recommended-natural'],
+            eslintConfigPrettier,
+        ],
+        files: ['**/*.ts'],
+        languageOptions: {
+            parser: tseslint.parser,
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: __dirname,
+            },
+        },
+        plugins: { '@cspell': cspellPlugin },
+        rules: {
+            '@cspell/spellchecker': ['warn', {}],
+            '@typescript-eslint/no-empty-object-type': 'off',
         },
     },
-    plugins: { '@cspell': cspellPlugin },
-    rules: {
-        '@cspell/spellchecker': ['warn', {}],
-        '@typescript-eslint/no-empty-object-type': 'off',
-    },
-});
+]);
