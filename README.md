@@ -113,7 +113,7 @@ The project is structured as follows:
 
 - [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Dependabot configuration).
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
-- [`.config/`](.config/) – Configuration and setup files for tests.
+- [`config/`](config/) – Configuration and setup files for tests.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
 - [`docs/`](docs/) – Project documentation and a user help guide.
 - [`e2e/`](e2e/) – End-to-end Playwright tests.

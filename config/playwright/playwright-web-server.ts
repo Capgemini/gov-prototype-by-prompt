@@ -1,7 +1,8 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { ChildProcess, spawn } from 'node:child_process';
+import path from 'path';
 
-import { exampleEnvVars } from '../src/validationSchemas/env';
+import { exampleEnvVars } from '../../src/validationSchemas/env';
 import {
     PLAYWRIGHT_MONGO_DB_NAME,
     PLAYWRIGHT_MONGO_PORT,
@@ -52,10 +53,11 @@ async function start(): Promise<void> {
             '--yes',
             'tsx',
             '--import',
-            './e2e/playwright-openai-mock.ts',
+            './config/playwright/playwright-openai-mock.ts',
             './server.ts',
         ],
         {
+            cwd: path.resolve(__dirname, '../../'),
             env,
             stdio: 'inherit',
         }

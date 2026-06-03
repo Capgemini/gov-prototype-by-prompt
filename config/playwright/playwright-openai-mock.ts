@@ -1,7 +1,7 @@
 import { MockAgent, setGlobalDispatcher } from 'undici';
 
-import { prototypeData1 } from '../config/mockTestData';
-import { ITemplateData } from '../src/types';
+import { ITemplateData } from '../../src/types';
+import { prototypeData1 } from '../mockTestData';
 
 const mockAgent = new MockAgent();
 mockAgent.disableNetConnect();

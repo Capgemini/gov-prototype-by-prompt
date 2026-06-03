@@ -2,7 +2,10 @@ import { expect, test } from '@playwright/test';
 import 'dotenv/config';
 
 import { prototypeData1, user1 } from '../config/mockTestData';
-import { disconnectPlaywrightDb, resetDatabase } from './playwright-db';
+import {
+    disconnectPlaywrightDb,
+    resetDatabase,
+} from '../config/playwright/playwright-db';
 
 test.beforeEach(async ({ page }) => {
     await resetDatabase();

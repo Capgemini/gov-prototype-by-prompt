@@ -48,7 +48,7 @@
         "dev": "tsx watch ./server.ts",
         "test": "npm run test:unit && npm run test:e2e",
         "test:unit": "jest --config=./config/jest/jest.config.ts",
-        "test:e2e": "npx playwright test --config ./config/playwright.config.ts",
+        "test:e2e": "npx playwright test --config ./config/playwright/playwright.config.ts",
         "lint": "eslint .",
         "lint:fix": "eslint . --fix",
         "format": "prettier --write .",

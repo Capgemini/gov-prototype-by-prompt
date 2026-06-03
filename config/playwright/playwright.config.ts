@@ -57,7 +57,7 @@ export default defineConfig({
     reporter: 'html',
     /* Retry on CI only */
     retries: process.env.CI ? 2 : 0,
-    testDir: './e2e',
+    testDir: '../../e2e',
     /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
     use: {
         /* Base URL to use in actions like `await page.goto('')`. */
@@ -68,7 +68,7 @@ export default defineConfig({
     },
     /* Run your local dev server before starting the tests */
     webServer: {
-        command: 'npx --yes tsx e2e/playwright-web-server.ts',
+        command: 'npx tsx playwright-web-server.ts',
         reuseExistingServer: false,
         url: 'http://localhost:3001',
     },
