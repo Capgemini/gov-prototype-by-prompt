@@ -122,7 +122,7 @@ The project is structured as follows:
 - [`public/`](public/) – Static assets not provided by third-parties.
 - [`src/`](src/) – Application source code (Express routes, utilities, business logic, data models).
   - Unit tests are in a `__tests__` folder within each source folder.
-- [`tests/`](tests/) – End-to-end Playwright tests.
+- [`e2e/`](e2e/) – End-to-end Playwright tests.
 - [`views/`](views/) – Nunjucks templates for all pages and components.
 
 The entry point for the application is [`server.ts`](/server.ts), which sets up the Express server, middleware, and routes.

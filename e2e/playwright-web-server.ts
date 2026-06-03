@@ -52,7 +52,7 @@ async function start(): Promise<void> {
             '--yes',
             'tsx',
             '--import',
-            './tests/playwright-openai-mock.ts',
+            './e2e/playwright-openai-mock.ts',
             './server.ts',
         ],
         {
