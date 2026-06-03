@@ -26,6 +26,7 @@ const config: Config = {
     globalTeardown: '<rootDir>/config/jest/globalTeardown.ts',
     maxWorkers: 1,
     preset: 'ts-jest',
+    rootDir: '../../',
     setupFilesAfterEnv: ['<rootDir>/config/jest/setupFile.ts'],
     silent: true,
     testMatch: ['<rootDir>/src/**/*.test.ts'],
