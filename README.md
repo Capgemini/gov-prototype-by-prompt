@@ -111,18 +111,17 @@ Visit the [Azure OpenAI documentation](https://learn.microsoft.com/en-us/azure/a
 
 The project is structured as follows:
 
-- [`.cspell/`](.cspell/) – Custom dictionary for spelling checks.
 - [`.github/`](.github/) – GitHub configuration files (Actions workflows, templates, Dependabot configuration).
 - [`.vscode/`](.vscode/) – Visual Studio Code workspace extensions and settings.
+- [`.config/`](.config/) – Configuration and setup files for tests.
 - [`data/`](data/) – Example data, schemas, and project files for the ZIP download of the prototype.
 - [`docs/`](docs/) – Project documentation and a user help guide.
+- [`e2e/`](e2e/) – End-to-end Playwright tests.
 - [`evals/`](evals/) – Automated tests for evaluating the LLM's output against expected form structures.
-- [`jest/`](jest/) – Jest configuration and setup files for unit testing.
 - [`migrations/`](migrations/) – Mongoose database migration scripts.
 - [`public/`](public/) – Static assets not provided by third-parties.
 - [`src/`](src/) – Application source code (Express routes, utilities, business logic, data models).
   - Unit tests are in a `__tests__` folder within each source folder.
-- [`e2e/`](e2e/) – End-to-end Playwright tests.
 - [`views/`](views/) – Nunjucks templates for all pages and components.
 
 The entry point for the application is [`server.ts`](/server.ts), which sets up the Express server, middleware, and routes.
