@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { user1 } from '../jest/mockTestData';
+import { user1 } from '../config/mockTestData';
 import { disconnectPlaywrightDb, resetDatabase } from './playwright-db';
 
 const nonExistentUserEmail = 'noneuser@testdomain.com';

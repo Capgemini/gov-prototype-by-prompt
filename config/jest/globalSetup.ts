@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { exampleEnvVars } from '../src/validationSchemas/env';
+import { exampleEnvVars } from '../../src/validationSchemas/env';
 
 export = async function globalSetup() {
     // Config to decide if an mongodb-memory-server instance should be used

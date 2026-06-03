@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import 'dotenv/config';
 
-import { prototypeData1, user1 } from '../jest/mockTestData';
+import { prototypeData1, user1 } from '../config/mockTestData';
 import { disconnectPlaywrightDb, resetDatabase } from './playwright-db';
 
 test.beforeEach(async ({ page }) => {

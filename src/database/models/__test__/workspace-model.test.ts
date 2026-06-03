@@ -2,7 +2,7 @@ import {
     user1PersonalWorkspace,
     user1PersonalWorkspaceId,
     userId1,
-} from '../../../../jest/mockTestData';
+} from '../../../../config/mockTestData';
 import { Workspace } from '../../../types';
 import { disconnectFromDatabase } from '../../connection/mongoose';
 import { WorkspaceModel } from '../workspace-model';
@@ -67,9 +67,7 @@ describe('WorkspaceModel', () => {
         it('should return true when deleting workspace that exist', async () => {
             const newWorkspace = new Workspace(mockWorkspace);
             await newWorkspace.save();
-            expect(
-                await WorkspaceModel.deleteById(newWorkspace.id)
-            ).toBe(true);
+            expect(await WorkspaceModel.deleteById(newWorkspace.id)).toBe(true);
         });
 
         it('should throw when trying to delete workspace but error occurs', async () => {

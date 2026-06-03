@@ -1,6 +1,6 @@
 import { MockAgent, setGlobalDispatcher } from 'undici';
 
-import { prototypeData1 } from '../jest/mockTestData';
+import { prototypeData1 } from '../config/mockTestData';
 import { ITemplateData } from '../src/types';
 
 const mockAgent = new MockAgent();

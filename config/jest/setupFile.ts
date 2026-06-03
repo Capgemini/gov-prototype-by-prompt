@@ -2,7 +2,7 @@ import {
     connectToDatabase,
     disconnectFromDatabase,
     dropDatabase,
-} from '../src/database';
+} from '../../src/database';
 
 beforeAll(async () => {
     await connectToDatabase();

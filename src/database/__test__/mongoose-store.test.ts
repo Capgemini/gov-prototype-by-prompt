@@ -5,7 +5,7 @@ import {
     user1PersonalWorkspace,
     user1PersonalWorkspaceId,
     userId1,
-} from '../../../jest/mockTestData';
+} from '../../../config/mockTestData';
 import { PrototypeDesignSystemsType } from '../../types';
 
 const userId = userId1.toString();

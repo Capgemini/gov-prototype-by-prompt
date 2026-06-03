@@ -1,6 +1,5 @@
 import httpMocks from 'node-mocks-http';
 
-import formSchema from '../../../data/extract-form-questions-schema.json';
 import {
     allUsers,
     allWorkspaces,
@@ -18,7 +17,8 @@ import {
     workspace3,
     workspace4,
     workspaceId3,
-} from '../../../jest/mockTestData';
+} from '../../../config/mockTestData';
+import formSchema from '../../../data/extract-form-questions-schema.json';
 import {
     IPrototypeData,
     IUser,

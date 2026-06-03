@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import { user1, user1PersonalWorkspace } from '../jest/mockTestData';
+import { user1, user1PersonalWorkspace } from '../config/mockTestData';
 import { UserModel } from '../src/database/models/user-model';
 import { WorkspaceModel } from '../src/database/models/workspace-model';
 import { PLAYWRIGHT_MONGODB_URI } from './playwright-test-env';
