@@ -34,10 +34,10 @@ import {
     generateStartPage,
 } from '../form-generator';
 import {
-    createFormWithOpenAI,
-    generateSuggestionsWithOpenAI,
-    updateFormWithOpenAI,
-} from '../openai';
+    createForm,
+    generateSuggestions,
+    updateForm,
+} from '../llm-provider';
 import {
     APIResponse,
     CreateFormRequestBody,
@@ -62,6 +62,7 @@ import {
 } from '../utils';
 import { buildZipOfForm } from '../zip-generator';
 import { verifyLivePrototype, verifyPrototype, verifyUser } from './middleware';
+import { validatePaginationParams } from './validation-utils';
 
 // Create an Express router
 const prototypeRouter = express.Router();
@@ -145,19 +146,6 @@ export async function renderHistoryPage(
         sharing = 'all';
     }
 
-    // Get and validate the pagination query parameters
-    let invalidPagination = false;
-    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
-    if (
-        req.query.perPage === undefined ||
-        Number.isNaN(perPage) ||
-        perPage < 1 ||
-        perPage > 100
-    ) {
-        perPage = DEFAULT_PER_PAGE;
-        invalidPagination = true;
-    }
-
     // Get the prototypes for the user
     // Filter by creator and workspace
     let prototypes = await getPrototypesByUserId(user.id, onlyCreated);
@@ -221,18 +209,12 @@ export async function renderHistoryPage(
     const countPrototypes = prototypes.length;
 
     // Validate the pagination parameters against the total prototypes
-    let totalPages = Math.ceil(countPrototypes / perPage);
-    if (totalPages < 1) totalPages = 1;
-    let page = Number.parseInt(req.query.page ?? '1', 10);
-    if (
-        req.query.page === undefined ||
-        Number.isNaN(page) ||
-        page < 1 ||
-        page > totalPages
-    ) {
-        page = 1;
-        invalidPagination = true;
-    }
+    const { page, perPage, invalidPagination } = validatePaginationParams(
+        req.query.perPage,
+        req.query.page,
+        countPrototypes
+    );
+    const totalPages = Math.ceil(countPrototypes / perPage);
 
     // Redirect if the query parameters were invalid
     if (
@@ -470,8 +452,8 @@ export async function handleSuggestions(
         req as unknown as Request & { prototypeData: IPrototypeData }
     ).prototypeData;
 
-    // Generate suggestions using OpenAI
-    await generateSuggestionsWithOpenAI(
+    // Generate suggestions using the configured LLM provider
+    await generateSuggestions(
         getEnvironmentVariables(),
         prototypeData.json,
         prototypeData.designSystem
@@ -1004,7 +986,7 @@ export async function handleUpdatePrototype(
 
     // Update the form if a prompt is provided, otherwise just update the design system
     if (prompt) {
-        responseText = await updateFormWithOpenAI(
+        responseText = await updateForm(
             getEnvironmentVariables(),
             prompt,
             oldPrototypeData.json,
@@ -1108,9 +1090,9 @@ export async function handleCreatePrototype(
         oldPrototypeData =
             (await getPrototypeById(req.body.prototypeId ?? '')) ?? undefined;
 
-        // Otherwise, prompt the OpenAI API
+        // Otherwise, prompt the configured LLM provider
     } else {
-        responseText = await createFormWithOpenAI(
+        responseText = await createForm(
             getEnvironmentVariables(),
             prompt,
             designSystem,

@@ -48,14 +48,10 @@ async function start(): Promise<void> {
     };
 
     appProcess = spawn(
-        'npx',
-        [
-            '--yes',
-            'tsx',
-            '--import',
-            './config/playwright/playwright-openai-mock.ts',
-            './server.ts',
-        ],
+        process.platform === 'win32' ? 'cmd' : 'sh',
+        process.platform === 'win32'
+            ? ['/c', 'npx --yes tsx --import ./config/playwright/playwright-openai-mock.ts ./server.ts']
+            : ['-c', 'npx --yes tsx --import ./config/playwright/playwright-openai-mock.ts ./server.ts'],
         {
             cwd: path.resolve(__dirname, '../../'),
             env,
