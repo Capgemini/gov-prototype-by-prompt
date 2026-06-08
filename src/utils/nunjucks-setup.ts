@@ -11,6 +11,15 @@ import {
     isoDateFromDateInput,
 } from '../filters';
 
+function setupNunjucksFilters(env: nunjucks.Environment): void {
+    env.addFilter('govukDate', govukDate);
+    env.addFilter('isoDateFromDateInput', isoDateFromDateInput);
+    env.addFilter('govukMarkdown', convertToGovukMarkdown);
+    env.addFilter('formatList', formatList);
+    env.addFilter('includes', arrayOrStringIncludes);
+    env.addFilter('isArray', isArray);
+}
+
 export function setupNunjucksEnv(
     app: Express,
     noCache: boolean,
@@ -30,13 +39,7 @@ export function setupNunjucksEnv(
         }
     );
 
-    nunjucksEnv.addFilter('govukDate', govukDate);
-    nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
-    nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
-    nunjucksEnv.addFilter('formatList', formatList);
-    nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
-    nunjucksEnv.addFilter('isArray', isArray);
-
+    setupNunjucksFilters(nunjucksEnv);
     app.set('view engine', 'njk');
 
     return nunjucksEnv;
@@ -59,13 +62,7 @@ export function setupNunjucksEnvZipDownload(
         }
     );
 
-    nunjucksEnv.addFilter('govukDate', govukDate);
-    nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
-    nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
-    nunjucksEnv.addFilter('formatList', formatList);
-    nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
-    nunjucksEnv.addFilter('isArray', isArray);
-
+    setupNunjucksFilters(nunjucksEnv);
     app.set('view engine', 'njk');
 
     return nunjucksEnv;
