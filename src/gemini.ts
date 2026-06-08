@@ -11,6 +11,10 @@ import {
     TemplateData,
 } from './types';
 
+function createGeminiClient(envVars: EnvironmentVariables): GoogleGenerativeAI {
+    return new GoogleGenerativeAI(envVars.GEMINI_API_KEY!);
+}
+
 function convertJsonSchemaToGeminiSchema(jsonSchema: Record<string, unknown>): Schema {
     const converted = structuredClone(jsonSchema);
     const fieldsToRemove = new Set([
@@ -69,7 +73,7 @@ export async function createFormWithGemini(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new GoogleGenerativeAI(envVars.GEMINI_API_KEY!);
+    const client = createGeminiClient(envVars);
 
     if (activeSpan) activeSpan.setAttribute('gemini.prompt', prompt);
 
@@ -132,7 +136,7 @@ export async function generateSuggestionsWithGemini(
     templateData: TemplateData,
     designSystem: PrototypeDesignSystemsType
 ): Promise<string> {
-    const client = new GoogleGenerativeAI(envVars.GEMINI_API_KEY!);
+    const client = createGeminiClient(envVars);
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
     // Prepare the system prompt
@@ -198,7 +202,7 @@ export async function judgeFormWithGemini(
     templateData: TemplateData,
     criteria: string
 ): Promise<string> {
-    const client = new GoogleGenerativeAI(envVars.GEMINI_API_KEY!);
+    const client = createGeminiClient(envVars);
 
     // Prepare the system prompt
     const systemPrompt = nunjucks.render('judge-prompt.njk');
@@ -251,7 +255,7 @@ export async function updateFormWithGemini(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new GoogleGenerativeAI(envVars.GEMINI_API_KEY!);
+    const client = createGeminiClient(envVars);
 
     if (activeSpan) activeSpan.setAttribute('gemini.prompt', prompt);
 
