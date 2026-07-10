@@ -83,7 +83,7 @@
         "hmrc-frontend": "~7.23.0",
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
-        "marked": "~17.0.6",
+        "marked": "~18.0.6",
         "mermaid": "~11.16.0",
         "moment": "~2.30.1",
         "mongoose": "~9.7.3",
