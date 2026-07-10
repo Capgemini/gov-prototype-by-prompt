@@ -1,4 +1,4 @@
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { install, MockAgent, setGlobalDispatcher } from 'undici';
 
 import { ITemplateData } from '../../src/types';
 import { prototypeData1 } from '../mockTestData';
@@ -77,3 +77,4 @@ mockAgent
     .persist();
 
 setGlobalDispatcher(mockAgent);
+install();
