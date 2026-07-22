@@ -6,6 +6,7 @@ import {
 import format from 'html-format';
 import { ValidationError, Validator, ValidatorResultError } from 'jsonschema';
 import fs from 'node:fs';
+import sanitizeHtml from 'sanitize-html';
 
 import commonPasswords from '../data/valid-common-passwords.json';
 import { EnvironmentVariables, JsonSchema, TemplateData } from './types';
@@ -375,6 +376,10 @@ export function validateTemplateDataText(
         return value ?? undefined;
     }) as TemplateData;
 
+    // Strip any HTML tags from the generated content to prevent HTML/script
+    // injection into prototypes, without affecting Markdown or other text
+    templateData = stripHtmlDeep(templateData);
+
     // Collate further validation errors
     const validationErrors: ValidationError[] = [];
 
@@ -524,4 +529,70 @@ export function validateTemplateDataText(
     }
 
     return templateData;
+}
+
+/**
+ * Decode the HTML entities sanitize-html introduces for bare '&', '<', '>',
+ * '"' and "'" characters, so plain text and Markdown syntax round-trip
+ * unchanged instead of being left double-encoded.
+ * @param {string} text The sanitised text to decode entities in.
+ * @returns {string} The text with basic HTML entities decoded.
+ */
+function decodeBasicHtmlEntities(text: string): string {
+    return text
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&');
+}
+
+/**
+ * Recursively strip HTML tags from every string value in an object or array,
+ * leaving Markdown syntax and other plain text content untouched.
+ * @param {T} value The value to strip HTML tags from.
+ * @returns {T} The value with HTML tags stripped from any nested strings.
+ */
+function stripHtmlDeep<T>(value: T): T {
+    if (typeof value === 'string') {
+        return stripHtmlFromString(value) as unknown as T;
+    }
+    if (Array.isArray(value)) {
+        return value.map((item: unknown) =>
+            stripHtmlDeep(item)
+        ) as unknown as T;
+    }
+    if (value !== null && typeof value === 'object') {
+        for (const key of Object.keys(value)) {
+            (value as Record<string, unknown>)[key] = stripHtmlDeep(
+                (value as Record<string, unknown>)[key]
+            );
+        }
+        return value;
+    }
+    return value;
+}
+
+/**
+ * Remove HTML tags from a string using sanitize-html, then decode the HTML
+ * entities sanitize-html introduces for bare characters, so plain text and
+ * Markdown syntax round-trip unchanged. If the text was entity-encoded
+ * markup (e.g. '&lt;script&gt;'), decoding it would reconstruct a real tag,
+ * so decoding is only applied when re-sanitising the decoded text is a
+ * no-op; otherwise the safely-escaped sanitised text is kept as-is.
+ * @param {string} text The text to strip HTML tags from.
+ * @returns {string} The text with HTML tags removed.
+ */
+function stripHtmlFromString(text: string): string {
+    const sanitizeHtmlOptions: sanitizeHtml.IOptions = {
+        allowedAttributes: {},
+        allowedTags: [],
+    };
+
+    const sanitised = sanitizeHtml(text, sanitizeHtmlOptions);
+    const decoded = decodeBasicHtmlEntities(sanitised);
+    const isSafeToDecode =
+        decodeBasicHtmlEntities(sanitizeHtml(decoded, sanitizeHtmlOptions)) ===
+        decoded;
+    return isSafeToDecode ? decoded : sanitised;
 }

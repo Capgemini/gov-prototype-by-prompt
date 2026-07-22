@@ -89,6 +89,7 @@
         "mongoose": "~9.7.3",
         "nunjucks": "~3.2.4",
         "openai": "~6.45.0",
+        "sanitize-html": "^2.17.6",
         "ts-migrate-mongoose": "~5.3.3",
         "tsx": "~4.23.0",
         "zod": "~4.4.3"
@@ -105,6 +106,7 @@
         "@types/jest": "~30.0.0",
         "@types/node": "^22.13.4",
         "@types/nunjucks": "~3.2.6",
+        "@types/sanitize-html": "^2.16.1",
         "@types/supertest": "~7.2.0",
         "cspell": "~10.0.1",
         "eslint": "~10.6.0",

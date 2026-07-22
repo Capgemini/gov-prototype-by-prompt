@@ -287,6 +287,69 @@ describe('validateTemplateDataText', () => {
         });
     });
 
+    it('strips HTML tags from string fields, including script content', () => {
+        const json = JSON.stringify({
+            duration: 30,
+            questions: [
+                {
+                    answer_type: 'text',
+                    hint_text: '<b>bold</b> hint',
+                    next_question_value: -1,
+                    options_branching: [
+                        { next_question_value: -1, text_value: '<i>opt</i>' },
+                    ],
+                    question_text: '<script>alert(1)</script>What is your name?',
+                },
+            ],
+            title: '<img src=x onerror=alert(1)>Form Title',
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(result.title).toBe('Form Title');
+        expect(result.questions[0].question_text).toBe('What is your name?');
+        expect(result.questions[0].hint_text).toBe('bold hint');
+    });
+
+    it('does not reconstruct HTML tags from HTML-entity-encoded content', () => {
+        const json = JSON.stringify({
+            duration: 30,
+            questions: [
+                {
+                    answer_type: 'text',
+                    next_question_value: -1,
+                    question_text: '&lt;script&gt;alert(1)&lt;/script&gt;',
+                },
+            ],
+            title: '&lt;img src=x onerror=alert(1)&gt;',
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(result.title).not.toContain('<img');
+        expect(result.questions[0].question_text).not.toContain('<script');
+        expect(result.questions[0].question_text).not.toContain('</script');
+    });
+
+    it('leaves Markdown syntax and plain text characters unaffected', () => {
+        const json = JSON.stringify({
+            duration: 30,
+            questions: [],
+            title: '# Heading with **bold**, _italic_, [a link](https://example.com) & "quotes" < 5',
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(result.title).toBe(
+            '# Heading with **bold**, _italic_, [a link](https://example.com) & "quotes" < 5'
+        );
+    });
+
+    it('returns valid JSON-serialisable output after stripping HTML', () => {
+        const json = JSON.stringify({
+            duration: 30,
+            questions: [],
+            title: '<b>Title</b> with & special "chars"',
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(() => JSON.stringify(result)).not.toThrow();
+        expect(JSON.parse(JSON.stringify(result))).toEqual(result);
+    });
+
     it('removes null values from the result', () => {
         const json = JSON.stringify({
             duration: 25,

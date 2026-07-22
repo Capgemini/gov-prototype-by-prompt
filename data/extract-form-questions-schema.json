@@ -55,7 +55,7 @@
         },
         "description": {
             "type": "string",
-            "description": "A Markdown-formatted description shown below the title, providing clear context or instructions for filling out the form. Do not use headings."
+            "description": "A Markdown-formatted description shown below the title, providing clear context or instructions for filling out the form. Do not use headings or raw HTML tags."
         },
         "duration": {
             "type": "integer",
@@ -63,14 +63,14 @@
         },
         "before_you_start": {
             "type": "string",
-            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. This should not duplicate the description. Do not use headings.",
+            "description": "A Markdown-formatted description of what the user should know or do before starting the form. Clearly state any eligibility criteria or prerequisites. This should not duplicate the description. Do not use headings or raw HTML tags.",
             "examples": [
                 "You must be a British citizen and have a valid National Insurance number to use this service."
             ]
         },
         "what_happens_next": {
             "type": "string",
-            "description": "A Markdown-formatted description of what happens after the user submits the form. Clearly explain the next steps. Do not use headings.",
+            "description": "A Markdown-formatted description of what happens after the user submits the form. Clearly explain the next steps. Do not use headings or raw HTML tags.",
             "examples": [
                 "We've sent your submission to [Hackney Electoral Register Office](https://hackney.gov.uk). They will contact you either to confirm your registration, or to ask for more information."
             ]
@@ -122,7 +122,7 @@
                     },
                     "detailed_explanation": {
                         "type": ["object", "null"],
-                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. The title must be a string in sentence case as a statement. The explanation must be a string in Markdown and may include multiple sentences or paragraphs. The hint text must be null if this is provided.",
+                        "description": "A detailed explanation of the question. This should normally be null unless the question needs more context or instructions. The title must be a string in sentence case as a statement. The explanation must be a string in Markdown and may include multiple sentences or paragraphs. The hint text must be null if this is provided. Do not use raw HTML tags.",
                         "properties": {
                             "question_title": {
                                 "type": "string",
@@ -134,7 +134,7 @@
                             },
                             "explanation_text": {
                                 "type": "string",
-                                "description": "Markdown-formatted, may include multiple sentences or paragraphs."
+                                "description": "Markdown-formatted, may include multiple sentences or paragraphs. Do not use raw HTML tags."
                             }
                         },
                         "required": ["question_title", "explanation_text"],
