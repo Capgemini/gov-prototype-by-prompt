@@ -309,6 +309,24 @@ describe('validateTemplateDataText', () => {
         expect(result.questions[0].hint_text).toBe('bold hint');
     });
 
+    it('does not reconstruct HTML tags from HTML-entity-encoded content', () => {
+        const json = JSON.stringify({
+            duration: 30,
+            questions: [
+                {
+                    answer_type: 'text',
+                    next_question_value: -1,
+                    question_text: '&lt;script&gt;alert(1)&lt;/script&gt;',
+                },
+            ],
+            title: '&lt;img src=x onerror=alert(1)&gt;',
+        });
+        const result = validateTemplateDataText(json, baseSchema);
+        expect(result.title).not.toContain('<img');
+        expect(result.questions[0].question_text).not.toContain('<script');
+        expect(result.questions[0].question_text).not.toContain('</script');
+    });
+
     it('leaves Markdown syntax and plain text characters unaffected', () => {
         const json = JSON.stringify({
             duration: 30,

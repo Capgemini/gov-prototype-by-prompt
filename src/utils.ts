@@ -532,6 +532,22 @@ export function validateTemplateDataText(
 }
 
 /**
+ * Decode the HTML entities sanitize-html introduces for bare '&', '<', '>',
+ * '"' and "'" characters, so plain text and Markdown syntax round-trip
+ * unchanged instead of being left double-encoded.
+ * @param {string} text The sanitised text to decode entities in.
+ * @returns {string} The text with basic HTML entities decoded.
+ */
+function decodeBasicHtmlEntities(text: string): string {
+    return text
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&amp;/g, '&');
+}
+
+/**
  * Recursively strip HTML tags from every string value in an object or array,
  * leaving Markdown syntax and other plain text content untouched.
  * @param {T} value The value to strip HTML tags from.
@@ -542,7 +558,9 @@ function stripHtmlDeep<T>(value: T): T {
         return stripHtmlFromString(value) as unknown as T;
     }
     if (Array.isArray(value)) {
-        return value.map((item: unknown) => stripHtmlDeep(item)) as unknown as T;
+        return value.map((item: unknown) =>
+            stripHtmlDeep(item)
+        ) as unknown as T;
     }
     if (value !== null && typeof value === 'object') {
         for (const key of Object.keys(value)) {
@@ -557,19 +575,24 @@ function stripHtmlDeep<T>(value: T): T {
 
 /**
  * Remove HTML tags from a string using sanitize-html, then decode the HTML
- * entities sanitize-html introduces for bare '&', '<', '>', '"' and "'"
- * characters, so plain text and Markdown syntax round-trip unchanged.
+ * entities sanitize-html introduces for bare characters, so plain text and
+ * Markdown syntax round-trip unchanged. If the text was entity-encoded
+ * markup (e.g. '&lt;script&gt;'), decoding it would reconstruct a real tag,
+ * so decoding is only applied when re-sanitising the decoded text is a
+ * no-op; otherwise the safely-escaped sanitised text is kept as-is.
  * @param {string} text The text to strip HTML tags from.
  * @returns {string} The text with HTML tags removed.
  */
 function stripHtmlFromString(text: string): string {
-    return sanitizeHtml(text, {
+    const sanitizeHtmlOptions: sanitizeHtml.IOptions = {
         allowedAttributes: {},
         allowedTags: [],
-    })
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&amp;/g, '&');
+    };
+
+    const sanitised = sanitizeHtml(text, sanitizeHtmlOptions);
+    const decoded = decodeBasicHtmlEntities(sanitised);
+    const isSafeToDecode =
+        decodeBasicHtmlEntities(sanitizeHtml(decoded, sanitizeHtmlOptions)) ===
+        decoded;
+    return isSafeToDecode ? decoded : sanitised;
 }
