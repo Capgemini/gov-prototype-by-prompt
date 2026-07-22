@@ -33,6 +33,8 @@ Supported Markdown features include:
 - Unordered lists with `- item 1` or `* item 2`
 - Ordered lists with `1. item 1` or `2. item 2`
 
+Raw HTML tags are not supported and will be removed.
+
 ### Question fields
 
 Each question contains the following fields:
