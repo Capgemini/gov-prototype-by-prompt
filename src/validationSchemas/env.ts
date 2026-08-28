@@ -6,6 +6,11 @@ const ENVS: readonly [string, ...string[]] = [
     'test',
 ];
 
+const LLM_PROVIDERS: readonly [string, ...string[]] = [
+    'openai',
+    'gemini',
+];
+
 const trueFalseString = z
     .string()
     .refine((val) => ['false', 'true'].includes(val.trim().toLowerCase()), {
@@ -19,9 +24,20 @@ export const envVarSchema = z
         EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: trueFalseString.transform(
             (value) => value.trim().toLowerCase() === 'true'
         ),
+        GEMINI_API_KEY: z.string().optional(),
+        GEMINI_MODEL_ID: z.string().default('gemini-3.5-flash'),
         LOG_USER_ID_IN_AZURE_APP_INSIGHTS: trueFalseString.transform(
             (value) => value.trim().toLowerCase() === 'true'
         ),
+        LLM_PROVIDER: z
+            .preprocess(
+                (value) =>
+                    LLM_PROVIDERS.includes(String(value).toLowerCase())
+                        ? String(value).toLowerCase()
+                        : 'openai',
+                z.enum(LLM_PROVIDERS)
+            )
+            .default('openai'),
         MONGODB_URI: z.string(),
         NODE_ENV: z.preprocess(
             (value) => (ENVS.includes(String(value)) ? value : 'production'),
@@ -71,6 +87,14 @@ export const envVarSchema = z
                 });
             }
         }
+        if (env.LLM_PROVIDER === 'gemini' && !env.GEMINI_API_KEY) {
+            ctx.addIssue({
+                code: 'custom',
+                message:
+                    'GEMINI_API_KEY is required when LLM_PROVIDER is set to "gemini"',
+                path: ['GEMINI_API_KEY'],
+            });
+        }
     });
 
 // Example environment variables for testing purposes
@@ -80,7 +104,10 @@ export const exampleEnvVars = {
         'application-insights-connection-string',
     EMAIL_ADDRESS_ALLOWED_DOMAIN: 'example.com',
     EMAIL_ADDRESS_ALLOWED_DOMAIN_REVEAL: 'false',
+    GEMINI_API_KEY: 'gemini-key',
+    GEMINI_MODEL_ID: 'gemini-3.5-flash',
     LOG_USER_ID_IN_AZURE_APP_INSIGHTS: 'false',
+    LLM_PROVIDER: 'openai',
     MONGODB_URI: 'mongodb://localhost',
     NODE_ENV: 'production',
     OPENAI_API_KEY: 'key',

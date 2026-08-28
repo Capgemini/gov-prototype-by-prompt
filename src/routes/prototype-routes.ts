@@ -34,10 +34,10 @@ import {
     generateStartPage,
 } from '../form-generator';
 import {
-    createFormWithOpenAI,
-    generateSuggestionsWithOpenAI,
-    updateFormWithOpenAI,
-} from '../openai';
+    createForm,
+    generateSuggestions,
+    updateForm,
+} from '../llm-provider';
 import {
     APIResponse,
     CreateFormRequestBody,
@@ -470,8 +470,8 @@ export async function handleSuggestions(
         req as unknown as Request & { prototypeData: IPrototypeData }
     ).prototypeData;
 
-    // Generate suggestions using OpenAI
-    await generateSuggestionsWithOpenAI(
+    // Generate suggestions using the configured LLM provider
+    await generateSuggestions(
         getEnvironmentVariables(),
         prototypeData.json,
         prototypeData.designSystem
@@ -1004,7 +1004,7 @@ export async function handleUpdatePrototype(
 
     // Update the form if a prompt is provided, otherwise just update the design system
     if (prompt) {
-        responseText = await updateFormWithOpenAI(
+        responseText = await updateForm(
             getEnvironmentVariables(),
             prompt,
             oldPrototypeData.json,
@@ -1108,9 +1108,9 @@ export async function handleCreatePrototype(
         oldPrototypeData =
             (await getPrototypeById(req.body.prototypeId ?? '')) ?? undefined;
 
-        // Otherwise, prompt the OpenAI API
+        // Otherwise, prompt the configured LLM provider
     } else {
-        responseText = await createFormWithOpenAI(
+        responseText = await createForm(
             getEnvironmentVariables(),
             prompt,
             designSystem,
