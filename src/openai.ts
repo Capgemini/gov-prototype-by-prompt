@@ -12,6 +12,13 @@ import {
     TemplateData,
 } from './types';
 
+function createOpenAIClient(envVars: EnvironmentVariables): OpenAI {
+    return new OpenAI({
+        apiKey: envVars.OPENAI_API_KEY,
+        baseURL: envVars.OPENAI_BASE_URL,
+    });
+}
+
 /**
  * Prompts the OpenAI API to create a form with a given prompt and returns the response.
  * @param {EnvironmentVariables} envVars The environment variables containing OpenAI API configuration.
@@ -28,10 +35,7 @@ export async function createFormWithOpenAI(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new OpenAI({
-        apiKey: envVars.OPENAI_API_KEY,
-        baseURL: envVars.OPENAI_BASE_URL,
-    });
+    const client = createOpenAIClient(envVars);
 
     if (activeSpan) activeSpan.setAttribute('openai.prompt', prompt);
 
@@ -94,10 +98,7 @@ export async function generateSuggestionsWithOpenAI(
     templateData: TemplateData,
     designSystem: PrototypeDesignSystemsType
 ): Promise<string> {
-    const client = new OpenAI({
-        apiKey: envVars.OPENAI_API_KEY,
-        baseURL: envVars.OPENAI_BASE_URL,
-    });
+    const client = createOpenAIClient(envVars);
     templateData = { ...templateData, suggestions: [] }; // Ensure suggestions are empty
 
     // Prepare the system prompt
@@ -165,10 +166,7 @@ export async function judgeFormWithOpenAI(
     templateData: TemplateData,
     criteria: string
 ): Promise<string> {
-    const client = new OpenAI({
-        apiKey: envVars.OPENAI_API_KEY,
-        baseURL: envVars.OPENAI_BASE_URL,
-    });
+    const client = createOpenAIClient(envVars);
 
     // Prepare the system prompt
     const systemPrompt = nunjucks.render('judge-prompt.njk');
@@ -221,10 +219,7 @@ export async function updateFormWithOpenAI(
     enableSuggestions: boolean
 ): Promise<string> {
     const activeSpan = opentelemetry.trace.getActiveSpan();
-    const client = new OpenAI({
-        apiKey: envVars.OPENAI_API_KEY,
-        baseURL: envVars.OPENAI_BASE_URL,
-    });
+    const client = createOpenAIClient(envVars);
 
     if (activeSpan) activeSpan.setAttribute('openai.prompt', prompt);
 

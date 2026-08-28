@@ -727,36 +727,14 @@ function generateField({
             result = `{{ govukFileUpload(${objectToJSFormat(macroOptions)}) }}`;
             break;
         case 'multiple_choice':
-            items = fieldItem.options?.map((option: string) => {
-                return {
-                    checked: `data['question-${questionNumberString}'] | includes('${option.replace(/'/g, "\\'")}')`,
-                    text: option,
-                    value: option,
-                };
-            });
-            macroOptions = {
-                attributes: {},
-                fieldset: {
-                    legend: {
-                        classes: `govuk-fieldset__legend--${questionTextSize}`,
-                        isPageHeading: questionsAsHeadings,
-                        text: fieldItem.question_text,
-                    },
-                },
-                ...(!!fieldItem.hint_text && {
-                    hint: {
-                        text: fieldItem.hint_text,
-                    },
-                }),
-                items: items,
-                name: `question-${questionNumberString}`,
-            };
-            if (fieldItem.required) {
-                macroOptions.attributes['data-required-error-text'] =
-                    fieldItem.required_error_text ??
-                    `Answer this question to continue`;
-            }
-            result = `{{ govukCheckboxes(${objectToJSFormat(macroOptions)}) }}`;
+            result = buildChoiceFieldOptions(
+                fieldItem,
+                questionNumberString,
+                questionTextSize,
+                questionsAsHeadings,
+                `data['question-{question}'] | includes('{option}')`,
+                'govukCheckboxes'
+            );
             break;
         case 'passport_information':
             result = `<h1 class="govuk-heading-l">${fieldItem.question_text}</h1>`;
@@ -901,36 +879,14 @@ function generateField({
             result += `{{ govukSelect(${objectToJSFormat(macroOptions)}) }}`;
             break;
         case 'single_choice':
-            items = fieldItem.options?.map((option: string) => {
-                return {
-                    checked: `data['question-${questionNumberString}'] == '${option.replace(/'/g, "\\'")}'`,
-                    text: option,
-                    value: option,
-                };
-            });
-            macroOptions = {
-                attributes: {},
-                fieldset: {
-                    legend: {
-                        classes: `govuk-fieldset__legend--${questionTextSize}`,
-                        isPageHeading: questionsAsHeadings,
-                        text: fieldItem.question_text,
-                    },
-                },
-                ...(!!fieldItem.hint_text && {
-                    hint: {
-                        text: fieldItem.hint_text,
-                    },
-                }),
-                items: items,
-                name: `question-${questionNumberString}`,
-            };
-            if (fieldItem.required) {
-                macroOptions.attributes['data-required-error-text'] =
-                    fieldItem.required_error_text ??
-                    `Answer this question to continue`;
-            }
-            result = `{{ govukRadios(${objectToJSFormat(macroOptions)}) }}`;
+            result = buildChoiceFieldOptions(
+                fieldItem,
+                questionNumberString,
+                questionTextSize,
+                questionsAsHeadings,
+                `data['question-{question}'] == '{option}'`,
+                'govukRadios'
+            );
             break;
         case 'text_area':
             macroOptions = {
@@ -988,6 +944,46 @@ function getItems(
         });
     }
     return result;
+}
+
+function buildChoiceFieldOptions(
+    fieldItem: TemplateField,
+    questionNumberString: string,
+    questionTextSize: string,
+    questionsAsHeadings: boolean,
+    checkedExpression: string,
+    macroName: 'govukCheckboxes' | 'govukRadios'
+): string {
+    const items = fieldItem.options?.map((option: string) => {
+        return {
+            checked: checkedExpression.replace(/{option}/g, option.replace(/'/g, "\\'")).replace(/{question}/g, questionNumberString),
+            text: option,
+            value: option,
+        };
+    });
+    const macroOptions = {
+        attributes: {} as Record<string, string>,
+        fieldset: {
+            legend: {
+                classes: `govuk-fieldset__legend--${questionTextSize}`,
+                isPageHeading: questionsAsHeadings,
+                text: fieldItem.question_text,
+            },
+        },
+        ...(!!fieldItem.hint_text && {
+            hint: {
+                text: fieldItem.hint_text,
+            },
+        }),
+        items: items,
+        name: `question-${questionNumberString}`,
+    };
+    if (fieldItem.required) {
+        macroOptions.attributes['data-required-error-text'] =
+            fieldItem.required_error_text ??
+            `Answer this question to continue`;
+    }
+    return `{{ ${macroName}(${objectToJSFormat(macroOptions)}) }}`;
 }
 
 function objectToJSFormat(obj: object): string {

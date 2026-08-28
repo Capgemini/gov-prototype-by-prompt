@@ -20,6 +20,7 @@ import {
     validatePasswords,
 } from '../utils';
 import { verifyAdminUser, verifyUser } from './middleware';
+import { validatePaginationParams } from './validation-utils';
 
 // file deepcode ignore NoRateLimitingForExpensiveWebOperation: Main server.ts file contains Rate Limiting configuration for application.
 // Create an Express router
@@ -54,19 +55,6 @@ export async function renderUsersPage(
         isActive = 'all';
     }
 
-    // Get and validate the pagination query parameters
-    let invalidPagination = false;
-    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
-    if (
-        req.query.perPage === undefined ||
-        Number.isNaN(perPage) ||
-        perPage < 1 ||
-        perPage > 100
-    ) {
-        perPage = DEFAULT_PER_PAGE;
-        invalidPagination = true;
-    }
-
     // Get and filter the users
     let users = await getAllUsers();
     if (isAdmin === 'true') {
@@ -82,18 +70,12 @@ export async function renderUsersPage(
 
     // Validate the pagination parameters against the total
     const countUsers = users.length;
-    let totalPages = Math.ceil(countUsers / perPage);
-    if (totalPages < 1) totalPages = 1;
-    let page = Number.parseInt(req.query.page ?? '1', 10);
-    if (
-        req.query.page === undefined ||
-        Number.isNaN(page) ||
-        page < 1 ||
-        page > totalPages
-    ) {
-        page = 1;
-        invalidPagination = true;
-    }
+    const { page, perPage, invalidPagination } = validatePaginationParams(
+        req.query.perPage,
+        req.query.page,
+        countUsers
+    );
+    const totalPages = Math.ceil(countUsers / perPage);
 
     // Redirect if the query parameters were invalid
     if (
