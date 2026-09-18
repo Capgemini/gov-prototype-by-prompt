@@ -17,6 +17,17 @@ jest.doMock('@opentelemetry/api', () => ({
 jest.doMock('@opentelemetry/instrumentation', () => ({
     registerInstrumentations: registerInstrumentationsMock,
 }));
+jest.doMock('@opentelemetry/instrumentation-express', () => ({
+    ExpressInstrumentation: jest.fn().mockImplementation(() => ({
+        disable: jest.fn(),
+        enable: jest.fn(),
+    })),
+    ExpressLayerType: {
+        MIDDLEWARE: 'middleware',
+        REQUEST_HANDLER: 'request_handler',
+        ROUTER: 'router',
+    },
+}));
 jest.doMock('@opentelemetry/instrumentation-http', () => ({
     HttpInstrumentation: jest.fn().mockImplementation(() => ({
         disable: jest.fn(),
@@ -115,6 +126,25 @@ describe('instrumentation.ts', () => {
             'fakeConnectionString';
         await import('../instrumentation');
         expect(registerInstrumentationsMock).toHaveBeenCalled();
+    });
+
+    it('registers Express instrumentation, ignoring middleware layers', async () => {
+        process.env.NODE_ENV = 'production';
+        process.env.APPLICATIONINSIGHTS_CONNECTION_STRING =
+            'fakeConnectionString';
+        await import('../instrumentation');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const expressInstrumentationModule = jest.requireMock(
+            '@opentelemetry/instrumentation-express'
+        );
+        const ExpressInstrumentationMock = (
+            expressInstrumentationModule as {
+                ExpressInstrumentation: jest.Mock;
+            }
+        ).ExpressInstrumentation;
+        expect(ExpressInstrumentationMock).toHaveBeenCalledWith({
+            ignoreLayersType: ['middleware'],
+        });
     });
 });
 describe('ignoreIncomingRequestHook', () => {
