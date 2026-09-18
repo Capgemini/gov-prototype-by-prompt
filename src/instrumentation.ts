@@ -5,6 +5,10 @@ import {
 } from '@azure/monitor-opentelemetry-exporter';
 import { metrics } from '@opentelemetry/api';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import {
+    ExpressInstrumentation,
+    ExpressLayerType,
+} from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
@@ -87,6 +91,12 @@ if (nodeEnv === 'production' && connectionString) {
                     const isHealthCheck = url.startsWith('/api/health');
                     return isStaticAsset || isHealthCheck;
                 },
+            }),
+            // Sets http.route on the HTTP span, which App Insights uses for
+            // the operation name. Middleware spans are ignored to keep the
+            // span volume down: the route is recorded before that check.
+            new ExpressInstrumentation({
+                ignoreLayersType: [ExpressLayerType.MIDDLEWARE],
             }),
         ],
     });

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import os from 'os';
 
 import { UserModel } from '../../src/database/models/user-model';
 import { WorkspaceModel } from '../../src/database/models/workspace-model';
@@ -27,5 +28,5 @@ async function connectToPlaywrightDb(): Promise<void> {
         return;
     }
 
-    await mongoose.connect(PLAYWRIGHT_MONGODB_URI);
+    await mongoose.connect(PLAYWRIGHT_MONGODB_URI, { runtimeAdapters: { os } });
 }

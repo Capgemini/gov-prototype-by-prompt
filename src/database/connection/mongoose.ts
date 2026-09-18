@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import os from 'os';
 
 import { getEnvironmentVariables } from '../../utils';
 
@@ -14,7 +15,9 @@ export async function connectToDatabase(): Promise<void> {
     }
 
     try {
-        await mongoose.connect(envVars.MONGODB_URI);
+        await mongoose.connect(envVars.MONGODB_URI, {
+            runtimeAdapters: { os },
+        });
         isConnected = true;
         console.log(
             'Successfully connected to MongoDB database:',
