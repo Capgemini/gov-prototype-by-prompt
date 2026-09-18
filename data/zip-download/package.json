@@ -29,7 +29,7 @@
         "@types/express-session": "~1.19.0",
         "@types/node": "^22.13.4",
         "@types/nunjucks": "~3.2.6",
-        "typescript": "~6.0.3"
+        "typescript": "~7.0.2"
     },
     "overrides": {
         "esbuild": "^0.28.1"
