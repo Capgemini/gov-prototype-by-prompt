@@ -2,16 +2,8 @@ import express, { Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import session from 'express-session';
 import path from 'node:path';
-import * as nunjucks from 'nunjucks';
 
-import {
-    arrayOrStringIncludes,
-    convertToGovukMarkdown,
-    formatList,
-    govukDate,
-    isArray,
-    isoDateFromDateInput,
-} from './filters';
+import { setupNunjucksEnvZipDownload } from './nunjucks-setup';
 import prototypeJson from './your-prototype.json';
 
 // Create the Express application
@@ -24,29 +16,7 @@ app.disable('x-powered-by');
 app.use(express.urlencoded());
 
 // Configure Nunjucks with the correct paths
-export const nunjucksEnv = nunjucks.configure(
-    [
-        path.join(__dirname, 'views'),
-        path.join(__dirname, 'node_modules/hmrc-frontend/'),
-        path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
-    ],
-    {
-        autoescape: true,
-        express: app,
-        noCache: true,
-    }
-);
-
-// Add the filters
-nunjucksEnv.addFilter('govukDate', govukDate);
-nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
-nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
-nunjucksEnv.addFilter('formatList', formatList);
-nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
-nunjucksEnv.addFilter('isArray', isArray);
-
-// Set the view engine to Nunjucks
-app.set('view engine', 'njk');
+export const nunjucksEnv = setupNunjucksEnvZipDownload(app, __dirname);
 
 // Serve static files
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
