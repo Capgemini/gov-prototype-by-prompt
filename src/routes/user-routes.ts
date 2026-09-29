@@ -28,6 +28,7 @@ import {
     validatePasswords,
 } from '../utils';
 import { verifyNotUser, verifyUser } from './middleware';
+import { validatePaginationParams } from './validation-utils';
 
 // file deepcode ignore NoRateLimitingForExpensiveWebOperation: Main server.ts file contains Rate Limiting configuration for application.
 // Create an Express router
@@ -291,30 +292,13 @@ export async function renderWorkspacesPage(
     const user = (req as unknown as Request & { user: IUser }).user;
 
     // Get and validate the pagination query parameters
-    let invalidPagination = false;
-    let perPage = Number.parseInt(req.query.perPage ?? '10', 10);
-    if (
-        req.query.perPage === undefined ||
-        Number.isNaN(perPage) ||
-        perPage < 1 ||
-        perPage > 100
-    ) {
-        perPage = DEFAULT_PER_PAGE;
-        invalidPagination = true;
-    }
     const totalWorkspaces = await countWorkspacesByUserId(user.id);
-    let totalPages = Math.ceil(totalWorkspaces / perPage);
-    if (totalPages < 1) totalPages = 1;
-    let page = Number.parseInt(req.query.page ?? '1', 10);
-    if (
-        req.query.page === undefined ||
-        Number.isNaN(page) ||
-        page < 1 ||
-        page > totalPages
-    ) {
-        page = 1;
-        invalidPagination = true;
-    }
+    const { page, perPage, invalidPagination } = validatePaginationParams(
+        req.query.perPage,
+        req.query.page,
+        totalWorkspaces
+    );
+    const totalPages = Math.ceil(totalWorkspaces / perPage);
 
     // Redirect if the query parameters were invalid
     if (invalidPagination) {

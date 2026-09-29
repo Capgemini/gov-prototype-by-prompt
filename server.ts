@@ -6,18 +6,8 @@ import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
 import session from 'express-session';
 import helmet from 'helmet';
 import moment from 'moment';
-import path from 'node:path';
-import * as nunjucks from 'nunjucks';
 
 import { connectToDatabase, disconnectFromDatabase } from './src/database';
-import {
-    arrayOrStringIncludes,
-    convertToGovukMarkdown,
-    formatList,
-    govukDate,
-    isArray,
-    isoDateFromDateInput,
-} from './src/filters';
 import { adminRouter } from './src/routes/admin-routes';
 import { helpRouter } from './src/routes/help-routes';
 import {
@@ -30,6 +20,7 @@ import { prototypeRouter } from './src/routes/prototype-routes';
 import { setupStaticAssets } from './src/routes/static-assets';
 import { userRouter } from './src/routes/user-routes';
 import { getEnvironmentVariables } from './src/utils';
+import { setupNunjucksEnv } from './src/utils/nunjucks-setup';
 
 // Load environment variables once
 const envVars = getEnvironmentVariables();
@@ -78,30 +69,11 @@ app.use(bodyParser.json());
 app.use(compression());
 
 // Configure Nunjucks with the correct paths
-export const nunjucksEnv = nunjucks.configure(
-    [
-        path.join(__dirname, 'data/prompts/'),
-        path.join(__dirname, 'node_modules/hmrc-frontend/'),
-        path.join(__dirname, 'node_modules/govuk-frontend/dist/'),
-        path.join(__dirname, 'views/'),
-    ],
-    {
-        autoescape: true,
-        express: app,
-        noCache: nodeEnv !== 'production',
-    }
+export const nunjucksEnv = setupNunjucksEnv(
+    app,
+    nodeEnv !== 'production',
+    __dirname
 );
-
-// Add the filters
-nunjucksEnv.addFilter('govukDate', govukDate);
-nunjucksEnv.addFilter('isoDateFromDateInput', isoDateFromDateInput);
-nunjucksEnv.addFilter('govukMarkdown', convertToGovukMarkdown);
-nunjucksEnv.addFilter('formatList', formatList);
-nunjucksEnv.addFilter('includes', arrayOrStringIncludes);
-nunjucksEnv.addFilter('isArray', isArray);
-
-// Set the view engine to Nunjucks
-app.set('view engine', 'njk');
 
 // Serve static files
 setupStaticAssets(app, __dirname);
