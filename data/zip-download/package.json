@@ -17,11 +17,11 @@
         "express-session": "~1.19.0",
         "govuk-frontend": "~6.5.1",
         "govuk-markdown": "~0.8.0",
-        "hmrc-frontend": "~7.35.0",
-        "marked": "~18.0.13",
+        "hmrc-frontend": "~7.38.0",
+        "marked": "~18.0.14",
         "moment": "~2.31.0",
         "nunjucks": "~3.2.4",
-        "tsx": "~4.23.13"
+        "tsx": "~4.23.15"
     },
     "devDependencies": {
         "@types/body-parser": "~1.19.6",
