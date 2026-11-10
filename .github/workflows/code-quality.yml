@@ -26,7 +26,7 @@ jobs:
                   lookup-only: true
             - name: Set up Node.js
               if: steps.cache-node-modules.outputs.cache-hit != 'true'
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
@@ -52,7 +52,7 @@ jobs:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
@@ -77,7 +77,7 @@ jobs:
                   path: node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
@@ -110,7 +110,7 @@ jobs:
                   path: ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-browsers-${{ hashFiles('**/package-lock.json') }}
             - name: Set up Node.js
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: package.json
             - name: Upgrade npm to v11
@@ -124,7 +124,7 @@ jobs:
             - name: Run Playwright tests
               run: npm run test:e2e
             - name: Upload Playwright report
-              uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
               if: ${{ !cancelled() }}
               with:
                   name: playwright-report
@@ -141,7 +141,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
             - name: Set up Node.js
-              uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
                   node-version-file: ${{ matrix.working-directory }}package.json
             - name: Upgrade npm to v11
@@ -184,6 +184,6 @@ jobs:
                   args: --file=${{ matrix.target-file }} --project-name=${{ matrix.target-file }} --sarif-file-output=snyk.sarif
                   command: test
             - name: Upload result to GitHub Code Scanning
-              uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4.38.0
+              uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
               with:
                   sarif_file: snyk.sarif
