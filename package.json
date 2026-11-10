@@ -85,7 +85,7 @@
         "marked": "~18.0.13",
         "mermaid": "~12.3.0",
         "moment": "~2.31.0",
-        "mongoose": "~9.10.1",
+        "mongoose": "~9.12.1",
         "nunjucks": "~3.2.4",
         "openai": "~6.45.0",
         "sanitize-html": "^2.17.6",
