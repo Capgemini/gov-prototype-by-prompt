@@ -68,7 +68,7 @@
         "ace-builds": "~1.44.0",
         "ace-linters": "~2.2.1",
         "bcryptjs": "~3.0.3",
-        "body-parser": "~2.3.0",
+        "body-parser": "~2.4.0",
         "client-zip": "~2.5.1",
         "compression": "~1.8.2",
         "dotenv": "~17.4.2",
@@ -83,7 +83,7 @@
         "html-format": "~1.1.7",
         "jsonschema": "~1.5.0",
         "marked": "~18.0.13",
-        "mermaid": "~11.16.0",
+        "mermaid": "~12.3.0",
         "moment": "~2.31.0",
         "mongoose": "~9.10.1",
         "nunjucks": "~3.2.4",
@@ -91,7 +91,7 @@
         "sanitize-html": "^2.17.6",
         "ts-migrate-mongoose": "~5.3.3",
         "tsx": "~4.23.13",
-        "zod": "~4.4.3"
+        "zod": "~4.6.7"
     },
     "devDependencies": {
         "@cspell/dict-en-gb": "~5.0.34",
@@ -123,7 +123,7 @@
         "ts-node": "~10.9.2",
         "typescript": "~6.0.3",
         "typescript-eslint": "~8.70.0",
-        "undici": "~8.10.2"
+        "undici": "~8.12.4"
     },
     "overrides": {
         "esbuild": "^0.28.1"
